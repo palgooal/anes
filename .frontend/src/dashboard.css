@@ -1,5 +1,5 @@
 /*
- * Tailwind CSS v4: style source for .frontend/guide-dashboard.html
+ * Tailwind CSS v4: style source for guide-dashboard.html and patient-portal.html
  * Build:  npm run build   (output: dist/dashboard.css)
  *
  * Shares colours, fonts and dark mode with the public site (src/theme.css).
@@ -12,6 +12,7 @@
 @import "./theme.css";
 
 @source "../guide-dashboard.html";
+@source "../patient-portal.html";
 
 /* ---------- Base ---------- */
 @layer base {
