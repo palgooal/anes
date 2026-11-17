@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>دخول المستفيد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@400;700&display=swap">
+<link rel="stylesheet" href="dist/auth.css">
+</head>
+<body>
+<div class="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+
+  <!-- ============ FORM COLUMN ============ -->
+  <main class="flex flex-col px-4 pt-5 pb-8 sm:px-8">
+    <div class="flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 font-display text-[.95rem] leading-tight font-bold lg:invisible">
+        <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="var(--spirit)"/><path d="M11 32V19a9 9 0 0 1 18 0v13z" fill="#fff"/><path d="M15 32V20a5 5 0 0 1 10 0v12z" fill="var(--spirit)"/><circle cx="20" cy="23" r="2.4" fill="var(--sun)"/></svg>
+        <span>خدمة الدعم والمساندة<span class="block text-[.74rem] font-normal text-muted">لمرضى الرعاية التلطيفية</span></span>
+      </a>
+      <a href="index.html" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[.85rem] text-muted transition-colors hover:bg-surface hover:text-ink">
+        العودة إلى الموقع
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" transform="rotate(180 12 12)"/></svg>
+      </a>
+    </div>
+
+    <div class="mx-auto my-auto w-full max-w-[420px] py-10">
+
+      <div id="expired" class="alert alert-warn mb-6" role="status" hidden>
+        <svg class="mt-1 flex-none text-[color-mix(in_srgb,var(--sun)_60%,var(--ink))]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span>انتهت جلستك لحمايتك. سجّل الدخول مرة أخرى للمتابعة.</span>
+      </div>
+
+      <!-- STEP 1: who -->
+      <form data-step="who" class="step grid gap-6" id="f-who" novalidate>
+        <div class="grid gap-2">
+          <p class="text-[.85rem] font-semibold text-role">صفحة المستفيد</p>
+          <h1 class="text-[1.75rem] font-bold sm:text-[2rem]">أهلاً بك</h1>
+          <p class="text-muted">ادخل لمتابعة مواعيدك ومقاييسك وخطة متابعتك، دون كلمة مرور.</p>
+        </div>
+        <fieldset class="grid gap-3">
+          <legend class="mb-3 font-medium">أدخل بصفتك</legend>
+          <label class="choice">
+            <input class="sr-only" type="radio" name="kind" value="patient" checked>
+            <span class="grid size-12 flex-none place-items-center rounded-xl bg-spirit-soft text-spirit">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            </span>
+            <span class="grid gap-0.5"><b class="font-display text-[1.05rem]">المريض</b><span class="text-[.86rem] text-muted">أدخل برقم جوالي المسجّل لدى الخدمة</span></span>
+          </label>
+          <label class="choice">
+            <input class="sr-only" type="radio" name="kind" value="companion">
+            <span class="grid size-12 flex-none place-items-center rounded-xl bg-accent-soft text-accent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>
+            </span>
+            <span class="grid gap-0.5"><b class="font-display text-[1.05rem]">المرافق</b><span class="text-[.86rem] text-muted">أتابع المريض بالنيابة عنه من رقمي</span></span>
+          </label>
+        </fieldset>
+        <button class="btn btn-primary w-full" type="submit">متابعة</button>
+      </form>
+
+      <!-- STEP 2: phone -->
+      <form data-step="phone" class="step grid gap-6" id="f-phone" novalidate hidden>
+        <button type="button" class="link justify-self-start text-[.88rem]" data-go="who">→ رجوع</button>
+        <div class="grid gap-2">
+          <h1 class="text-[1.75rem] font-bold">رقم الجوال</h1>
+          <p class="text-muted" id="phone-hint">رقم الجوال المسجّل لدى الخدمة.</p>
+        </div>
+        <label class="field" for="phone">
+          رقم الجوال
+          <input class="input text-[1.25rem] tracking-wider" id="phone" dir="ltr" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" maxlength="14" autofocus>
+          <span class="err" id="phone-err"></span>
+        </label>
+        <button class="btn btn-primary w-full" type="submit">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6z"/></svg>
+          أرسل رمز التحقق عبر واتساب
+        </button>
+        <p class="text-center text-[.84rem] text-muted">سيصلك رمز من ٤ أرقام في رسالة واتساب.</p>
+      </form>
+
+      <!-- STEP 2b: not registered -->
+      <div data-step="unknown" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--sun)_22%,var(--bg))] text-[color-mix(in_srgb,var(--sun)_55%,var(--ink))]">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">هذا الرقم غير مسجّل لدينا</h1>
+          <p class="text-muted">الرقم <b class="num font-semibold text-ink" id="unknown-num"></b> ليس مسجّلاً في الخدمة بعد. سجّل عبر واتساب، ويصلك رمز الدخول بعد تفعيل حسابك.</p>
+        </div>
+        <a class="btn btn-wa w-full" data-wa="أرغب في التسجيل في خدمة الدعم والمساندة" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6z"/></svg>
+          سجّل عبر واتساب
+        </a>
+        <button type="button" class="link text-[.92rem]" data-go="phone">جرّب رقماً آخر</button>
+      </div>
+
+      <!-- STEP 3: code -->
+      <form data-step="code" class="step grid gap-6" id="f-code" novalidate hidden>
+        <button type="button" class="link justify-self-start text-[.88rem]" data-go="phone">→ رجوع</button>
+        <div class="grid gap-2">
+          <h1 class="text-[1.75rem] font-bold">أدخل رمز التحقق</h1>
+          <p class="text-muted">أرسلنا رمزاً إلى واتساب على الرقم <b class="num font-semibold text-ink" id="code-num"></b> · <button type="button" class="link" data-go="phone">غيّرت رقمي؟</button></p>
+        </div>
+        <div class="grid gap-2">
+          <div class="otp" id="otp" role="group" aria-label="رمز التحقق من ٤ أرقام">
+            <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="الرقم ١">
+            <input inputmode="numeric" maxlength="1" aria-label="الرقم ٢">
+            <input inputmode="numeric" maxlength="1" aria-label="الرقم ٣">
+            <input inputmode="numeric" maxlength="1" aria-label="الرقم ٤">
+          </div>
+          <p class="err text-center" id="code-err" aria-live="polite"></p>
+        </div>
+        <button class="btn btn-primary w-full" type="submit" id="code-btn">تحقّق ودخول</button>
+        <p class="text-center text-[.88rem] text-muted" aria-live="polite">
+          <span id="resend-wait">يمكنك طلب رمز جديد بعد <b class="font-semibold text-ink" id="resend-t"></b></span>
+          <button type="button" class="link" id="resend" hidden>أعد إرسال الرمز</button>
+        </p>
+      </form>
+
+      <!-- locked -->
+      <div data-step="locked" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--danger)_12%,var(--bg))] text-danger">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">أُوقف الدخول مؤقتاً</h1>
+          <p class="text-muted">أدخلت رمزاً غير صحيح عدة مرات. لحماية حسابك يمكنك المحاولة مجدداً بعد <b class="font-semibold text-ink" id="lock-t"></b>.</p>
+        </div>
+        <button type="button" class="btn btn-ghost w-full" id="lock-retry" disabled>حاول مجدداً</button>
+        <a class="link text-[.92rem]" data-wa="لا أستطيع الدخول إلى صفحتي" target="_blank" rel="noopener">تحتاج مساعدة؟ راسلنا على واتساب</a>
+      </div>
+
+      <!-- success -->
+      <div data-step="done" class="step grid gap-4 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-ok/15 text-ok">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <h1 class="text-[1.5rem] font-bold">تم التحقق</h1>
+        <p class="text-muted" role="status">جارٍ فتح صفحتك…</p>
+      </div>
+
+      <!-- trust + demo -->
+      <div class="mt-8 grid gap-4">
+        <p class="flex items-center justify-center gap-2 text-[.84rem] text-muted">
+          <svg class="flex-none text-spirit" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          بياناتك سرّية، ولا يطّلع عليها إلا مرشدك.
+        </p>
+        <details class="rounded-xl border border-dashed border-line px-4 py-3 text-[.84rem] text-muted">
+          <summary class="cursor-pointer font-medium text-ink">نموذج تجريبي: كيف أجرّب؟</summary>
+          <ul class="mt-2 grid list-disc gap-1 ps-5">
+            <li>أي رقم يبدأ بـ <span class="num">05</span> مسجّل، ما عدا <span class="num">0500000000</span> فهو غير مسجّل.</li>
+            <li>الرمز الصحيح <span class="num">1234</span>، وأي رمز آخر خاطئ (٥ محاولات ثم إيقاف مؤقت).</li>
+            <li>لعرض رسالة انتهاء الجلسة أضف <span class="num">?expired=1</span> إلى الرابط.</li>
+          </ul>
+        </details>
+        <p class="text-center text-[.84rem] text-muted">من فريق العمل؟ <a class="link" href="staff-login.html">دخول الفريق</a></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ BRAND PANEL ============ -->
+  <aside class="relative hidden overflow-hidden dark:bg-[linear-gradient(150deg,color-mix(in_srgb,var(--spirit)_30%,var(--bg))_0%,var(--surface)_100%)]! bg-[linear-gradient(150deg,var(--spirit)_0%,color-mix(in_srgb,var(--spirit)_55%,var(--accent))_100%)] p-12 text-white lg:flex lg:flex-col" aria-label="عن الخدمة">
+    <span class="pointer-events-none absolute -top-24 -left-24 size-80 rounded-full bg-white/10" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute -bottom-16 -right-12 size-56 rounded-full bg-sun/90" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute top-1/3 -left-40 size-[420px] rounded-full border-2 border-white/15" aria-hidden="true"></span>
+
+    <a href="index.html" class="relative flex items-center gap-3 font-display text-[1.1rem] leading-tight font-bold">
+      <svg width="48" height="48" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#fff"/><path d="M11 32V19a9 9 0 0 1 18 0v13z" fill="var(--spirit)"/><path d="M15 32V20a5 5 0 0 1 10 0v12z" fill="#fff"/><circle cx="20" cy="23" r="2.4" fill="var(--sun)"/></svg>
+      <span>خدمة الدعم والمساندة<span class="block text-[.82rem] font-normal opacity-85">لمرضى الرعاية التلطيفية</span></span>
+    </a>
+
+    <div class="relative my-auto grid max-w-[30rem] gap-6 py-12">
+      <p class="font-naskh text-[2.1rem] leading-[1.7]">﴿أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ﴾</p>
+      <p class="text-[1.05rem] leading-[1.9] opacity-90">صفحتك الخاصة: مواعيدك مع مرشدك، ومقاييسك، وخطة متابعتك، وزاد المريض، وأسئلتك الفقهية، في مكان واحد.</p>
+      <ul class="grid gap-3 text-[.95rem]">
+        <li class="flex items-center gap-3"><span class="grid size-8 flex-none place-items-center rounded-full bg-white/18">✓</span>دخول برقم جوالك، دون كلمة مرور</li>
+        <li class="flex items-center gap-3"><span class="grid size-8 flex-none place-items-center rounded-full bg-white/18">✓</span>يدخل المرافق برقمه ليتابع المريض</li>
+        <li class="flex items-center gap-3"><span class="grid size-8 flex-none place-items-center rounded-full bg-white/18">✓</span>جلسات من المنزل، في الوقت المناسب لك</li>
+      </ul>
+    </div>
+
+    <p class="relative max-w-[30rem] text-[.82rem] leading-[1.8] opacity-85">تابعة لجمعية الدعم الديني والروحي لمرضى الطب التلطيفي، ترخيص <span class="num">1000630400</span></p>
+  </aside>
+</div>
+
+<script src="auth.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.Auth, $ = A.$;
+  var DEMO_CODE = '1234', UNREGISTERED = '0500000000', MAX_TRIES = 5, LOCK_SECONDS = 15 * 60, RESEND_SECONDS = 60;
+  var kind = 'patient', phone = '', tries = 0, stopResend = null;
+  var code = A.otp($('otp'), function () { submitCode(); });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-go]');
+    if (b) A.showStep(b.getAttribute('data-go'));
+  });
+
+  $('f-who').addEventListener('submit', function (e) {
+    e.preventDefault();
+    kind = this.querySelector('input[name=kind]:checked').value;
+    $('phone-hint').textContent = kind === 'patient'
+      ? 'رقم جوالك المسجّل لدى الخدمة.'
+      : 'رقم جوالك أنت كمرافق، المسجّل مع ملف المريض.';
+    A.showStep('phone');
+  });
+
+  $('f-phone').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var p = A.latin($('phone').value).replace(/\D/g, '').replace(/^966/, '0');
+    if (!A.setErr($('phone'), $('phone-err'), /^05\d{8}$/.test(p) ? '' : 'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05')) return;
+    phone = p;
+    if (p === UNREGISTERED) { $('unknown-num').textContent = p; A.showStep('unknown'); return; }
+    $('code-num').textContent = p;
+    tries = 0; code.clear(); code.state(); $('code-err').textContent = '';
+    A.showStep('code');
+    startResend();
+  });
+
+  function startResend() {
+    if (stopResend) stopResend();
+    $('resend').hidden = true; $('resend-wait').hidden = false;
+    stopResend = A.countdown(RESEND_SECONDS, function (t) { $('resend-t').textContent = t; },
+      function () { $('resend-wait').hidden = true; $('resend').hidden = false; });
+  }
+  $('resend').addEventListener('click', function () {
+    code.clear(); code.state(); $('code-err').textContent = 'أرسلنا رمزاً جديداً.';
+    startResend();
+  });
+
+  function submitCode() {
+    var v = code.value();
+    if (v.length < 4) { $('code-err').textContent = 'اكتب الرمز المكوّن من ٤ أرقام'; code.state('error'); return; }
+    if (v === DEMO_CODE) {
+      code.state('ok'); code.disable(true);
+      if (stopResend) stopResend();
+      setTimeout(function () {
+        A.showStep('done');
+        setTimeout(function () { location.href = 'patient-portal.html' + (kind === 'companion' ? '?as=companion' : ''); }, 1100);
+      }, 350);
+      return;
+    }
+    tries += 1;
+    if (tries >= MAX_TRIES) { lock(); return; }
+    code.state('error');
+    $('code-err').textContent = 'الرمز غير صحيح. بقي لك ' + A.toAr(MAX_TRIES - tries) + (MAX_TRIES - tries > 2 ? ' محاولات.' : ' محاولة.');
+    setTimeout(code.clear, 400);
+  }
+  $('f-code').addEventListener('submit', function (e) { e.preventDefault(); submitCode(); });
+
+  function lock() {
+    if (stopResend) stopResend();
+    A.showStep('locked');
+    $('lock-retry').disabled = true;
+    A.countdown(LOCK_SECONDS, function (t) { $('lock-t').textContent = t; },
+      function () { $('lock-t').textContent = 'الآن'; $('lock-retry').disabled = false; });
+  }
+  $('lock-retry').addEventListener('click', function () { tries = 0; A.showStep('phone'); });
+})();
+</script>
+</body>
+</html>

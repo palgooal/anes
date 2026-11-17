@@ -1,0 +1,80 @@
+/*
+ * Tailwind CSS v4: style source for login.html and staff-login.html
+ * Build:  npm run build   (output: dist/auth.css)
+ *
+ * These pages were written from scratch with Tailwind utilities, so unlike
+ * the older pages they use the full framework, Preflight included. Only a
+ * few repeated pieces are kept here as components.
+ */
+@import "tailwindcss" source(none);
+@import "./theme.css";
+
+@source "../login.html";
+@source "../staff-login.html";
+@source "../auth.js";
+
+@layer base {
+  :root { --role: var(--spirit); }
+  body { @apply bg-bg font-body text-[15.5px]/[1.7] text-ink antialiased; }
+  h1, h2, h3 { @apply font-display leading-[1.35] text-balance; }
+  :focus-visible { @apply rounded-md outline-3 outline-offset-2 outline-role; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { transition: none !important; animation: none !important; }
+  }
+}
+
+@layer components {
+  /* text fields */
+  .field { @apply grid gap-1.5 text-[.9rem] font-medium; }
+  .input {
+    @apply w-full rounded-xl border-[1.5px] border-line bg-surface px-4 py-3 text-[1rem] text-ink transition-colors placeholder:text-muted/60;
+  }
+  .input:focus { @apply border-role bg-bg outline-none; }
+  .input[aria-invalid="true"] { @apply border-danger; }
+  .err { @apply min-h-[1.25em] text-[.82rem] font-normal text-danger; }
+
+  /* buttons */
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-3 font-display text-[.98rem] font-semibold whitespace-nowrap transition hover:-translate-y-px disabled:translate-none disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary { @apply bg-role text-white shadow-[0_10px_24px_-12px_var(--role)] dark:text-bg; }
+  .btn-ghost { @apply text-ink shadow-[inset_0_0_0_1.5px_var(--line)] hover:text-role hover:shadow-[inset_0_0_0_1.5px_var(--role)]; }
+  .btn-wa { @apply bg-wa text-white; }
+  .link { @apply cursor-pointer font-medium text-role underline-offset-4 hover:underline; }
+
+  /* OTP boxes */
+  .otp { @apply flex justify-center gap-3; direction: ltr; }
+  .otp input {
+    @apply size-14 rounded-2xl border-[1.5px] border-line bg-surface text-center font-display text-2xl font-bold text-ink caret-role transition-colors sm:size-16;
+  }
+  .otp input:focus { @apply border-role bg-bg outline-none; }
+  .otp[data-state="error"] input { @apply border-danger; animation: shake .35s; }
+  .otp[data-state="ok"] input { @apply border-ok bg-ok/10; }
+
+  /* big choice cards (patient / companion) */
+  .choice {
+    @apply flex cursor-pointer items-center gap-4 rounded-2xl border-[1.5px] border-line bg-bg p-4 text-start transition hover:border-role;
+  }
+  .choice:has(input:checked) { @apply border-role bg-[color-mix(in_srgb,var(--role)_9%,var(--bg))] shadow-[inset_0_0_0_1px_var(--role)]; }
+  .choice:has(input:focus-visible) { @apply outline-3 outline-offset-2 outline-role; }
+
+  /* alert boxes */
+  .alert { @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-[.9rem] leading-[1.75]; }
+  .alert-warn { @apply border-[color-mix(in_srgb,var(--sun)_45%,var(--bg))] bg-[color-mix(in_srgb,var(--sun)_16%,var(--bg))]; }
+  .alert-err { @apply border-[color-mix(in_srgb,var(--danger)_35%,var(--bg))] bg-[color-mix(in_srgb,var(--danger)_9%,var(--bg))]; }
+  .alert-info { @apply border-line bg-surface text-muted; }
+
+  /* step transition */
+  .step { animation: rise .25s ease-out; }
+}
+
+@keyframes shake {
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}

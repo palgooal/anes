@@ -455,6 +455,8 @@ ACT.tysave=function(b){var i=+b.getAttribute('data-i');TYPES[i].t=$('ty-'+i).val
 ACT.ctadd=function(){var t=$('ct-t').value.trim();if(!t){toast('اكتب العنوان');return;}$('ct-t').value='';toast('نُشر: '+t);};
 ACT.send=function(){var s=$('ms-s').value.trim(),b=$('ms-b').value.trim();if(!setErr('mse',s&&b?'':'اكتب العنوان والنص'))return;SENT.unshift({s:s,to:$('ms-to').value,c:$('ms-c').value});render();toast('أُرسلت الرسالة');};
 
+/* ربط الدخول: زر الخروج يعيد إلى شاشة الدخول المناسبة */
+$('out').addEventListener('click',function(){location.href=ROLE==='patient'?'login.html':'staff-login.html';});
 /* افتح الصفحة من الداخل مباشرة */
 enter();
 </script>

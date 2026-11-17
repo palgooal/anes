@@ -3,11 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:site && npm run build:dashboard",
+    "build": "npm run build:site && npm run build:dashboard && npm run build:auth",
     "build:site": "tailwindcss -i ./src/input.css -o ./dist/style.css --minify",
     "build:dashboard": "tailwindcss -i ./src/dashboard.css -o ./dist/dashboard.css --minify",
     "watch": "tailwindcss -i ./src/input.css -o ./dist/style.css --watch",
-    "watch:dashboard": "tailwindcss -i ./src/dashboard.css -o ./dist/dashboard.css --watch"
+    "watch:dashboard": "tailwindcss -i ./src/dashboard.css -o ./dist/dashboard.css --watch",
+    "build:auth": "tailwindcss -i ./src/auth.css -o ./dist/auth.css --minify",
+    "watch:auth": "tailwindcss -i ./src/auth.css -o ./dist/auth.css --watch"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.5",

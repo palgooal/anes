@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ar" dir="rtl" style="--role:var(--accent)">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>دخول فريق العمل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@400;700&display=swap">
+<link rel="stylesheet" href="dist/auth.css">
+</head>
+<body>
+<div class="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+
+  <!-- ============ FORM COLUMN ============ -->
+  <main class="flex flex-col px-4 pt-5 pb-8 sm:px-8">
+    <div class="flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 font-display text-[.95rem] leading-tight font-bold lg:invisible">
+        <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="var(--accent)"/><path d="M11 32V19a9 9 0 0 1 18 0v13z" fill="#fff"/><path d="M15 32V20a5 5 0 0 1 10 0v12z" fill="var(--accent)"/><circle cx="20" cy="23" r="2.4" fill="var(--sun)"/></svg>
+        <span>خدمة الدعم والمساندة<span class="block text-[.74rem] font-normal text-muted">بوابة فريق العمل</span></span>
+      </a>
+      <a href="index.html" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[.85rem] text-muted transition-colors hover:bg-surface hover:text-ink">
+        العودة إلى الموقع
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" transform="rotate(180 12 12)"/></svg>
+      </a>
+    </div>
+
+    <div class="mx-auto my-auto w-full max-w-[420px] py-10">
+
+      <div id="expired" class="alert alert-warn mb-6" role="status" hidden>
+        <svg class="mt-1 flex-none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span>انتهت جلستك لحماية بيانات المستفيدين. سجّل الدخول مرة أخرى.</span>
+      </div>
+
+      <!-- STEP 1: credentials -->
+      <form data-step="creds" class="step grid gap-5" id="f-creds" novalidate>
+        <div class="grid gap-2">
+          <p class="text-[.85rem] font-semibold text-role">بوابة فريق العمل</p>
+          <h1 class="text-[1.75rem] font-bold sm:text-[2rem]">تسجيل الدخول</h1>
+          <p class="text-muted">للمرشدين والمستشارين والإدارة. تُفتح لوحتك تلقائياً حسب صلاحيات حسابك.</p>
+        </div>
+        <div id="creds-alert" class="alert alert-err" role="alert" hidden></div>
+        <label class="field" for="email">
+          البريد الإلكتروني
+          <input class="input" id="email" type="email" dir="ltr" autocomplete="username" placeholder="name@example.com" autofocus>
+          <span class="err" id="email-err"></span>
+        </label>
+        <div class="field">
+          <div class="flex items-center justify-between">
+            <label for="pass">كلمة المرور</label>
+            <button type="button" class="link text-[.84rem] font-normal" data-go="forgot">نسيت كلمة المرور؟</button>
+          </div>
+          <div class="relative">
+            <input class="input pl-12" id="pass" type="password" dir="ltr" autocomplete="current-password" placeholder="••••••••">
+            <button type="button" class="absolute inset-y-0 end-0 grid w-12 cursor-pointer place-items-center text-muted hover:text-role" data-reveal="pass" aria-label="إظهار كلمة المرور" aria-pressed="false">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="err" id="pass-err"></span>
+        </div>
+        <label class="flex cursor-pointer items-center gap-2.5 text-[.9rem]">
+          <input type="checkbox" id="remember" class="size-[18px] accent-role">
+          تذكّرني على هذا الجهاز
+        </label>
+        <button class="btn btn-primary w-full" type="submit">دخول</button>
+        <p class="text-center text-[.88rem] text-muted">مرشد أو مستشار جديد؟ <button type="button" class="link" data-go="join">اطلب الانضمام إلى الفريق</button></p>
+      </form>
+
+      <!-- STEP 2: two-factor code -->
+      <form data-step="code" class="step grid gap-6" id="f-code" novalidate hidden>
+        <button type="button" class="link justify-self-start text-[.88rem]" data-go="creds">→ رجوع</button>
+        <div class="grid gap-2">
+          <h1 class="text-[1.75rem] font-bold">التحقق الثنائي</h1>
+          <p class="text-muted">لحماية بيانات المستفيدين، أدخل الرمز المرسل إلى جوالك المنتهي بـ <b class="num font-semibold text-ink">••12</b>.</p>
+        </div>
+        <div class="grid gap-2">
+          <div class="otp" id="otp" role="group" aria-label="رمز التحقق من ٤ أرقام">
+            <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="الرقم ١">
+            <input inputmode="numeric" maxlength="1" aria-label="الرقم ٢">
+            <input inputmode="numeric" maxlength="1" aria-label="الرقم ٣">
+            <input inputmode="numeric" maxlength="1" aria-label="الرقم ٤">
+          </div>
+          <p class="err text-center" id="code-err" aria-live="polite"></p>
+        </div>
+        <button class="btn btn-primary w-full" type="submit">تحقّق ودخول</button>
+        <p class="text-center text-[.88rem] text-muted" aria-live="polite">
+          <span id="resend-wait">يمكنك طلب رمز جديد بعد <b class="font-semibold text-ink" id="resend-t"></b></span>
+          <button type="button" class="link" id="resend" hidden>أعد إرسال الرمز</button>
+        </p>
+      </form>
+
+      <!-- forgot password -->
+      <form data-step="forgot" class="step grid gap-5" id="f-forgot" novalidate hidden>
+        <button type="button" class="link justify-self-start text-[.88rem]" data-go="creds">→ رجوع</button>
+        <div class="grid gap-2">
+          <h1 class="text-[1.75rem] font-bold">استعادة كلمة المرور</h1>
+          <p class="text-muted">اكتب بريدك المسجّل، وسنرسل لك رابطاً لتعيين كلمة مرور جديدة.</p>
+        </div>
+        <label class="field" for="f-email">
+          البريد الإلكتروني
+          <input class="input" id="f-email" type="email" dir="ltr" autocomplete="username" placeholder="name@example.com">
+          <span class="err" id="f-email-err"></span>
+        </label>
+        <button class="btn btn-primary w-full" type="submit">أرسل رابط الاستعادة</button>
+      </form>
+      <div data-step="forgot-sent" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-accent-soft text-accent">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">تحقّق من بريدك</h1>
+          <p class="text-muted">إن كان <b class="num font-semibold text-ink" id="sent-to"></b> مسجّلاً لدينا، فسيصله رابط الاستعادة خلال دقائق. صلاحية الرابط ساعة واحدة.</p>
+        </div>
+        <button type="button" class="btn btn-ghost w-full" data-go="creds">العودة إلى تسجيل الدخول</button>
+      </div>
+
+      <!-- pending approval -->
+      <div data-step="pending" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--sun)_22%,var(--bg))] text-[color-mix(in_srgb,var(--sun)_55%,var(--ink))]">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9s10 4 10 9"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">حسابك قيد المراجعة</h1>
+          <p class="text-muted">استلمت الإدارة طلب انضمامك، وتراجع مؤهلاتك الآن. يصلك إشعار على بريدك وجوالك فور اعتماد الحساب، وعادةً خلال يومي عمل.</p>
+        </div>
+        <ol class="mx-auto grid w-full gap-2 text-start text-[.9rem]">
+          <li class="flex items-center gap-3 rounded-xl bg-ok/10 px-4 py-2.5"><span class="grid size-6 place-items-center rounded-full bg-ok text-[.75rem] text-white">✓</span>استلام الطلب</li>
+          <li class="flex items-center gap-3 rounded-xl bg-[color-mix(in_srgb,var(--sun)_16%,var(--bg))] px-4 py-2.5 font-medium"><span class="grid size-6 place-items-center rounded-full bg-sun text-[.75rem] text-sun-ink">٢</span>مراجعة المؤهلات</li>
+          <li class="flex items-center gap-3 rounded-xl bg-surface px-4 py-2.5 text-muted"><span class="grid size-6 place-items-center rounded-full bg-line text-[.75rem]">٣</span>تفعيل الحساب</li>
+        </ol>
+        <button type="button" class="btn btn-ghost w-full" data-go="creds">العودة إلى تسجيل الدخول</button>
+      </div>
+
+      <!-- suspended -->
+      <div data-step="suspended" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--danger)_12%,var(--bg))] text-danger">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">الحساب موقوف</h1>
+          <p class="text-muted">أوقفت الإدارة هذا الحساب. إن كنت ترى أن ذلك خطأ، تواصل مع إدارة الخدمة.</p>
+        </div>
+        <a class="btn btn-wa w-full" data-wa="حسابي في بوابة الفريق موقوف، أرجو المراجعة" target="_blank" rel="noopener">تواصل مع الإدارة</a>
+        <button type="button" class="link text-[.92rem]" data-go="creds">العودة إلى تسجيل الدخول</button>
+      </div>
+
+      <!-- locked -->
+      <div data-step="locked" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--danger)_12%,var(--bg))] text-danger">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">أُوقف الدخول مؤقتاً</h1>
+          <p class="text-muted">محاولات دخول خاطئة متكررة. يمكنك المحاولة بعد <b class="font-semibold text-ink" id="lock-t"></b>، أو استعادة كلمة المرور الآن.</p>
+        </div>
+        <button type="button" class="btn btn-primary w-full" data-go="forgot">استعادة كلمة المرور</button>
+        <button type="button" class="btn btn-ghost w-full" id="lock-retry" disabled>حاول مجدداً</button>
+      </div>
+
+      <!-- join request -->
+      <form data-step="join" class="step grid gap-4" id="f-join" novalidate hidden>
+        <button type="button" class="link justify-self-start text-[.88rem]" data-go="creds">→ رجوع</button>
+        <div class="grid gap-2">
+          <h1 class="text-[1.75rem] font-bold">طلب الانضمام إلى الفريق</h1>
+          <p class="text-muted">تراجع الإدارة طلبك ومؤهلاتك، ثم يُفعّل حسابك.</p>
+        </div>
+        <label class="field" for="j-name">الاسم الكامل<input class="input" id="j-name" autocomplete="name"><span class="err" id="j-name-err"></span></label>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="field" for="j-email">البريد الإلكتروني<input class="input" id="j-email" type="email" dir="ltr" autocomplete="email"><span class="err" id="j-email-err"></span></label>
+          <label class="field" for="j-phone">رقم الجوال<input class="input" id="j-phone" dir="ltr" inputmode="tel" placeholder="05XXXXXXXX"><span class="err" id="j-phone-err"></span></label>
+        </div>
+        <label class="field" for="j-role">الدور
+          <select class="input" id="j-role">
+            <option>مرشد ديني وروحي</option>
+            <option>مستشار فقهي</option>
+            <option>مستشار طبي</option>
+            <option>مستشار عدلي</option>
+          </select>
+        </label>
+        <label class="field" for="j-q">المؤهلات والخبرة<textarea class="input min-h-24 resize-y" id="j-q" placeholder="المؤهل العلمي، والخبرة في مرافقة المرضى…"></textarea><span class="err" id="j-q-err"></span></label>
+        <button class="btn btn-primary w-full" type="submit">أرسل الطلب</button>
+      </form>
+      <div data-step="join-sent" class="step grid gap-5 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-ok/15 text-ok">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <div class="grid gap-2">
+          <h1 class="text-[1.5rem] font-bold">وصل طلبك</h1>
+          <p class="text-muted">شكراً لك. ستراجع الإدارة طلبك ويصلك إشعار عند اعتماد حسابك.</p>
+        </div>
+        <button type="button" class="btn btn-ghost w-full" data-go="creds">العودة إلى تسجيل الدخول</button>
+      </div>
+
+      <!-- success -->
+      <div data-step="done" class="step grid gap-4 text-center" hidden>
+        <span class="mx-auto grid size-16 place-items-center rounded-full bg-ok/15 text-ok">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <h1 class="text-[1.5rem] font-bold">أهلاً بك</h1>
+        <p class="text-muted" role="status">جارٍ فتح <b class="font-semibold text-ink" id="done-role"></b>…</p>
+      </div>
+
+      <!-- demo -->
+      <details class="mt-8 rounded-xl border border-dashed border-line px-4 py-3 text-[.84rem] text-muted">
+        <summary class="cursor-pointer font-medium text-ink">نموذج تجريبي: الحسابات المتاحة</summary>
+        <div class="mt-2 grid gap-2">
+          <p>كلمة المرور لكل الحسابات <span class="num">demo1234</span>، ورمز التحقق <span class="num">1234</span>.</p>
+          <ul class="grid gap-1" dir="ltr">
+            <li class="flex justify-between gap-3"><span class="num">guide@demo.sa</span><span dir="rtl">لوحة المرشد</span></li>
+            <li class="flex justify-between gap-3"><span class="num">fiqh@demo.sa</span><span dir="rtl">المستشار الفقهي</span></li>
+            <li class="flex justify-between gap-3"><span class="num">admin@demo.sa</span><span dir="rtl">الإدارة</span></li>
+            <li class="flex justify-between gap-3"><span class="num">pending@demo.sa</span><span dir="rtl">حساب قيد المراجعة</span></li>
+            <li class="flex justify-between gap-3"><span class="num">suspended@demo.sa</span><span dir="rtl">حساب موقوف</span></li>
+          </ul>
+        </div>
+      </details>
+      <p class="mt-4 text-center text-[.84rem] text-muted">مريض أو مرافق؟ <a class="link" href="login.html">دخول المستفيد</a></p>
+    </div>
+  </main>
+
+  <!-- ============ BRAND PANEL ============ -->
+  <aside class="relative hidden overflow-hidden dark:bg-[linear-gradient(150deg,color-mix(in_srgb,var(--accent)_30%,var(--bg))_0%,var(--surface)_100%)]! bg-[linear-gradient(150deg,var(--accent)_0%,color-mix(in_srgb,var(--accent)_60%,var(--ink))_100%)] p-12 text-white lg:flex lg:flex-col" aria-label="عن بوابة الفريق">
+    <span class="pointer-events-none absolute -top-24 -left-24 size-80 rounded-full bg-white/8" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute top-1/3 -left-40 size-[420px] rounded-full border-2 border-white/12" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute -right-10 -bottom-14 size-48 rounded-full bg-white/8" aria-hidden="true"></span>
+
+    <a href="index.html" class="relative flex items-center gap-3 font-display text-[1.1rem] leading-tight font-bold">
+      <svg width="48" height="48" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#fff"/><path d="M11 32V19a9 9 0 0 1 18 0v13z" fill="var(--accent)"/><path d="M15 32V20a5 5 0 0 1 10 0v12z" fill="#fff"/><circle cx="20" cy="23" r="2.4" fill="var(--sun)"/></svg>
+      <span>خدمة الدعم والمساندة<span class="block text-[.82rem] font-normal opacity-85">بوابة فريق العمل</span></span>
+    </a>
+
+    <div class="relative my-auto grid max-w-[30rem] gap-7 py-12">
+      <h2 class="text-[2rem] font-bold leading-[1.4]">كل ما تحتاجه لمرافقة المستفيدين، في لوحة واحدة</h2>
+      <ul class="grid gap-3">
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 p-3.5"><span class="grid size-10 flex-none place-items-center rounded-xl bg-spirit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V11a7 7 0 0 1 14 0v10zM9 21v-6a3 3 0 0 1 6 0v6"/></svg></span><span><b class="block font-display">المرشدون</b><span class="text-[.86rem] opacity-85">الطلبات والمواعيد وتوثيق الجلسات والمقاييس</span></span></li>
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 p-3.5"><span class="grid size-10 flex-none place-items-center rounded-xl bg-grape"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2zM12 6v14"/></svg></span><span><b class="block font-display">المستشارون</b><span class="text-[.86rem] opacity-85">الأسئلة الفقهية والإحالات الطبية والوصايا</span></span></li>
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 p-3.5"><span class="grid size-10 flex-none place-items-center rounded-xl bg-coral"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span><b class="block font-display">الإدارة</b><span class="text-[.86rem] opacity-85">توزيع الطلبات واعتماد الحسابات والإحصاءات</span></span></li>
+      </ul>
+    </div>
+
+    <p class="relative flex max-w-[30rem] items-center gap-2 text-[.82rem] opacity-85">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/></svg>
+      الدخول محمي بالتحقق الثنائي، وكل اطلاع على ملفات المستفيدين مسجَّل.
+    </p>
+  </aside>
+</div>
+
+<script src="auth.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.Auth, $ = A.$;
+  var PASSWORD = 'demo1234', DEMO_CODE = '1234', MAX_TRIES = 5, LOCK_SECONDS = 15 * 60, RESEND_SECONDS = 60;
+  var ACCOUNTS = {
+    'guide@demo.sa': { page: 'guide-dashboard.html', name: 'لوحة المرشد' },
+    'fiqh@demo.sa': { page: 'fiqh-dashboard.html', name: 'لوحة المستشار الفقهي' },
+    'admin@demo.sa': { page: 'admin-dashboard.html', name: 'لوحة الإدارة' },
+    'pending@demo.sa': { status: 'pending' },
+    'suspended@demo.sa': { status: 'suspended' }
+  };
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var acct = null, passTries = 0, codeTries = 0, stopResend = null;
+  var code = A.otp($('otp'), function () { submitCode(); });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-go]');
+    if (b) A.showStep(b.getAttribute('data-go'));
+  });
+
+  $('f-creds').addEventListener('submit', function (e) {
+    e.preventDefault();
+    $('creds-alert').hidden = true;
+    var em = $('email').value.trim().toLowerCase(), pw = $('pass').value;
+    var ok = A.setErr($('email'), $('email-err'), EMAIL_RE.test(em) ? '' : 'اكتب بريداً إلكترونياً صحيحاً');
+    ok = A.setErr($('pass'), $('pass-err'), pw ? '' : 'اكتب كلمة المرور') && ok;
+    if (!ok) return;
+    var a = ACCOUNTS[em];
+    if (!a || pw !== PASSWORD) {
+      passTries += 1;
+      if (passTries >= MAX_TRIES) { lock(); return; }
+      var left = MAX_TRIES - passTries;
+      $('creds-alert').textContent = 'البريد أو كلمة المرور غير صحيحة.' + (left <= 3 ? ' بقي لك ' + A.toAr(left) + (left > 2 ? ' محاولات' : ' محاولة') + ' قبل الإيقاف المؤقت.' : '');
+      $('creds-alert').hidden = false;
+      $('pass').value = ''; $('pass').focus();
+      return;
+    }
+    passTries = 0;
+    if (a.status) { A.showStep(a.status); return; }
+    acct = a; codeTries = 0;
+    code.clear(); code.state(); code.disable(false); $('code-err').textContent = '';
+    A.showStep('code');
+    startResend();
+  });
+
+  function startResend() {
+    if (stopResend) stopResend();
+    $('resend').hidden = true; $('resend-wait').hidden = false;
+    stopResend = A.countdown(RESEND_SECONDS, function (t) { $('resend-t').textContent = t; },
+      function () { $('resend-wait').hidden = true; $('resend').hidden = false; });
+  }
+  $('resend').addEventListener('click', function () { code.clear(); code.state(); $('code-err').textContent = 'أرسلنا رمزاً جديداً.'; startResend(); });
+
+  function submitCode() {
+    var v = code.value();
+    if (v.length < 4) { $('code-err').textContent = 'اكتب الرمز المكوّن من ٤ أرقام'; code.state('error'); return; }
+    if (v === DEMO_CODE) {
+      code.state('ok'); code.disable(true);
+      if (stopResend) stopResend();
+      $('done-role').textContent = acct.name;
+      setTimeout(function () {
+        A.showStep('done');
+        setTimeout(function () { location.href = acct.page; }, 1100);
+      }, 350);
+      return;
+    }
+    codeTries += 1;
+    if (codeTries >= MAX_TRIES) { lock(); return; }
+    code.state('error');
+    $('code-err').textContent = 'الرمز غير صحيح. بقي لك ' + A.toAr(MAX_TRIES - codeTries) + (MAX_TRIES - codeTries > 2 ? ' محاولات.' : ' محاولة.');
+    setTimeout(code.clear, 400);
+  }
+  $('f-code').addEventListener('submit', function (e) { e.preventDefault(); submitCode(); });
+
+  function lock() {
+    if (stopResend) stopResend();
+    A.showStep('locked');
+    $('lock-retry').disabled = true;
+    A.countdown(LOCK_SECONDS, function (t) { $('lock-t').textContent = t; },
+      function () { $('lock-t').textContent = 'الآن'; $('lock-retry').disabled = false; });
+  }
+  $('lock-retry').addEventListener('click', function () { passTries = 0; codeTries = 0; A.showStep('creds'); });
+
+  $('f-forgot').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var em = $('f-email').value.trim();
+    if (!A.setErr($('f-email'), $('f-email-err'), EMAIL_RE.test(em) ? '' : 'اكتب بريداً إلكترونياً صحيحاً')) return;
+    $('sent-to').textContent = em;
+    A.showStep('forgot-sent');
+  });
+
+  $('f-join').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var p = A.latin($('j-phone').value).replace(/\D/g, '');
+    var ok = A.setErr($('j-name'), $('j-name-err'), $('j-name').value.trim().length >= 3 ? '' : 'اكتب اسمك الكامل');
+    ok = A.setErr($('j-email'), $('j-email-err'), EMAIL_RE.test($('j-email').value.trim()) ? '' : 'اكتب بريداً إلكترونياً صحيحاً') && ok;
+    ok = A.setErr($('j-phone'), $('j-phone-err'), /^05\d{8}$/.test(p) ? '' : 'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05') && ok;
+    ok = A.setErr($('j-q'), $('j-q-err'), $('j-q').value.trim().length >= 10 ? '' : 'اكتب نبذة عن مؤهلاتك') && ok;
+    if (ok) A.showStep('join-sent');
+  });
+})();
+</script>
+</body>
+</html>
