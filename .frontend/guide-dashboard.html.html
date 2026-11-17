@@ -1,0 +1,603 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>لوحة المرشد (Copy)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@400;700&display=swap">
+<style>
+/* Layout: internal dashboard per role; sticky bar, tab strip, cards and lists; same teal identity as the public site */
+:root{
+  --bg:#ffffff;--surface:#ebf7f5;--surface-2:#d7efeb;--ink:#0b2a30;--muted:#456a70;--line:#c7e5e0;
+  --accent:#0d7d86;--accent-soft:#d2eef0;--spirit:#0f8f78;--spirit-soft:#dff6ef;
+  --sun:#ffc21a;--coral:#ff6b5e;--grape:#8a5cf6;--mint:#10b896;--ok:#14a37f;--danger:#d63b2f;--wa:#1fa855;
+  --role:var(--spirit);
+  --display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic","Readex Pro",Tahoma,sans-serif;
+  --naskh:"Amiri","Traditional Arabic",serif;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#08191c;--surface:#0f2a2e;--surface-2:#143a3f;--ink:#e6f6f4;--muted:#9fc3c1;--line:#1f4a4f;
+  --accent:#4fcad3;--accent-soft:#12424a;--spirit:#4fd8b9;--spirit-soft:#103a34;--sun:#ffcf4a;--coral:#ff8a7f;--grape:#a98bff;--mint:#3ddcb9;--ok:#4cc58e;--danger:#ff7b70;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08191c;--surface:#0f2a2e;--surface-2:#143a3f;--ink:#e6f6f4;--muted:#9fc3c1;--line:#1f4a4f;
+  --accent:#4fcad3;--accent-soft:#12424a;--spirit:#4fd8b9;--spirit-soft:#103a34;--sun:#ffcf4a;--coral:#ff8a7f;--grape:#a98bff;--mint:#3ddcb9;--ok:#4cc58e;--danger:#ff7b70;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.7}
+.app{direction:rtl}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.35;margin:0;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--role);outline-offset:3px;border-radius:6px}
+.muted{color:var(--muted)}.small{font-size:.86rem}
+.num{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:.98rem;line-height:1.25}
+.brand small{display:block;font-weight:500;font-size:.74rem;color:var(--role)}
+.ub{display:flex;align-items:center;gap:10px;font-size:.86rem}
+.ub .who{color:var(--muted)}
+@media (max-width:560px){.ub .who{display:none}.brand{font-size:.86rem}}
+.demo{background:color-mix(in srgb,var(--sun) 20%,var(--bg));border-bottom:1px solid color-mix(in srgb,var(--sun) 45%,var(--bg));font-size:.82rem;padding-block:6px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--display);font-weight:500;font-size:.9rem;padding:9px 16px;border-radius:999px;border:0;cursor:pointer;text-decoration:none;transition:transform .15s,filter .15s;white-space:nowrap;color:inherit;background:none}
+.btn:hover{transform:translateY(-1px)}
+.btn-p{background:var(--role);color:#fff}
+.btn-g{box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn-g:hover{box-shadow:inset 0 0 0 1.5px var(--role);color:var(--role)}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-s{padding:6px 12px;font-size:.82rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+
+/* login */
+.login{display:grid;gap:22px;max-width:900px;margin:40px auto 60px}
+@media (min-width:820px){.login{grid-template-columns:1.1fr .9fr;align-items:start}}
+.login .card{display:grid;gap:14px}
+.login h1{font-size:clamp(1.5rem,3.4vw,2rem)}
+.rolebadge{display:inline-flex;align-items:center;gap:8px;justify-self:start;background:color-mix(in srgb,var(--role) 14%,var(--bg));color:var(--role);font-family:var(--display);font-weight:600;font-size:.85rem;padding:4px 12px;border-radius:999px}
+
+.card{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+label{display:grid;gap:5px;font-size:.88rem;font-weight:500}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--role)}
+textarea{min-height:90px;resize:vertical}
+.row{display:grid;gap:12px}
+@media (min-width:560px){.row{grid-template-columns:1fr 1fr}}
+.seg{display:flex;flex-wrap:wrap;gap:7px}
+.seg label{display:flex;align-items:center;gap:7px;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;font-weight:500}
+.seg input{width:auto;accent-color:var(--role)}
+.seg label:has(input:checked){border-color:var(--role);background:color-mix(in srgb,var(--role) 12%,var(--bg))}
+.checks{display:flex;flex-wrap:wrap;gap:7px}
+.checks label{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;font-weight:400;font-size:.84rem}
+.checks input{width:auto;accent-color:var(--role)}
+.checks label:has(input:checked){border-color:var(--role);background:color-mix(in srgb,var(--role) 12%,var(--bg))}
+fieldset{border:0;padding:0;margin:0;display:grid;gap:7px}
+legend{font-weight:500;font-size:.88rem;padding:0;margin-bottom:5px}
+.err{color:var(--danger);font-size:.78rem;font-weight:400;min-height:1em}
+.info{background:var(--surface);border-radius:12px;padding:10px 13px;font-size:.84rem;color:var(--muted)}
+.note{background:color-mix(in srgb,var(--sun) 14%,var(--bg));border:1px solid color-mix(in srgb,var(--sun) 40%,var(--bg));border-radius:12px;padding:10px 13px;font-size:.86rem}
+
+/* dashboard */
+.hello{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;padding-block:22px 16px}
+.hello h1{font-size:clamp(1.35rem,3vw,1.8rem)}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:20px;scrollbar-width:thin}
+.tabs button{font:inherit;font-family:var(--display);font-size:.9rem;background:none;border:0;border-bottom:3px solid transparent;padding:10px 13px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button.on{color:var(--role);border-bottom-color:var(--role)}
+.nb:not(:empty){background:var(--coral);color:#fff;border-radius:999px;padding:0 7px;font-size:.7rem;margin-inline-start:5px}
+#pane{padding-bottom:60px;display:grid;gap:18px}
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.kpi{background:var(--bg);border:1px solid var(--line);border-top:4px solid var(--k,var(--role));border-radius:14px;padding:13px 15px}
+.kpi b{display:block;font-family:var(--display);font-size:1.55rem;font-variant-numeric:tabular-nums}
+.kpi span{font-size:.8rem;color:var(--muted)}
+.sec-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.sec-h h2{font-size:1.15rem}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.two{display:grid;gap:18px}
+@media (min-width:900px){.two{grid-template-columns:1fr 1fr}}
+.list{display:grid;gap:10px}
+.item{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--bg);border:1px solid var(--line);border-inline-start:5px solid var(--c,var(--role));border-radius:14px;padding:13px 15px}
+.item .date{text-align:center;font-family:var(--display);line-height:1.15;min-width:52px}
+.item .date b{display:block;font-size:1.35rem}
+.item .date span{font-size:.72rem;color:var(--muted)}
+.item h4{font-size:.97rem}
+.item p{font-size:.84rem;color:var(--muted)}
+.acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;border-top:1px dashed var(--line);padding-top:9px}
+.pill{display:inline-block;font-family:var(--display);font-size:.72rem;padding:2px 10px;border-radius:999px;background:var(--surface);color:var(--muted);white-space:nowrap}
+.pill.new{background:color-mix(in srgb,var(--coral) 18%,var(--bg));color:var(--ink)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 16%,var(--bg));color:var(--ok)}
+.pill.wait{background:color-mix(in srgb,var(--sun) 28%,var(--bg));color:var(--ink)}
+.pill.role{background:color-mix(in srgb,var(--role) 14%,var(--bg));color:var(--role)}
+.pill.cx{background:var(--surface);color:var(--muted);text-decoration:line-through}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.box{background:color-mix(in srgb,var(--role) 9%,var(--bg));border-radius:12px;padding:11px 13px;display:grid;gap:7px;font-size:.88rem}
+.quote{background:var(--surface);border-radius:12px;padding:11px 13px;font-size:.92rem}
+.empty{padding:20px;text-align:center;color:var(--muted);border:1.5px dashed var(--line);border-radius:14px}
+.bar-row{display:grid;grid-template-columns:minmax(0,150px) 1fr 30px;gap:10px;align-items:center;font-size:.85rem}
+.track{height:12px;background:var(--surface);border-radius:999px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:999px;background:var(--role)}
+.steps-line{display:flex;flex-wrap:wrap;gap:6px}
+.steps-line span{font-size:.74rem;font-family:var(--display);padding:3px 10px;border-radius:999px;background:var(--surface);color:var(--muted)}
+.steps-line span.done{background:color-mix(in srgb,var(--role) 16%,var(--bg));color:var(--role)}
+.steps-line span.cur{background:var(--role);color:#fff}
+.hero-card{display:grid;gap:10px;background:linear-gradient(150deg,var(--role),color-mix(in srgb,var(--role) 55%,var(--accent)));color:#fff;border-radius:20px;padding:20px}
+.hero-card .muted,.hero-card p{color:rgba(255,255,255,.9)}
+.hero-card .btn{background:#fff;color:var(--role);justify-self:start}
+.chk{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.chk input{width:auto;accent-color:var(--role);width:18px;height:18px}
+.chk:has(input:checked){background:color-mix(in srgb,var(--ok) 10%,var(--bg));border-color:color-mix(in srgb,var(--ok) 40%,var(--bg))}
+.chk:has(input:checked) span{text-decoration:line-through;color:var(--muted)}
+.likert{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.likert label{display:grid;place-items:center;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:7px 2px;font-size:.72rem;font-weight:400;cursor:pointer}
+.likert input{position:absolute;opacity:0;width:1px;height:1px}
+.likert label:has(input:checked){border-color:var(--role);background:color-mix(in srgb,var(--role) 12%,var(--bg));font-weight:600}
+.likert label:has(input:focus-visible){outline:3px solid var(--role)}
+.q{display:grid;gap:7px;padding-block:9px;border-bottom:1px solid var(--line)}
+.dua{font-family:var(--naskh);font-size:1.2rem;line-height:1.9}
+dl.kv{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;margin:0;font-size:.88rem}
+dl.kv dt{color:var(--muted)}dl.kv dd{margin:0}
+@media (max-width:480px){dl.kv{grid-template-columns:1fr}dl.kv dd{margin-bottom:6px}}
+
+/* modal & toast */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(4,20,22,.55);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal{background:var(--bg);border-radius:20px;width:min(600px,100%);max-height:100%;overflow:auto;padding:20px;display:grid;gap:13px;direction:rtl}
+.modal header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.x{background:var(--surface);border:0;border-radius:50%;width:34px;height:34px;cursor:pointer;color:var(--ink);font-size:1.1rem}
+#mform{display:grid;gap:13px}
+.toast{position:fixed;z-index:30;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:.9rem;padding:10px 18px;border-radius:999px;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+</style>
+
+<div class="app" dir="rtl" lang="ar">
+<header class="top"><div class="wrap bar">
+  <div class="brand">
+    <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="var(--role)"/><path d="M11 32V19a9 9 0 0 1 18 0v13z" fill="#fff"/><path d="M15 32V20a5 5 0 0 1 10 0v12z" fill="var(--role)"/><circle cx="20" cy="23" r="2.4" fill="var(--sun)"/></svg>
+    <span>خدمة الدعم والمساندة في الرعاية التلطيفية<small id="role-label"></small></span>
+  </div>
+  <div class="ub"><span class="who" id="who"></span><button class="btn btn-g btn-s" type="button" id="out" hidden>خروج</button></div>
+</div></header>
+<div class="demo"><div class="wrap">نموذج تجريبي: البيانات والأسماء غير حقيقية، ولا يُحفظ شيء ولا يُرسل، وكل صفحة مستقلة عن غيرها في هذا النموذج.</div></div>
+
+<main class="wrap">
+  <section class="login" id="login">
+    <div style="display:grid;gap:12px;align-content:start">
+      <span class="rolebadge" id="l-badge"></span>
+      <h1 id="l-title"></h1>
+      <p class="muted" id="l-desc"></p>
+      <ul class="small muted" id="l-feat" style="margin:0;padding-inline-start:18px;display:grid;gap:4px"></ul>
+    </div>
+    <form class="card" id="lform" novalidate></form>
+  </section>
+  <section id="dash" hidden>
+    <div class="hello"><div><h1 id="hi"></h1><p class="muted small" id="hi-sub"></p></div><div id="hi-act"></div></div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+    <div id="pane"></div>
+  </section>
+</main>
+
+<div class="overlay" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <header><h3 id="m-title"></h3><button class="x" type="button" id="m-x" aria-label="إغلاق">×</button></header>
+  <div id="m-body"></div>
+</div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+var ROLE='guide';
+/* ---------- helpers ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function ar(n){return Number(n).toLocaleString('ar-SA');}
+var fmtD,fmtH;
+try{fmtD=new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-arab',{weekday:'long',day:'numeric',month:'long'});}catch(e){fmtD={format:function(d){return d.toDateString();}};}
+try{fmtH=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab',{day:'numeric',month:'long'});}catch(e){fmtH=null;}
+function day(off){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+off);if(off>0&&d.getDay()===5)d.setDate(d.getDate()+1);return d;}
+function dl(d){return fmtD.format(d);}
+function hj(d){try{return fmtH?fmtH.format(d):'';}catch(e){return '';}}
+function dbox(d){return '<div class="date"><b>'+d.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{day:'numeric'})+'</b><span>'+d.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{month:'short'})+'</span></div>';}
+function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true;},3200);}
+function setErr(id,m){var e=$(id);if(e)e.textContent=m||'';return !m;}
+var mSubmit=null;
+function openModal(title,html,onSubmit,submitLabel){
+  $('m-title').textContent=title;
+  $('m-body').innerHTML=onSubmit?'<form id="mform" novalidate>'+html+'<button class="btn btn-p" type="submit" style="justify-self:start">'+(submitLabel||'حفظ')+'</button></form>':html;
+  mSubmit=onSubmit;$('modal').hidden=false;$('m-x').focus();
+}
+function closeModal(){$('modal').hidden=true;}
+$('m-x').addEventListener('click',closeModal);
+$('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('modal').hidden)closeModal();});
+$('m-body').addEventListener('submit',function(e){e.preventDefault();if(mSubmit&&mSubmit(e.target)!==false)closeModal();});
+function vals(f,n){return [].map.call(f.querySelectorAll('input[name="'+n+'"]:checked'),function(i){return i.value;});}
+function seg(name,arr,cur){return '<div class="seg">'+arr.map(function(v,i){return '<label for="'+name+i+'"><input type="radio" name="'+name+'" id="'+name+i+'" value="'+esc(v)+'"'+(v===cur?' checked':'')+'>'+esc(v)+'</label>';}).join('')+'</div>';}
+function checks(name,arr){return '<div class="checks">'+arr.map(function(v,i){return '<label for="'+name+i+'"><input type="checkbox" name="'+name+'" id="'+name+i+'" value="'+esc(v)+'">'+esc(v)+'</label>';}).join('')+'</div>';}
+function sel(id,arr,cur){return '<select id="'+id+'">'+arr.map(function(v){return '<option'+(v===cur?' selected':'')+'>'+esc(v)+'</option>';}).join('')+'</select>';}
+var TIMES=['١٠:٠٠ ص','١:٠٠ م','٧:٠٠ م','٨:٣٠ م'];
+var NEXT_DAYS=[1,2,3,4,5,6].map(day);
+var LIK=['لا تنطبق','قليلاً','أحياناً','غالباً','تماماً'];
+var SCALE_NOTE='<p class="note">تنويه: المقاييس الحالية مبدئية للعرض، وستُضاف المقاييس المعتمدة لاحقاً.</p>';
+
+/* ---------- shared content ---------- */
+var TYPES=[
+ {t:'جلسة معالجة الخوف والقلق',plan:'أربع جلسات أسبوعية: إنصات وتفريغ للمخاوف، ثم تدبر آيات الطمأنينة والرجاء، ثم تعزيز حسن الظن بالله، ثم ختام وقياس بعدي.'},
+ {t:'جلسة السكينة والطمأنينة',plan:'ثلاث جلسات: أذكار وتدبر ودعاء، مع ورد يومي يسير بين الجلسات، ثم قياس بعدي.'},
+ {t:'جلسة مواجهة الألم',plan:'ثلاث جلسات: معاني الصبر وأجر المريض، والدعاء عند الألم، بالتنسيق مع الفريق المعالج، ثم قياس بعدي.'},
+ {t:'جلسة الحياة الطيبة: إعادة متعة الحياة',plan:'أربع جلسات: استكشاف ما يحبه المريض، وتحويل أيامه إلى أعمال باقية، وإشراك الأسرة، ثم قياس بعدي.'},
+ {t:'جلسة مواجهة الخبر السيئ',plan:'جلستان متقاربتان: استقبال الخبر والمواساة بالصبر والاسترجاع، ثم متابعة للمريض والأسرة خلال أسبوع.'},
+ {t:'جلسة التفكر والتأمل',plan:'ثلاث جلسات: تأمل في آيات الله ونعمه ومعنى الرحلة، مع وقت تأمل يومي قصير.'}
+];
+function planOf(t){var x=TYPES.filter(function(y){return y.t===t;})[0];return x?x.plan:'';}
+var SCALES={
+ 'المقياس القبلي للاحتياج الروحي':['أجد الطمأنينة حين أذكر الله أو أسمع القرآن.','أرى لما أمرّ به من مرض معنى وحكمة.','يقلقني المستقبل وما بعد هذا المرض.','أشعر بالوحدة في هذه المرحلة.'],
+ 'مقياس الرفاه الروحي (مهني)':['أشعر بالسلام الداخلي.','أجد معنى لحياتي رغم المرض.','أشعر بالأمل.','علاقتي بالله تمنحني القوة.'],
+ 'القياس البعدي للاحتياج الروحي':['أجد الطمأنينة حين أذكر الله أو أسمع القرآن.','أرى لما أمرّ به من مرض معنى وحكمة.','يقلقني المستقبل وما بعد هذا المرض.','أشعر بالوحدة في هذه المرحلة.'],
+ 'نموذج ختام الجلسات':['استفدت من الجلسات.','كان المرشد متفهماً ومنصتاً.','تحسّن حالي مقارنة ببداية الجلسات.','أنصح غيري بهذه الخدمة.']
+};
+
+/* ---------- role config ---------- */
+var CFG={
+ guide:{title:'لوحة المرشد',label:'لوحة المرشد الديني والروحي',color:'var(--spirit)',who:'المرشد الروحي (حساب تجريبي)',
+   desc:'لوحة المرشد لإدارة طلبات المستفيدين ومواعيدهم، وتوثيق الجلسات، وإرسال المقاييس، وتفعيل المتابعة عبر واتساب.',
+   feat:['الطلبات الواردة من واتساب وتحديد مواعيدها','مرضاي: نتيجة المقياس تظهر لك وحدك، مع ترشيح نوع الجلسة','توثيق كل جلسة على حدة','المقاييس التخصصية والمهنية والبعدية','تفعيل المتابعة وإنهاء الجلسات'],login:'email',email:'guide@demo.sa'},
+ fiqh:{title:'لوحة المستشار الفقهي',label:'لوحة المستشار الفقهي',color:'var(--accent)',who:'المستشار الفقهي (حساب تجريبي)',
+   desc:'تصلك الأسئلة التي لم يجد البوت جوابها، فتكتب الجواب ويصل إلى المستفيد على واتساب، وتدير جلسات الاستشارة الفقهية.',
+   feat:['الأسئلة المحالة من البوت الفقهي','كتابة الجواب وإرساله للمستفيد','إضافة الجواب إلى مرجع البوت بعد اعتماده','جلسات الاستشارة الفقهية وتوثيقها'],login:'email',email:'fiqh@demo.sa'},
+ med:{title:'لوحة المستشار الطبي',label:'لوحة المستشار الطبي',color:'var(--coral)',who:'المستشار الطبي (حساب تجريبي)',
+   desc:'تصلك إحالات المرشدين حين يحتاج المستفيد رأياً طبياً، فتكتب توصيتك للمرشد، وتنسّق مع الفريق المعالج عند الحاجة.',
+   feat:['الإحالات الواردة من المرشدين','كتابة التوصية للمرشد المحيل','التنسيق مع الفريق الطبي المعالج','جلسات الاستشارة الطبية'],login:'email',email:'med@demo.sa'},
+ legal:{title:'لوحة المستشار العدلي',label:'لوحة المستشار العدلي (بالشراكة مع مركز واقف)',color:'var(--grape)',who:'المستشار العدلي (حساب تجريبي)',
+   desc:'تدير طلبات الوصايا مرحلة بمرحلة: من الجلسة التمهيدية إلى إعداد المسودة ومراجعتها، ثم الإرشاد إلى التوثيق.',
+   feat:['طلبات استشارة الوصايا','متابعة كل طلب بمراحله','ملاحظات على كل مرحلة','جلسات الاستشارة العدلية'],login:'email',email:'legal@demo.sa'},
+ patient:{title:'صفحة المستفيد',label:'صفحة المستفيد: المريض أو المرافق',color:'var(--spirit)',who:'',
+   desc:'صفحتك الخاصة: مواعيدك، ومقاييسك، وخطة متابعتك، واشتراكاتك في زاد المريض، وأسئلتك الفقهية، ورسائلك. ويدخل المرافق برقمه ليتابع المريض.',
+   feat:['مواعيدي وروابط الجلسات','المقاييس المطلوبة مني','خطة متابعة جلستي','ختمتي وبرنامج الباقيات الصالحات','أسئلتي الفقهية وردودها'],login:'otp'},
+ admin:{title:'لوحة الإدارة',label:'لوحة الإدارة',color:'var(--ink)',who:'مدير النظام (حساب تجريبي)',
+   desc:'لوحة الإدارة بكل الصلاحيات: الطلبات الواردة وتوزيعها، والفريق والمستفيدون، والخدمات والمحتوى، والإحصاءات، والرسائل.',
+   feat:['إحصاءات الخدمة','توزيع الطلبات الواردة من واتساب','اعتماد حسابات المرشدين والمستشارين','تعديل الخدمات والمحتوى','مراسلة الفريق والمستفيدين'],login:'email',email:'admin@demo.sa'}
+};
+var C=CFG[ROLE];
+document.documentElement.style.setProperty('--role',C.color);
+if(ROLE==='admin')document.documentElement.style.setProperty('--role','var(--accent)');
+
+/* ---------- login ---------- */
+$('role-label').textContent=C.label;
+$('l-badge').textContent=C.label;
+$('l-title').textContent='الدخول إلى '+C.title.replace('لوحة ','لوحة ').replace('صفحة ','صفحة ');
+$('l-desc').textContent=C.desc;
+$('l-feat').innerHTML=C.feat.map(function(f){return '<li>'+esc(f)+'</li>';}).join('');
+if(C.login==='otp'){
+  $('lform').innerHTML='<fieldset><legend>أدخل بصفتك</legend>'+seg('lk',['المريض','المرافق'],'المريض')+'</fieldset>'+
+   '<label for="l-phone">رقم الجوال<input id="l-phone" dir="ltr" inputmode="tel" placeholder="05XXXXXXXX"><span class="err" id="le-phone"></span></label>'+
+   '<button class="btn btn-g" type="button" id="l-send" style="justify-self:start">أرسل رمز التحقق</button>'+
+   '<label for="l-otp" id="l-otp-w" hidden>رمز التحقق<input id="l-otp" dir="ltr" inputmode="numeric" maxlength="4" placeholder="••••"><span class="small muted">في النموذج: أي أربعة أرقام.</span><span class="err" id="le-otp"></span></label>'+
+   '<button class="btn btn-p" type="submit">دخول</button>'+
+   '<button class="btn btn-g" type="button" id="l-demo" style="justify-self:start">دخول تجريبي مباشر</button>'+
+   '<p class="info">لا يحتاج المستفيد إلى كلمة مرور: يدخل برقم جواله المسجّل لدى الخدمة ورمز يصله على واتساب.</p>';
+  $('l-send').addEventListener('click',function(){var p=$('l-phone').value.replace(/\D/g,'');if(!setErr('le-phone',/^05\d{8}$/.test(p)?'':'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05'))return;$('l-otp-w').hidden=false;toast('أُرسل رمز التحقق إلى واتساب (تجريبي)');});
+}else{
+  $('lform').innerHTML='<label for="l-email">البريد الإلكتروني<input id="l-email" type="email" dir="ltr" autocomplete="username" value="'+C.email+'"></label>'+
+   '<label for="l-pass">كلمة المرور<input id="l-pass" type="password" dir="ltr" autocomplete="current-password" value="demo1234"></label>'+
+   '<span class="err" id="le-pass"></span>'+
+   '<button class="btn btn-p" type="submit">دخول</button>'+
+   '<p class="info">في النظام الفعلي: تحقق ثنائي برمز على الجوال، ولا يُفعّل الحساب إلا بعد اعتماد الإدارة.</p>';
+}
+function enter(){
+  $('login').hidden=true;$('dash').hidden=false;$('out').hidden=false;
+  $('who').textContent=ROLE==='patient'?(ME.kind==='المرافق'?'مرافق: '+ME.cname:ME.name):C.who;
+  buildTabs();window.scrollTo(0,0);
+}
+$('lform').addEventListener('submit',function(e){
+  e.preventDefault();
+  if(C.login==='otp'){var p=$('l-phone').value.replace(/\D/g,''),o=$('l-otp').value.replace(/\D/g,'');
+    if(!setErr('le-phone',/^05\d{8}$/.test(p)?'':'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05'))return;
+    if($('l-otp-w').hidden){$('l-send').click();return;}
+    if(!setErr('le-otp',o.length===4?'':'اكتب الرمز المكوّن من ٤ أرقام'))return;
+    ME.kind=vals(this,'lk')[0];}
+  else{if(!setErr('le-pass',$('l-pass').value.length>=6?'':'اكتب كلمة المرور'))return;}
+  enter();
+});
+if($('l-demo'))$('l-demo').addEventListener('click',function(){ME.kind=vals($('lform'),'lk')[0]||'المريض';enter();});
+$('out').addEventListener('click',function(){$('dash').hidden=true;$('login').hidden=false;$('out').hidden=true;$('who').textContent='';});
+
+/* ---------- tabs ---------- */
+var TABS=[],CUR=null;
+function buildTabs(){
+  TABS=MODULES[ROLE]();
+  $('tabs').innerHTML=TABS.map(function(t){return '<button type="button" role="tab" data-tab="'+t.k+'">'+t.l+'<span class="nb" id="nb-'+t.k+'"></span></button>';}).join('');
+  show(TABS[0].k);
+}
+function show(k){CUR=k;document.querySelectorAll('#tabs button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===k);});render();}
+function render(){var t=TABS.filter(function(x){return x.k===CUR;})[0];$('pane').innerHTML=t.r();if(HELLO[ROLE])HELLO[ROLE]();badges();}
+$('tabs').addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b)show(b.getAttribute('data-tab'));});
+var ACT={};
+document.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b||b.disabled)return;var f=ACT[b.getAttribute('data-a')];if(f){e.preventDefault();f(b);}});
+document.addEventListener('change',function(e){var b=e.target.closest('[data-ch]');if(!b)return;var f=ACT[b.getAttribute('data-ch')];if(f)f(b);});
+function badge(k,n){var e=$('nb-'+k);if(e)e.textContent=n?ar(n):'';}
+var HELLO={},BADGES={};
+function badges(){if(BADGES[ROLE])BADGES[ROLE]();}
+function kpis(arr){return '<div class="kpis">'+arr.map(function(k){return '<div class="kpi" style="--k:'+(k[2]||'var(--role)')+'"><b>'+(typeof k[1]==='number'?ar(k[1]):k[1])+'</b><span>'+k[0]+'</span></div>';}).join('')+'</div>';}
+function msgsList(arr){return arr.length?'<div class="list">'+arr.map(function(m,i){return '<div class="item" style="--c:'+(m.read?'var(--line)':'var(--coral)')+'"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(m.sub)+'</h4>'+(m.read?'':'<span class="pill new">جديدة</span>')+'</div><p>من '+esc(m.from)+' · '+esc(m.when)+'</p></div><div class="acts"><button class="btn btn-g btn-s" type="button" data-a="readmsg" data-i="'+i+'">اقرأ</button></div></div>';}).join('')+'</div>':'<p class="empty">لا رسائل.</p>';}
+ACT.readmsg=function(b){var m=MSGS[+b.getAttribute('data-i')];m.read=true;openModal(m.sub,'<p class="small muted">من '+esc(m.from)+' · '+esc(m.when)+'</p>'+m.body.split('\n').map(function(p){return '<p>'+esc(p)+'</p>';}).join(''));render();};
+function profilePane(extra){
+  return '<div class="two"><form class="card" id="pf" novalidate style="display:grid;gap:12px"><h3>بياناتي</h3>'+
+   '<label for="pf-n">الاسم الظاهر<input id="pf-n" value="'+esc(C.who.replace(' (حساب تجريبي)',''))+'"></label>'+
+   '<div class="row"><label for="pf-p">الجوال<input id="pf-p" dir="ltr" value="05XXXXXXXX"></label><label for="pf-e">البريد<input id="pf-e" dir="ltr" value="'+(C.email||'')+'"></label></div>'+(extra||'')+
+   '<button class="btn btn-p" type="button" data-a="saveprof" style="justify-self:start">احفظ</button></form>'+
+   '<form class="card" novalidate style="display:grid;gap:12px;align-content:start"><h3>تغيير كلمة المرور</h3>'+
+   '<label for="pw1">كلمة المرور الحالية<input id="pw1" type="password" dir="ltr" autocomplete="current-password"></label>'+
+   '<label for="pw2">كلمة المرور الجديدة<input id="pw2" type="password" dir="ltr" autocomplete="new-password"><span class="err" id="pwe"></span></label>'+
+   '<button class="btn btn-p" type="button" data-a="savepw" style="justify-self:start">غيّر كلمة المرور</button></form></div>';
+}
+ACT.saveprof=function(){toast('حُفظت بياناتك');};
+ACT.savepw=function(){var v=$('pw2').value;if(!setErr('pwe',v.length>=8&&/\d/.test(v)&&/\D/.test(v)?'':'٨ أحرف على الأقل، فيها حروف وأرقام'))return;$('pw1').value='';$('pw2').value='';toast('غُيّرت كلمة المرور');};
+
+/* ======================================================
+   DATA
+   ====================================================== */
+var MSGS=[];
+var PATS=[
+ {id:1,name:'عبدالله محمد السبيعي',kind:'مريض',hosp:'مستشفى الملك فهد',region:'الرياض',age:68,comp:'منى (ابنته)',intake:{path:'scale',pct:74,lvl:'احتياج روحي مرتفع',sug:TYPES[0].t,alt:TYPES[4].t,type:null},sessions:[{d:-14,phase:'تقييم أولي',sum:'تعارف وإنصات، وحديث عن مخاوف المستقبل.'}],next:{d:0,t:'٧:٠٠ م'},follow:null,closed:false,scales:[{n:'المقياس القبلي للاحتياج الروحي',st:'done',res:'٧٤٪'}]},
+ {id:2,name:'فاطمة علي الشهري',kind:'مريض',hosp:'مدينة الملك عبدالعزيز الطبية',region:'جدة',age:54,comp:'',intake:{path:'direct',pct:null,type:TYPES[1].t,by:'المستفيد'},sessions:[{d:-21,phase:'تقييم أولي',sum:'بدأت الجلسة بالسكينة والأذكار.'},{d:-14,phase:'تدخل',sum:'تدبر آيات الطمأنينة.'},{d:-7,phase:'متابعة',sum:'تحسن واضح في النوم والطمأنينة.'}],next:{d:1,t:'١٠:٠٠ ص'},follow:{ch:'واتساب',freq:'مرتين أسبوعياً',plan:TYPES[1].plan},closed:false,scales:[{n:'المقياس القبلي للاحتياج الروحي',st:'wait'}]},
+ {id:3,name:'سعد ناصر القحطاني',kind:'مريض',hosp:'مستشفى الملك خالد',region:'الرياض',age:72,comp:'سلطان (ابنه)',intake:{path:'direct',pct:null,type:TYPES[2].t,by:'المستفيد'},sessions:[{d:-9,phase:'تقييم أولي',sum:'الحديث عن الألم وأجر الصبر.'}],next:{d:3,t:'١:٠٠ م'},follow:null,closed:false,scales:[]},
+ {id:4,name:'نورة حمد العتيبي',kind:'مرافق',hosp:'مستشفى الحرس الوطني',region:'الأحساء',age:47,comp:'ترافق والدها',intake:{path:'scale',pct:46,lvl:'احتياج روحي متوسط',sug:TYPES[1].t,alt:TYPES[2].t,type:TYPES[1].t,by:'المرشد'},sessions:[{d:-5,phase:'تقييم أولي',sum:'إرهاق المرافقة والحاجة إلى السكينة.'}],next:{d:4,t:'٨:٣٠ م'},follow:null,closed:false,scales:[{n:'المقياس القبلي للاحتياج الروحي',st:'done',res:'٤٦٪'}]},
+ {id:5,name:'خالد إبراهيم الدوسري',kind:'مريض',hosp:'مستشفى الملك فيصل التخصصي',region:'الرياض',age:61,comp:'',intake:{path:'scale',pct:30,lvl:'احتياج روحي منخفض',sug:TYPES[5].t,alt:TYPES[3].t,type:TYPES[5].t,by:'المرشد'},sessions:[{d:-40,phase:'تقييم أولي',sum:'—'},{d:-33,phase:'تدخل',sum:'—'},{d:-26,phase:'ختام',sum:'ختام الجلسات.'}],next:null,follow:{ch:'واتساب',freq:'أسبوعياً',plan:TYPES[5].plan},closed:true,summary:'أتم ثلاث جلسات، وتحسّن مستوى الطمأنينة.',scales:[{n:'القياس البعدي للاحتياج الروحي',st:'done',res:'٢٠٪'}]}
+];
+
+/* ======================================================
+   GUIDE
+   ====================================================== */
+var GREQ=[
+ {id:1,name:'محمد سالم الحربي',kind:'مريض',req:'جلسة دعم روحي، بدءاً بالمقياس القبلي',hosp:'مستشفى الملك سعود',when:'منذ ساعة',st:'new'},
+ {id:2,name:'هيا عبدالعزيز',kind:'مرافق',req:'جلسة مواجهة الخبر السيئ',hosp:'مستشفى الملك فهد',when:'منذ ٣ ساعات',st:'new'},
+ {id:3,name:'عائشة يوسف',kind:'مريض',req:'جلسة السكينة والطمأنينة',hosp:'مدينة الملك سعود الطبية',when:'أمس',st:'scheduled',at:'السبت ٧:٠٠ م'}
+];
+HELLO.guide=function(){$('hi').textContent='مرحباً بك';$('hi-sub').textContent='مرضاك ومواعيدك وطلباتك الواردة';$('hi-act').innerHTML='';};
+BADGES.guide=function(){badge('req',GREQ.filter(function(r){return r.st==='new';}).length);badge('msg',MSGS.filter(function(m){return !m.read;}).length);badge('appts',PATS.filter(function(p){return p.next&&!p.closed;}).length?0:0);};
+function gUp(){return PATS.filter(function(p){return p.next&&!p.closed;}).sort(function(a,b){return a.next.d-b.next.d;});}
+function gDone(){var out=[];PATS.forEach(function(p){p.sessions.forEach(function(s,i){out.push({p:p,s:s,i:i});});});return out.sort(function(a,b){return b.s.d-a.s.d;});}
+MODULES={};
+MODULES.guide=function(){
+  MSGS=[{from:'إدارة الخدمة',sub:'تذكير بتوثيق الجلسات',body:'نذكّر الزملاء بتوثيق كل جلسة في يومها، وإرسال القياس البعدي قبل إنهاء الجلسات.',when:'أمس',read:false},{from:'إدارة الخدمة',sub:'مرحباً بك في فريق الخدمة',body:'فُعّل حسابك، وتستطيع الآن استقبال المستفيدين.',when:'قبل أسبوع',read:true}];
+  return [
+  {k:'home',l:'الرئيسية',r:function(){
+    var up=gUp(),nodoc=gDone().filter(function(x){return !x.s.sum||x.s.sum==='—';}).length;
+    return kpis([['مستفيدون',PATS.length],['مواعيد قادمة',up.length,'var(--accent)'],['جلسات منجزة',gDone().length,'var(--ok)'],['طلبات جديدة',GREQ.filter(function(r){return r.st==='new';}).length,'var(--coral)'],['بانتظار اعتماد نوع الجلسة',PATS.filter(function(p){return !p.intake.type;}).length,'var(--sun)']])+
+    '<div class="two"><div class="card" style="display:grid;gap:10px"><div class="sec-h"><h2>أقرب المواعيد</h2><button class="btn btn-g btn-s" type="button" data-a="go" data-k="appts">كل المواعيد</button></div>'+up.slice(0,3).map(apptItem).join('')+'</div>'+
+    '<div class="card" style="display:grid;gap:10px"><div class="sec-h"><h2>يحتاج انتباهك</h2></div>'+
+      PATS.filter(function(p){return !p.intake.type;}).map(function(p){return '<div class="box"><b>'+esc(p.name)+'</b><span>أجرى المقياس القبلي، وينتظر اعتمادك لنوع الجلسة.</span><button class="btn btn-p btn-s" type="button" data-a="go" data-k="pats" style="justify-self:start">افتح مرضاي</button></div>';}).join('')+
+      GREQ.filter(function(r){return r.st==='new';}).map(function(r){return '<div class="box"><b>طلب جديد: '+esc(r.name)+'</b><span>'+esc(r.req)+'</span><button class="btn btn-p btn-s" type="button" data-a="go" data-k="req" style="justify-self:start">الطلبات الواردة</button></div>';}).join('')+
+    '</div></div>';}},
+  {k:'req',l:'الطلبات الواردة',r:function(){
+    return '<div class="sec-h"><h2>الطلبات الواردة من واتساب</h2><span class="small muted">تصلك بعد أن تسندها الإدارة إليك</span></div><div class="list">'+GREQ.map(function(r,i){
+      return '<div class="item" style="--c:'+(r.st==='new'?'var(--coral)':'var(--ok)')+'"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(r.name)+' <span class="pill">'+r.kind+'</span></h4>'+(r.st==='new'?'<span class="pill new">جديد</span>':'<span class="pill ok">حُدد الموعد: '+esc(r.at)+'</span>')+'</div><p>'+esc(r.req)+' · '+esc(r.hosp)+' · '+esc(r.when)+'</p></div>'+
+      (r.st==='new'?'<div class="acts"><button class="btn btn-p btn-s" type="button" data-a="greq" data-i="'+i+'">حدد الموعد</button><a class="btn btn-wa btn-s" href="https://wa.me/" target="_blank" rel="noopener">راسله على واتساب</a></div>':'')+'</div>';}).join('')+'</div>';}},
+  {k:'appts',l:'مواعيدي',r:function(){
+    var up=gUp(),dn=gDone();
+    return '<div class="sec-h"><h2>القادمة</h2></div><div class="list">'+(up.map(apptItem).join('')||'<p class="empty">لا مواعيد قادمة.</p>')+'</div>'+
+      '<div class="sec-h"><h2>المنجزة</h2></div><div class="list">'+dn.map(function(x){return '<div class="item" style="--c:var(--ok)">'+dbox(day(x.s.d))+'<div><h4>'+esc(x.p.name)+'</h4><p>'+esc(x.s.phase)+' · الجلسة '+ar(x.i+1)+'</p></div><div class="acts"><button class="btn btn-g btn-s" type="button" data-a="viewdoc" data-p="'+x.p.id+'" data-i="'+x.i+'">عرض التوثيق</button></div></div>';}).join('')+'</div>';}},
+  {k:'pats',l:'مرضاي',r:function(){return '<div class="grid">'+PATS.map(patCard).join('')+'</div>';}},
+  {k:'msg',l:'الرسائل',r:function(){return msgsList(MSGS);}},
+  {k:'prof',l:'ملفي',r:function(){return profilePane('<label for="pf-s">التخصص<select id="pf-s"><option>مرشد روحي</option><option>مرشد تدبر</option><option>مرشد فقد ومواساة</option></select></label>');}}
+  ];
+};
+function pById(id){return PATS.filter(function(p){return p.id===+id;})[0];}
+function apptItem(p){var d=day(p.next.d);return '<div class="item">'+dbox(d)+'<div><h4>'+esc(p.name)+' <span class="pill">'+p.kind+'</span></h4><p>'+dl(d)+' · '+'<bdi>'+p.next.t+'</bdi>'+' · '+(p.intake.type?esc(p.intake.type):'بانتظار اعتمادك لنوع الجلسة')+'</p></div><div class="acts"><button class="btn btn-g btn-s" type="button" data-a="start">ابدأ الجلسة</button><button class="btn btn-p btn-s" type="button" data-a="doc" data-p="'+p.id+'">وثّق الجلسة</button></div></div>';}
+function patCard(p){
+  var it=p.intake,h='<div class="card" style="display:grid;gap:10px;border-top:4px solid '+(p.closed?'var(--line)':'var(--role)')+'"><div class="sec-h"><h3 style="font-size:1rem">'+esc(p.name)+'</h3>'+(p.closed?'<span class="pill cx" style="text-decoration:none">أُنهيت الجلسات</span>':'<span class="pill role">نشط</span>')+'</div>'+
+   '<p class="small muted">'+p.kind+' · '+(typeof p.age==='number'?ar(p.age)+' سنة · ':'')+esc(p.hosp)+(p.comp?' · المرافق: '+esc(p.comp):'')+'</p><div class="box">';
+  if(it.path==='scale'){h+='<div><b>المقياس القبلي: '+esc(it.lvl)+' ('+ar(it.pct)+'٪)</b> <span class="small muted">· يظهر لك وحدك</span></div><div>ترشيح النظام: <b>'+esc(it.sug)+'</b> أو '+esc(it.alt)+'</div>';}
+  else{h+='<div>اختار المستفيد: <b>'+esc(it.type)+'</b></div><div class="small">المقياس القبلي: '+(it.pct!=null?esc(it.lvl):'لم يُجرَ بعد')+'</div>';}
+  if(!it.type)h+='<label for="ty'+p.id+'" class="small">اختر الأنسب للمستفيد'+sel('ty'+p.id,TYPES.map(function(t){return t.t;}),it.sug)+'</label><p class="small muted">الخطة المقترحة: '+esc(planOf(it.sug))+'</p><button class="btn btn-p btn-s" type="button" data-a="settype" data-p="'+p.id+'" style="justify-self:start">اعتماد نوع الجلسة</button>';
+  else if(it.path==='scale')h+='<div>نوع الجلسة المعتمد: <b>'+esc(it.type)+'</b></div>';
+  h+='</div>';
+  h+='<div class="tags">'+(p.follow?'<span class="pill ok">المتابعة مفعّلة عبر '+esc(p.follow.ch)+'</span>':'')+p.scales.map(function(s){return s.st==='wait'?'<span class="pill wait">'+esc(s.n)+': بانتظار المستفيد</span>':'<span class="pill">'+esc(s.n)+': '+esc(s.res||'تم')+'</span>';}).join('')+'<span class="pill">الجلسات: '+ar(p.sessions.length)+'</span></div>';
+  if(!p.closed)h+='<div class="acts"><button class="btn btn-g btn-s" type="button" data-a="sendscale" data-p="'+p.id+'">إرسال مقياس</button><button class="btn btn-g btn-s" type="button" data-a="follow" data-p="'+p.id+'"'+(it.type?'':' disabled')+'>'+(p.follow?'تعديل المتابعة':'تفعيل المتابعة')+'</button><button class="btn btn-g btn-s" type="button" data-a="refer" data-p="'+p.id+'">إحالة</button><button class="btn btn-g btn-s" type="button" data-a="hist" data-p="'+p.id+'">سجل الجلسات</button><button class="btn btn-g btn-s" type="button" data-a="end" data-p="'+p.id+'">إنهاء الجلسات</button></div>';
+  else h+='<p class="small">الملخص الختامي: '+esc(p.summary||'')+'</p><div class="acts"><button class="btn btn-g btn-s" type="button" data-a="hist" data-p="'+p.id+'">سجل الجلسات</button></div>';
+  return h+'</div>';
+}
+ACT.go=function(b){show(b.getAttribute('data-k'));};
+ACT.start=function(){toast('يُفتح رابط الجلسة المرئية (تجريبي)');};
+ACT.greq=function(b){var r=GREQ[+b.getAttribute('data-i')];
+  openModal('تحديد موعد: '+r.name,'<p class="small muted">'+esc(r.req)+'</p><div class="row"><label for="gq-d">اليوم'+sel('gq-d',NEXT_DAYS.map(dl))+'</label><label for="gq-t">الوقت'+sel('gq-t',TIMES)+'</label></div><fieldset><legend>طريقة الجلسة</legend>'+seg('gq-m',['مرئية','صوتية'],'مرئية')+'</fieldset><p class="info">يصل التأكيد ورابط الجلسة إلى المستفيد على واتساب.</p>',
+  function(f){r.st='scheduled';r.at=$('gq-d').value+' '+$('gq-t').value;
+    PATS.push({id:100+r.id,name:r.name,kind:r.kind,hosp:r.hosp,region:'—',age:null,comp:'',intake:/مقياس/.test(r.req)?{path:'scale',pct:null,lvl:'لم يُجرَ بعد',sug:TYPES[1].t,alt:TYPES[0].t,type:null}:{path:'direct',pct:null,type:r.req,by:'المستفيد'},sessions:[],next:{d:NEXT_DAYS.map(dl).indexOf($('gq-d').value)+1,t:$('gq-t').value},follow:null,closed:false,scales:[]});
+    render();toast('حُدد الموعد وأُرسل التأكيد للمستفيد على واتساب');},'أكّد الموعد');};
+ACT.settype=function(b){var p=pById(b.getAttribute('data-p'));p.intake.type=$('ty'+p.id).value;p.intake.by='المرشد';render();toast('اعتُمد نوع الجلسة: '+p.intake.type);};
+var G_STATES=['مطمئن','قلق','حزين','خائف','مشوّش','متقبّل وراضٍ'],G_NEEDS=['المعنى والحكمة من المرض','الخوف من الموت وما بعده','الشعور بالذنب','الصبر والرضا','القرب من الله','المسامحة ورد الحقوق','العبادات في المرض','الوصية'],G_INT=['إنصات وتفريغ','تذكير بأجر المريض','دعاء','تدبر آيات','تعليم فقه المريض','تعزيز حسن الظن بالله','إشراك الأسرة'];
+ACT.doc=function(b){var p=pById(b.getAttribute('data-p')),n=p.sessions.length+1;
+  openModal('توثيق الجلسة '+ar(n)+': '+p.name,
+   '<fieldset><legend>مرحلة الجلسة</legend>'+seg('dc-ph',['تقييم أولي','تدخل','متابعة','ختام'],n===1?'تقييم أولي':'متابعة')+'</fieldset>'+
+   '<div class="row"><label for="dc-b">الحالة في بداية الجلسة'+sel('dc-b',G_STATES)+'</label><label for="dc-a">الحالة في نهايتها'+sel('dc-a',G_STATES,'مطمئن')+'</label></div>'+
+   '<fieldset><legend>الاحتياجات الروحية المرصودة</legend>'+checks('dc-n',G_NEEDS)+'</fieldset>'+
+   '<fieldset><legend>التدخلات المقدّمة</legend>'+checks('dc-i',G_INT)+'</fieldset>'+
+   '<label for="dc-s">ما تم في الجلسة<textarea id="dc-s"></textarea><span class="err" id="dce"></span></label>'+
+   '<label for="dc-pl">خطة الجلسة القادمة<textarea id="dc-pl" style="min-height:60px"></textarea></label>'+
+   '<label for="dc-t">ملاحظات للفريق (لا تظهر للمستفيد)<textarea id="dc-t" style="min-height:60px"></textarea></label>',
+   function(f){var s=$('dc-s').value.trim();if(!setErr('dce',s?'':'اكتب ما تم في الجلسة'))return false;
+     p.sessions.push({d:p.next?p.next.d:0,phase:vals(f,'dc-ph')[0],sum:s,before:$('dc-b').value,after:$('dc-a').value,needs:vals(f,'dc-n'),ints:vals(f,'dc-i'),plan:$('dc-pl').value.trim()});
+     if(p.next){var nd=p.next.d+7;p.next={d:nd,t:p.next.t};}render();toast('حُفظ توثيق الجلسة');},'احفظ التوثيق');};
+ACT.viewdoc=function(b){var p=pById(b.getAttribute('data-p')),s=p.sessions[+b.getAttribute('data-i')];
+  openModal('توثيق جلسة: '+p.name,'<dl class="kv"><dt>التاريخ</dt><dd>'+dl(day(s.d))+'</dd><dt>المرحلة</dt><dd>'+esc(s.phase)+'</dd>'+(s.before?'<dt>الحالة</dt><dd>'+esc(s.before)+' ← '+esc(s.after)+'</dd><dt>الاحتياجات</dt><dd>'+esc((s.needs||[]).join('، ')||'—')+'</dd><dt>التدخلات</dt><dd>'+esc((s.ints||[]).join('، ')||'—')+'</dd>':'')+'<dt>ما تم</dt><dd>'+esc(s.sum)+'</dd>'+(s.plan?'<dt>الخطة القادمة</dt><dd>'+esc(s.plan)+'</dd>':'')+'</dl>');};
+ACT.hist=function(b){var p=pById(b.getAttribute('data-p'));openModal('سجل جلسات: '+p.name,p.sessions.length?'<div class="list">'+p.sessions.map(function(s,i){return '<div class="item" style="--c:var(--ok)">'+dbox(day(s.d))+'<div><h4>الجلسة '+ar(i+1)+' · '+esc(s.phase)+'</h4><p>'+esc(s.sum)+'</p></div></div>';}).join('')+'</div>':'<p class="empty">لا جلسات بعد.</p>');};
+ACT.sendscale=function(b){var p=pById(b.getAttribute('data-p'));
+  openModal('إرسال مقياس إلى: '+p.name,SCALE_NOTE+'<fieldset><legend>المقياس</legend>'+seg('sc',['المقياس القبلي للاحتياج الروحي','مقياس الرفاه الروحي (مهني)','القياس البعدي للاحتياج الروحي'],'مقياس الرفاه الروحي (مهني)')+'</fieldset><p class="info">يصل المقياس إلى المستفيد على واتساب وفي صفحته، وتظهر النتيجة لك وحدك.</p>',
+  function(f){var n=vals(f,'sc')[0];p.scales.push({n:n,st:'wait'});render();toast('أُرسل '+n+' إلى المستفيد');},'أرسل المقياس');};
+ACT.follow=function(b){var p=pById(b.getAttribute('data-p')),f0=p.follow||{};
+  openModal('متابعة الجلسة: '+p.name,'<p class="small">نوع الجلسة: <b>'+esc(p.intake.type)+'</b></p><fieldset><legend>قناة المتابعة</legend>'+seg('fu-c',['واتساب','صفحة المستفيد','واتساب وصفحة المستفيد'],f0.ch||'واتساب')+'</fieldset><label for="fu-f">التكرار'+sel('fu-f',['يومياً','مرتين أسبوعياً','أسبوعياً'],f0.freq||'مرتين أسبوعياً')+'</label><label for="fu-p">خطة متابعة الجلسة<textarea id="fu-p" style="min-height:110px">'+esc(f0.plan||planOf(p.intake.type))+'</textarea></label>',
+  function(f){p.follow={ch:vals(f,'fu-c')[0],freq:$('fu-f').value,plan:$('fu-p').value.trim()};render();toast('فُعّلت المتابعة وأُرسلت الخطة للمستفيد');},'فعّل المتابعة');};
+ACT.refer=function(b){var p=pById(b.getAttribute('data-p'));
+  openModal('إحالة: '+p.name,'<label for="rf-to">إلى'+sel('rf-to',['المستشار الفقهي','المستشار الطبي','المستشار العدلي (الوصايا)','مرشد آخر'])+'</label><fieldset><legend>الأولوية</legend>'+seg('rf-u',['عادية','عاجلة'],'عادية')+'</fieldset><label for="rf-w">سبب الإحالة<textarea id="rf-w"></textarea><span class="err" id="rfe"></span></label>',
+  function(f){if(!setErr('rfe',$('rf-w').value.trim()?'':'اكتب سبب الإحالة'))return false;toast('أُحيل '+p.name+' إلى '+$('rf-to').value);},'أرسل الإحالة');};
+ACT.end=function(b){var p=pById(b.getAttribute('data-p'));
+  openModal('إنهاء الجلسات: '+p.name,'<label for="en-s">ملخص ختامي<textarea id="en-s"></textarea><span class="err" id="ene"></span></label><label style="display:flex;gap:8px;align-items:center;font-weight:400" for="en-1"><input type="checkbox" id="en-1" checked style="width:auto">أرسل القياس البعدي</label><label style="display:flex;gap:8px;align-items:center;font-weight:400" for="en-2"><input type="checkbox" id="en-2" checked style="width:auto">أرسل نموذج ختام الجلسات</label>',
+  function(){var s=$('en-s').value.trim();if(!setErr('ene',s?'':'اكتب ملخصاً ختامياً'))return false;p.closed=true;p.summary=s;p.next=null;if($('en-1').checked)p.scales.push({n:'القياس البعدي للاحتياج الروحي',st:'wait'});if($('en-2').checked)p.scales.push({n:'نموذج ختام الجلسات',st:'wait'});render();toast('أُنهيت الجلسات');},'أنهِ الجلسات');};
+
+/* ======================================================
+   CONSULTANTS (fiqh / med / legal)
+   ====================================================== */
+var CONS={
+ fiqh:{inbox:'الأسئلة المحالة من البوت',sub:'أسئلة لم يجد البوت جوابها في المرجع المعتمد',reply:'اكتب الجواب',hint:'يصل الجواب إلى المستفيد على واتساب وفي صفحته.',kb:true,
+   items:[{name:'عبدالله محمد السبيعي',kind:'مريض',q:'أتلقى العلاج الكيميائي في المستشفى طوال اليوم، فهل يجوز لي الجمع بين الظهر والعصر؟',note:'لم يجد البوت جواباً مطابقاً لحالة العلاج طوال اليوم.',when:'منذ ساعتين',st:'new'},
+          {name:'منى عبدالله',kind:'مرافق',q:'والدي في العناية المركزة ولا يستطيع الكلام ولا الحركة، فكيف يتطهر ويصلي؟',note:'سؤال يحتاج تفصيلاً بحسب حالة المريض.',when:'منذ ٥ ساعات',st:'new'},
+          {name:'سعد ناصر القحطاني',kind:'مريض',q:'هل يلزمني قضاء ما فاتني من الصيام وأنا لا أُرجى برئي؟',note:'',when:'أمس',st:'done',ans:'من كان مرضه لا يُرجى برؤه لا يلزمه القضاء، ويطعم عن كل يوم مسكيناً.'}],
+   appts:[{name:'فاطمة علي الشهري',d:1,t:'٨:٣٠ م',topic:'أحكام الطهارة مع القسطرة'},{name:'نورة حمد العتيبي',d:3,t:'٧:٠٠ م',topic:'أحكام المرافق في عبادته'}]},
+ med:{inbox:'الإحالات الواردة من المرشدين',sub:'حالات يحتاج فيها المرشد رأياً طبياً',reply:'اكتب التوصية',hint:'تصل التوصية إلى المرشد المحيل، ويمكنك طلب التنسيق مع الفريق المعالج.',coord:true,
+   items:[{name:'سعد ناصر القحطاني',kind:'مريض',from:'المرشد الروحي',q:'يذكر المريض ألماً شديداً لا يهدأ ليلاً، ويسأل إن كان المسكّن يؤثر في وعيه أثناء الصلاة.',when:'منذ ساعة',st:'new',urgent:true},
+          {name:'نورة حمد العتيبي',kind:'مرافق',from:'المرشد الروحي',q:'المرافقة تشكو أرقاً وإرهاقاً شديداً منذ أسابيع، فهل يُنصح بإحالتها إلى الفريق النفسي في المستشفى؟',when:'منذ ٤ ساعات',st:'new'},
+          {name:'فاطمة علي الشهري',kind:'مريض',from:'مرشد التدبر',q:'هل يناسب حالتها الصيام التطوعي الذي ترغب فيه؟',when:'قبل يومين',st:'done',ans:'لا يُنصح به في المرحلة الحالية من العلاج، ويُكتفى بالذكر والدعاء.'}],
+   appts:[{name:'عبدالله محمد السبيعي',d:2,t:'١:٠٠ م',topic:'استشارة بالتنسيق مع المرشد حول الألم والنوم'}]},
+ legal:{inbox:'طلبات الوصايا',sub:'بالشراكة مع مركز واقف',stages:['طلب جديد','جلسة تمهيدية','إعداد مسودة الوصية','مراجعة المستفيد','الإرشاد إلى التوثيق','مكتملة'],
+   items:[{name:'عبدالله محمد السبيعي',kind:'مريض',q:'يرغب في كتابة وصية بالثلث لوقف سقيا ماء، وتوثيق دين له على أحد أقاربه.',when:'منذ يوم',stage:0,notes:[]},
+          {name:'خالد إبراهيم الدوسري',kind:'مريض',q:'وصية بالأهل والأولاد، ومسامحة ورد حقوق.',when:'قبل أسبوع',stage:2,notes:['اتُّفق في الجلسة التمهيدية على بنود الوصية.']},
+          {name:'هيا عبدالعزيز',kind:'مرافق',q:'تسأل عن كيفية توثيق وصية والدتها رسمياً.',when:'قبل أسبوعين',stage:4,notes:['أُرشدت إلى خطوات التوثيق لدى الجهات المختصة.']}],
+   appts:[{name:'عبدالله محمد السبيعي',d:2,t:'٧:٠٠ م',topic:'جلسة تمهيدية للوصية بحضور ابنته'}]}
+};
+function consModule(){
+  var K=CONS[ROLE];
+  MSGS=[{from:'إدارة الخدمة',sub:'مرحباً بك في فريق الخدمة',body:'فُعّل حسابك. تصلك الطلبات بعد أن تسندها الإدارة إليك.',when:'قبل أسبوع',read:false}];
+  HELLO[ROLE]=function(){$('hi').textContent='مرحباً بك';$('hi-sub').textContent=K.sub;$('hi-act').innerHTML='';};
+  BADGES[ROLE]=function(){badge('in',K.items.filter(function(x){return K.stages?x.stage<K.stages.length-1:x.st==='new';}).length);badge('msg',MSGS.filter(function(m){return !m.read;}).length);};
+  function item(x,i){
+    var h='<div class="item" style="--c:'+((K.stages?x.stage===K.stages.length-1:x.st==='done')?'var(--ok)':'var(--role)')+'"><div style="grid-column:1/-1;display:grid;gap:6px"><div class="sec-h"><h4>'+esc(x.name)+' <span class="pill">'+x.kind+'</span>'+(x.urgent?' <span class="pill new">عاجل</span>':'')+'</h4><span class="small muted">'+esc(x.when)+(x.from?' · من '+esc(x.from):'')+'</span></div><div class="quote">'+esc(x.q)+'</div>';
+    if(x.note)h+='<p class="small muted">ملاحظة البوت: '+esc(x.note)+'</p>';
+    if(K.stages){h+='<div class="steps-line">'+K.stages.map(function(s,j){return '<span class="'+(j<x.stage?'done':j===x.stage?'cur':'')+'">'+s+'</span>';}).join('')+'</div>'+(x.notes.length?'<p class="small">آخر ملاحظة: '+esc(x.notes[x.notes.length-1])+'</p>':'');}
+    else if(x.st==='done')h+='<div class="box"><b>'+(ROLE==='fiqh'?'الجواب المرسل':'التوصية المرسلة')+'</b><span>'+esc(x.ans)+'</span></div>';
+    h+='</div>';
+    if(K.stages){if(x.stage<K.stages.length-1)h+='<div class="acts"><button class="btn btn-p btn-s" type="button" data-a="stage" data-i="'+i+'">انقل إلى: '+K.stages[x.stage+1]+'</button><button class="btn btn-g btn-s" type="button" data-a="lnote" data-i="'+i+'">أضف ملاحظة</button></div>';}
+    else if(x.st==='new')h+='<div class="acts"><button class="btn btn-p btn-s" type="button" data-a="reply" data-i="'+i+'">'+K.reply+'</button>'+(ROLE==='fiqh'?'<button class="btn btn-g btn-s" type="button" data-a="tosess" data-i="'+i+'">يحتاج جلسة</button>':'')+'</div>';
+    return h+'</div>';
+  }
+  return [
+   {k:'home',l:'الرئيسية',r:function(){var open=K.items.filter(function(x){return K.stages?x.stage<K.stages.length-1:x.st==='new';});
+     return kpis([[K.inbox+' المفتوحة',open.length,'var(--coral)'],['منجزة',K.items.length-open.length,'var(--ok)'],['مواعيد قادمة',K.appts.length,'var(--accent)']])+
+     '<div class="card" style="display:grid;gap:10px"><div class="sec-h"><h2>'+K.inbox+'</h2><button class="btn btn-g btn-s" type="button" data-a="go" data-k="in">عرض الكل</button></div><div class="list">'+(open.slice(0,2).map(function(x){return item(x,K.items.indexOf(x));}).join('')||'<p class="empty">لا طلبات مفتوحة.</p>')+'</div></div>';}},
+   {k:'in',l:K.inbox,r:function(){return '<div class="sec-h"><h2>'+K.inbox+'</h2><span class="small muted">'+(K.hint||K.sub)+'</span></div><div class="list">'+K.items.map(item).join('')+'</div>';}},
+   {k:'appts',l:'مواعيدي',r:function(){return '<div class="list">'+K.appts.map(function(a){var d=day(a.d);return '<div class="item">'+dbox(d)+'<div><h4>'+esc(a.name)+'</h4><p>'+dl(d)+' · '+'<bdi>'+a.t+'</bdi>'+' · '+esc(a.topic)+'</p></div><div class="acts"><button class="btn btn-g btn-s" type="button" data-a="start">ابدأ الجلسة</button><button class="btn btn-p btn-s" type="button" data-a="cdoc" data-n="'+esc(a.name)+'">وثّق الجلسة</button></div></div>';}).join('')+'</div>';}},
+   {k:'msg',l:'الرسائل',r:function(){return msgsList(MSGS);}},
+   {k:'prof',l:'ملفي',r:function(){return profilePane();}}
+  ];
+}
+MODULES.fiqh=consModule;MODULES.med=consModule;MODULES.legal=consModule;
+ACT.reply=function(b){var K=CONS[ROLE],x=K.items[+b.getAttribute('data-i')];
+  openModal(K.reply+': '+x.name,'<div class="quote">'+esc(x.q)+'</div><label for="rp">'+(ROLE==='fiqh'?'الجواب':'التوصية')+'<textarea id="rp" style="min-height:130px"></textarea><span class="err" id="rpe"></span></label>'+
+   (K.kb?'<label style="display:flex;gap:8px;align-items:center;font-weight:400" for="rp-kb"><input type="checkbox" id="rp-kb" checked style="width:auto">أضف الجواب إلى مرجع البوت بعد اعتماده، ليجيب به عن الأسئلة المشابهة</label>':'')+
+   (K.coord?'<label style="display:flex;gap:8px;align-items:center;font-weight:400" for="rp-co"><input type="checkbox" id="rp-co" style="width:auto">أطلب التنسيق مع الفريق الطبي المعالج في المستشفى</label>':'')+
+   '<p class="info">'+K.hint+'</p>',
+  function(){var v=$('rp').value.trim();if(!setErr('rpe',v?'':'اكتب '+(ROLE==='fiqh'?'الجواب':'التوصية')))return false;x.st='done';x.ans=v;render();toast(ROLE==='fiqh'?'أُرسل الجواب إلى المستفيد على واتساب':'أُرسلت التوصية إلى المرشد');},'أرسل');};
+ACT.tosess=function(b){var x=CONS.fiqh.items[+b.getAttribute('data-i')];x.st='done';x.ans='السؤال يحتاج تفصيلاً، فحُجزت للمستفيد جلسة استشارة فقهية.';CONS.fiqh.appts.push({name:x.name,d:2,t:'٨:٣٠ م',topic:'متابعة سؤال: '+x.q.slice(0,40)+'…'});render();toast('أُرسل للمستفيد رابط حجز جلسة على واتساب');};
+ACT.stage=function(b){var x=CONS.legal.items[+b.getAttribute('data-i')];x.stage++;render();toast('انتقل الطلب إلى: '+CONS.legal.stages[x.stage]);};
+ACT.lnote=function(b){var x=CONS.legal.items[+b.getAttribute('data-i')];openModal('ملاحظة على طلب: '+x.name,'<label for="ln">الملاحظة<textarea id="ln"></textarea></label>',function(){var v=$('ln').value.trim();if(v)x.notes.push(v);render();toast('حُفظت الملاحظة');},'احفظ');};
+ACT.cdoc=function(b){openModal('توثيق الجلسة: '+b.getAttribute('data-n'),'<label for="cd">ما تم في الجلسة<textarea id="cd"></textarea><span class="err" id="cde"></span></label><label for="cd2">التوصيات<textarea id="cd2" style="min-height:60px"></textarea></label>',function(){if(!setErr('cde',$('cd').value.trim()?'':'اكتب ما تم في الجلسة'))return false;toast('حُفظ التوثيق');},'احفظ التوثيق');};
+
+/* ======================================================
+   PATIENT / COMPANION
+   ====================================================== */
+var ME={name:'عبدالله محمد السبيعي',cname:'منى عبدالله',kind:'المريض'};
+var MY={
+ appts:[{d:0,t:'٧:٠٠ م',title:'جلسة دعم روحي',type:'يحددها المرشد بعد المقياس',mode:'مرئية',st:'up'},{d:2,t:'٧:٠٠ م',title:'جلسة استشارة عدلية: الوصية',type:'بحضور المرافق',mode:'مرئية',st:'up'},{d:-7,t:'٨:٣٠ م',title:'جلسة استشارة فقهية',type:'أحكام الطهارة',mode:'صوتية',st:'done'},{d:-14,t:'٧:٠٠ م',title:'جلسة دعم روحي',type:'التقييم الأولي',mode:'مرئية',st:'done'}],
+ scales:[{n:'مقياس الرفاه الروحي (مهني)',st:'wait',from:'المرشد'},{n:'المقياس القبلي للاحتياج الروحي',st:'done',from:'المرشد'}],
+ follow:{type:TYPES[0].t,ch:'واتساب وصفحة المستفيد',freq:'مرتين أسبوعياً',plan:TYPES[0].plan,tasks:['أذكار الصباح والمساء','قراءة آية الطمأنينة التي أرسلها المرشد','دقيقتان من الدعاء بما تحب','الحديث مع أحد أفراد الأسرة عمّا يطمئنك']},
+ khatma:{type:'ختمة مع تفسير',dur:'شهرين',day:12,total:60},
+ baq:{day:7,total:30,today:[['آية اليوم','﴿أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ﴾ وتأمل قصير في معناها.'],['ورد الذكر','سبحان الله، والحمد لله، ولا إله إلا الله، والله أكبر.'],['دعاء اليوم','«اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَأْسَ، اشْفِ أَنْتَ الشَّافِي».'],['عمل صالح يسير','كلمة طيبة لمن يرعاك اليوم.'],['وقفة تأمل','ما النعمة التي شعرت بها اليوم؟']]},
+ wish:{t:'وقف كرسي متحرك',stage:2,stages:['استلام الرغبة','تحديد الجهة المستفيدة','التنفيذ','التسليم وإشعارك']},
+ sadaqa:'أفكار الصدقة اليومية',
+ qs:[{q:'هل يجوز لي الجمع بين الظهر والعصر أثناء العلاج الكيميائي؟',st:'referred',by:'أُحيل إلى المستشار الفقهي'},{q:'كيف أتيمم إذا شق عليّ الوضوء؟',st:'bot',ans:'إذا شق عليك استعمال الماء لمرضك فتيمم: تضرب بيديك الصعيد الطاهر ضربة واحدة، وتمسح بهما وجهك وكفيك.'},{q:'هل أقضي الصلوات التي فاتتني في العناية المركزة؟',st:'cons',ans:'من فاته شيء من الصلوات وهو مغمى عليه يسيراً قضاه، وإن طال الإغماء فلا قضاء عليه على قول جمع من أهل العلم، ويُستحسن سؤال المستشار في حالتك.'}]
+};
+HELLO.patient=function(){$('hi').textContent=ME.kind==='المرافق'?'مرحباً، '+ME.cname:'مرحباً، '+ME.name.split(' ')[0];$('hi-sub').textContent=ME.kind==='المرافق'?'تتابع بصفتك مرافقاً للمريض: '+ME.name:'صفحتك الخاصة في خدمة الدعم والمساندة';$('hi-act').innerHTML='<a class="btn btn-wa btn-s" href="https://wa.me/" target="_blank" rel="noopener">اطلب خدمة عبر واتساب</a>';};
+BADGES.patient=function(){badge('sc',MY.scales.filter(function(s){return s.st==='wait';}).length);badge('msg',MSGS.filter(function(m){return !m.read;}).length);};
+MODULES.patient=function(){
+  MSGS=[{from:'المرشد',sub:'خطة متابعة جلستك',body:MY.follow.type+'\n'+MY.follow.plan+'\nالتكرار: '+MY.follow.freq,when:'أمس',read:false},{from:'إدارة الخدمة',sub:'مرحباً بك في خدمة الدعم والمساندة',body:'تجد هنا مواعيدك ومقاييسك وخطة متابعتك. نسأل الله لك الشفاء والطمأنينة.',when:'قبل أسبوعين',read:true}];
+  return [
+  {k:'home',l:'الرئيسية',r:function(){var n=MY.appts.filter(function(a){return a.st==='up';})[0],d=day(n.d);
+    return '<div class="hero-card"><span class="small">موعدك القادم</span><h2>'+esc(n.title)+'</h2><p>'+dl(d)+' ('+hj(d)+') · '+'<bdi>'+n.t+'</bdi>'+' · '+n.mode+'</p><p class="small">'+esc(n.type)+'</p><button class="btn" type="button" data-a="join">انضم إلى الجلسة</button></div>'+
+    kpis([['مقاييس مطلوبة منك',MY.scales.filter(function(s){return s.st==='wait';}).length,'var(--coral)'],['يوم الختمة',ar(MY.khatma.day)+' من '+ar(MY.khatma.total),'var(--accent)'],['الباقيات الصالحات',ar(MY.baq.day)+' من '+ar(MY.baq.total),'var(--spirit)'],['رسائل جديدة',MSGS.filter(function(m){return !m.read;}).length,'var(--grape)']])+
+    (MY.scales.some(function(s){return s.st==='wait';})?'<div class="note"><b>لديك مقياس مطلوب.</b> أرسله مرشدك ليعرف كيف يعينك. <button class="btn btn-p btn-s" type="button" data-a="go" data-k="sc">ابدأ الآن</button></div>':'');}},
+  {k:'appts',l:'مواعيدي',r:function(){var up=MY.appts.filter(function(a){return a.st==='up';}),dn=MY.appts.filter(function(a){return a.st!=='up';});
+    function it(a){var d=day(a.d);return '<div class="item" style="--c:'+(a.st==='up'?'var(--role)':'var(--ok)')+'">'+dbox(d)+'<div><h4>'+esc(a.title)+'</h4><p>'+dl(d)+' · '+'<bdi>'+a.t+'</bdi>'+' · '+a.mode+' · '+esc(a.type)+'</p></div>'+(a.st==='up'?'<div class="acts"><button class="btn btn-p btn-s" type="button" data-a="join">انضم إلى الجلسة</button><a class="btn btn-g btn-s" href="https://wa.me/" target="_blank" rel="noopener">تغيير الموعد عبر واتساب</a></div>':'')+'</div>';}
+    return '<div class="sec-h"><h2>القادمة</h2><a class="btn btn-wa btn-s" href="https://wa.me/" target="_blank" rel="noopener">اطلب موعداً جديداً</a></div><div class="list">'+up.map(it).join('')+'</div><div class="sec-h"><h2>السابقة</h2></div><div class="list">'+dn.map(it).join('')+'</div>';}},
+  {k:'sc',l:'مقاييسي',r:function(){return SCALE_NOTE+'<div class="list">'+MY.scales.map(function(s,i){return '<div class="item" style="--c:'+(s.st==='wait'?'var(--coral)':'var(--ok)')+'"><div style="grid-column:1/-1"><div class="sec-h"><h4>'+esc(s.n)+'</h4>'+(s.st==='wait'?'<span class="pill new">مطلوب منك</span>':'<span class="pill ok">أُرسلت إجاباتك إلى المرشد</span>')+'</div><p>أرسله '+esc(s.from)+'. تظهر النتيجة لمرشدك فقط.</p></div>'+(s.st==='wait'?'<div class="acts"><button class="btn btn-p btn-s" type="button" data-a="fill" data-i="'+i+'">ابدأ الآن</button></div>':'')+'</div>';}).join('')+'</div>';}},
+  {k:'fu',l:'متابعتي',r:function(){var f=MY.follow;
+    return '<div class="card" style="display:grid;gap:10px;border-top:5px solid var(--role)"><h2>خطة متابعة جلستي</h2><div class="tags"><span class="pill role">'+esc(f.type)+'</span><span class="pill">'+esc(f.freq)+'</span><span class="pill">تصلك عبر: '+esc(f.ch)+'</span></div><p>'+esc(f.plan)+'</p></div>'+
+    '<div class="card" style="display:grid;gap:8px"><h3>مهام اليوم من مرشدك</h3>'+f.tasks.map(function(t,i){return '<label class="chk" for="tk'+i+'"><input type="checkbox" id="tk'+i+'"><span>'+esc(t)+'</span></label>';}).join('')+'<p class="small muted">علّم ما أنجزته، فيرى مرشدك التزامك ويعينك.</p></div>'+
+    '<div class="two"><div class="card"><h3>خطتي العلاجية الشرعية</h3><p class="muted small" style="margin-top:6px">يُضاف لاحقاً.</p></div><div class="card"><h3>وصفاتي الروحية</h3><p class="muted small" style="margin-top:6px">يُضاف لاحقاً.</p></div></div>';}},
+  {k:'zad',l:'زاد المريض',r:function(){var k=MY.khatma,b=MY.baq,w=MY.wish,hz=k.day;
+    return '<div class="two"><div class="card" style="display:grid;gap:10px;border-top:5px solid var(--accent)"><div class="sec-h"><h2>ختمتي</h2><span class="pill role">'+esc(k.type)+' · '+esc(k.dur)+'</span></div><div class="bar-row" style="grid-template-columns:1fr 60px"><span class="track"><i style="width:'+(k.day/k.total*100)+'%;background:var(--accent)"></i></span><b class="small">'+ar(Math.round(k.day/k.total*100))+'٪</b></div><p class="small muted">اليوم '+ar(k.day)+' من '+ar(k.total)+'</p><div class="box"><b>ورد اليوم: الحزب '+ar(hz)+'</b><span>مع تفسير ميسّر للورد، وصلك على واتساب.</span></div><button class="btn btn-p btn-s" type="button" data-a="hizb" style="justify-self:start">قرأت ورد اليوم</button></div>'+
+     '<div class="card" style="display:grid;gap:10px;border-top:5px solid var(--spirit)"><div class="sec-h"><h2>الباقيات الصالحات</h2><span class="pill role">اليوم '+ar(b.day)+' من '+ar(b.total)+'</span></div>'+b.today.map(function(t,i){return '<label class="chk" for="bq'+i+'"><input type="checkbox" id="bq'+i+'"><span><b>'+t[0]+':</b> '+esc(t[1])+'</span></label>';}).join('')+'</div></div>'+
+     '<div class="two"><div class="card" style="display:grid;gap:10px;border-top:5px solid var(--sun)"><h2>أمنية وأثر</h2><p>'+esc(w.t)+' باسمك</p><div class="steps-line">'+w.stages.map(function(s,j){return '<span class="'+(j<w.stage?'done':j===w.stage?'cur':'')+'">'+s+'</span>';}).join('')+'</div></div>'+
+     '<div class="card" style="display:grid;gap:10px;border-top:5px solid var(--coral)"><h2>صدقتي الجارية</h2><p>مشترك في: '+esc(MY.sadaqa)+'</p><div class="box"><b>صدقة اليوم</b><span>الابتسامة في وجه من يزورك: «تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ».</span></div></div></div>';}},
+  {k:'qs',l:'أسئلتي الفقهية',r:function(){var lab={bot:['أجاب البوت','ok'],referred:['أُحيل إلى المستشار الفقهي','wait'],cons:['أجاب المستشار الفقهي','ok']};
+    return '<div class="sec-h"><h2>أسئلتي الفقهية</h2><a class="btn btn-wa btn-s" href="https://wa.me/?text='+encodeURIComponent('سؤال فقهي:\n')+'" target="_blank" rel="noopener">اسأل البوت عبر واتساب</a></div><div class="list">'+MY.qs.map(function(q){var l=lab[q.st];return '<div class="item" style="--c:'+(l[1]==='ok'?'var(--ok)':'var(--sun)')+'"><div style="grid-column:1/-1;display:grid;gap:6px"><div class="sec-h"><h4>'+esc(q.q)+'</h4><span class="pill '+l[1]+'">'+l[0]+'</span></div>'+(q.ans?'<div class="quote">'+esc(q.ans)+'</div>':'<p>يصلك رد المستشار على واتساب وهنا.</p>')+'</div></div>';}).join('')+'</div>';}},
+  {k:'msg',l:'رسائلي',r:function(){return msgsList(MSGS);}}
+  ];
+};
+ACT.join=function(){toast('يُفتح رابط الجلسة المرئية قبل موعدها بعشر دقائق (تجريبي)');};
+ACT.hizb=function(){if(MY.khatma.day<MY.khatma.total)MY.khatma.day++;render();toast('بارك الله فيك، سُجّل ورد اليوم');};
+ACT.fill=function(b){var s=MY.scales[+b.getAttribute('data-i')],items=SCALES[s.n]||SCALES['مقياس الرفاه الروحي (مهني)'];
+  openModal(s.n,SCALE_NOTE+items.map(function(t,i){return '<fieldset class="q"><legend>'+esc(t)+'</legend><div class="likert">'+LIK.map(function(l,v){return '<label for="f'+i+'-'+v+'"><input type="radio" name="f'+i+'" id="f'+i+'-'+v+'" value="'+v+'">'+l+'</label>';}).join('')+'</div></fieldset>';}).join('')+'<span class="err" id="fe"></span>',
+  function(f){var miss=items.filter(function(_,i){return !vals(f,'f'+i).length;}).length;if(!setErr('fe',miss?'بقيت '+ar(miss)+' بنود دون إجابة':''))return false;s.st='done';render();toast('أُرسلت إجاباتك إلى مرشدك');},'أرسل إجاباتي');};
+
+/* ======================================================
+   ADMIN
+   ====================================================== */
+var STAFF=[
+ {t:'المرشد الروحي ١',role:'مرشد',spec:'مرشد روحي',st:'مفعّل',load:5},
+ {t:'المرشدة الروحية ٢',role:'مرشد',spec:'مرشدة روحية',st:'مفعّل',load:4},
+ {t:'مرشد التدبر',role:'مرشد',spec:'مرشد تدبر',st:'مفعّل',load:3},
+ {t:'مرشدة الفقد والمواساة',role:'مرشد',spec:'مرشدة فقد ومواساة',st:'بانتظار الموافقة',load:0},
+ {t:'المستشار الفقهي',role:'مستشار فقهي',spec:'فقه المريض',st:'مفعّل',load:6},
+ {t:'المستشار الطبي',role:'مستشار طبي',spec:'طب تلطيفي',st:'مفعّل',load:2},
+ {t:'المستشار العدلي',role:'مستشار عدلي',spec:'الوصايا (مركز واقف)',st:'مفعّل',load:3}
+];
+var AREQ=[
+ {name:'محمد سالم الحربي',kind:'مريض',svc:'جلسة دعم روحي (مقياس قبلي)',when:'منذ ساعة',to:null},
+ {name:'هيا عبدالعزيز',kind:'مرافق',svc:'جلسة مواجهة الخبر السيئ',when:'منذ ٣ ساعات',to:null},
+ {name:'عائشة يوسف',kind:'مريض',svc:'استشارة الوصايا',when:'منذ ٥ ساعات',to:null},
+ {name:'سليمان أحمد',kind:'مريض',svc:'ختمة مع غريب القرآن (٣ أشهر)',when:'أمس',to:'فريق زاد المريض'},
+ {name:'لطيفة ناصر',kind:'مرافق',svc:'أمنية وأثر: توزيع ماء',when:'أمس',to:'فريق زاد المريض'}
+];
+var SVC=['جلسات الدعم الروحي','جلسات التدبر','كيف ترقي نفسك','زاد المريض','الفقد والمواساة','الاستشارة الفقهية','استشارة الوصايا (بالشراكة مع مركز واقف)'];
+var SENT=[];
+HELLO.admin=function(){$('hi').textContent='لوحة الإدارة';$('hi-sub').textContent='صلاحيات كاملة على الخدمة';$('hi-act').innerHTML='';};
+BADGES.admin=function(){badge('req',AREQ.filter(function(r){return !r.to;}).length);badge('team',STAFF.filter(function(s){return s.st==='بانتظار الموافقة';}).length);};
+function staffFor(svc){if(/الوصايا/.test(svc))return STAFF.filter(function(s){return s.role==='مستشار عدلي';});if(/فقه/.test(svc))return STAFF.filter(function(s){return s.role==='مستشار فقهي';});if(/ختمة|أمنية|زاد/.test(svc))return [{t:'فريق زاد المريض'}];return STAFF.filter(function(s){return s.role==='مرشد'&&s.st==='مفعّل';});}
+MODULES.admin=function(){return [
+ {k:'ov',l:'نظرة عامة',r:function(){
+   var act=STAFF.filter(function(s){return s.st==='مفعّل';});
+   var roles=[['مرشد','var(--spirit)'],['مستشار فقهي','var(--accent)'],['مستشار طبي','var(--coral)'],['مستشار عدلي','var(--grape)']];
+   return '<p class="note">تنويه: لديك صلاحية كاملة: توزيع الطلبات، واعتماد الحسابات، وتعديل مسميات الخدمات وإضافتها، وإضافة المحتوى، ومراسلة الجميع.</p>'+
+   kpis([['المستفيدون',PATS.length+12],['المرشدون',act.filter(function(s){return s.role==='مرشد';}).length,'var(--spirit)'],['المستشارون',act.filter(function(s){return s.role!=='مرشد';}).length,'var(--grape)'],['طلبات بانتظار التوزيع',AREQ.filter(function(r){return !r.to;}).length,'var(--coral)'],['جلسات هذا الأسبوع',23,'var(--accent)'],['أسئلة محالة من البوت',2,'var(--sun)'],['مشتركو زاد المريض',41,'var(--mint)']])+
+   '<div class="two"><div class="card" style="display:grid;gap:10px"><h2>الفريق حسب الدور</h2>'+roles.map(function(r){var n=act.filter(function(s){return s.role===r[0];}).length;return '<div class="bar-row"><span>'+r[0]+'</span><span class="track"><i style="width:'+(n/4*100)+'%;background:'+r[1]+'"></i></span><b>'+ar(n)+'</b></div>';}).join('')+'</div>'+
+   '<div class="card" style="display:grid;gap:10px"><h2>أكثر الخدمات طلباً هذا الشهر</h2>'+[['جلسات الدعم الروحي',38],['زاد المريض',27],['الاستشارة الفقهية',19],['جلسات التدبر',12],['استشارة الوصايا',6]].map(function(r){return '<div class="bar-row"><span>'+r[0]+'</span><span class="track"><i style="width:'+(r[1]/38*100)+'%"></i></span><b>'+ar(r[1])+'</b></div>';}).join('')+'</div></div>';}},
+ {k:'req',l:'الطلبات الواردة',r:function(){return '<div class="sec-h"><h2>الطلبات الواردة من واتساب</h2><span class="small muted">أسند كل طلب إلى المختص، فيصله في لوحته</span></div><div class="list">'+AREQ.map(function(r,i){
+   var opts=staffFor(r.svc).map(function(s){return s.t;});
+   return '<div class="item" style="--c:'+(r.to?'var(--ok)':'var(--coral)')+'"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(r.name)+' <span class="pill">'+r.kind+'</span></h4>'+(r.to?'<span class="pill ok">أُسند إلى: '+esc(r.to)+'</span>':'<span class="pill new">بانتظار الإسناد</span>')+'</div><p>'+esc(r.svc)+' · '+esc(r.when)+'</p></div>'+(r.to?'':'<div class="acts" style="align-items:center"><label for="as'+i+'" class="small" style="display:flex;gap:6px;align-items:center">إلى'+sel('as'+i,opts)+'</label><button class="btn btn-p btn-s" type="button" data-a="assign" data-i="'+i+'">أسند الطلب</button></div>')+'</div>';}).join('')+'</div>';}},
+ {k:'team',l:'الفريق',r:function(){return '<div class="two"><div class="list">'+STAFF.map(function(s,i){var c=s.st==='مفعّل'?'ok':s.st==='موقوف'?'cx':'wait';
+   return '<div class="item" style="--c:var(--'+(s.role==='مرشد'?'spirit':s.role==='مستشار فقهي'?'accent':s.role==='مستشار طبي'?'coral':'grape')+')"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(s.t)+'</h4><span class="pill '+c+'"'+(c==='cx'?' style="text-decoration:none"':'')+'>'+s.st+'</span></div><p>'+esc(s.role)+' · '+esc(s.spec)+' · الحالات الحالية: '+ar(s.load)+'</p></div><div class="acts">'+(s.st==='بانتظار الموافقة'?'<button class="btn btn-p btn-s" type="button" data-a="stf" data-v="مفعّل" data-i="'+i+'">موافقة وتفعيل</button><button class="btn btn-g btn-s" type="button" data-a="stf" data-v="مرفوض" data-i="'+i+'">رفض</button>':s.st==='مفعّل'?'<button class="btn btn-g btn-s" type="button" data-a="stf" data-v="موقوف" data-i="'+i+'">إيقاف</button>':'<button class="btn btn-g btn-s" type="button" data-a="stf" data-v="مفعّل" data-i="'+i+'">تفعيل</button>')+'</div></div>';}).join('')+'</div>'+
+   '<form class="card" id="ns" novalidate style="display:grid;gap:12px;align-content:start"><h3>إضافة عضو إلى الفريق</h3><label for="ns-t">الاسم أو المسمى<input id="ns-t"><span class="err" id="nse"></span></label><label for="ns-r">الدور'+sel('ns-r',['مرشد','مستشار فقهي','مستشار طبي','مستشار عدلي'])+'</label><label for="ns-s">التخصص<input id="ns-s" placeholder="مثال: مرشد تدبر"></label><label for="ns-e">البريد<input id="ns-e" dir="ltr" type="email"></label><button class="btn btn-p" type="button" data-a="addstf" style="justify-self:start">أضف وأرسل دعوة الدخول</button></form></div>';}},
+ {k:'bene',l:'المستفيدون',r:function(){var g=STAFF.filter(function(s){return s.role==='مرشد'&&s.st==='مفعّل';}).map(function(s){return s.t;});
+   return '<div class="list">'+PATS.map(function(p,i){return '<div class="item"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(p.name)+' <span class="pill">'+p.kind+'</span></h4>'+(p.closed?'<span class="pill cx" style="text-decoration:none">أُنهيت الجلسات</span>':'<span class="pill role">نشط</span>')+'</div><p>'+esc(p.hosp)+' · الجلسات: '+ar(p.sessions.length)+' · '+(p.intake.type?esc(p.intake.type):'بانتظار اعتماد نوع الجلسة')+'</p></div><div class="acts" style="align-items:center"><label for="bg'+i+'" class="small" style="display:flex;gap:6px;align-items:center">المرشد'+sel('bg'+i,g,g[i%g.length])+'</label><button class="btn btn-g btn-s" type="button" data-a="reassign" data-i="'+i+'">احفظ</button></div></div>';}).join('')+'</div><p class="info">نتائج المقاييس لا تظهر للإدارة، وتظهر لمرشد المستفيد وحده.</p>';}},
+ {k:'svc',l:'الخدمات والمحتوى',r:function(){return '<div class="two"><div class="card" style="display:grid;gap:10px"><h2>مسميات الخدمات</h2>'+SVC.map(function(s,i){return '<div style="display:flex;gap:8px"><input id="sv'+i+'" value="'+esc(s)+'" aria-label="مسمى الخدمة '+ar(i+1)+'"><button class="btn btn-g btn-s" type="button" data-a="svsave" data-i="'+i+'">احفظ</button></div>';}).join('')+
+   '<div style="display:flex;gap:8px;margin-top:6px"><input id="sv-new" placeholder="خدمة أو جلسة جديدة" aria-label="خدمة جديدة"><button class="btn btn-p btn-s" type="button" data-a="svadd">أضف</button></div></div>'+
+   '<div class="card" style="display:grid;gap:10px"><h2>أنواع جلسات الدعم الروحي</h2>'+TYPES.map(function(t,i){return '<div style="display:flex;gap:8px"><input id="ty-'+i+'" value="'+esc(t.t)+'" aria-label="نوع الجلسة '+ar(i+1)+'"><button class="btn btn-g btn-s" type="button" data-a="tysave" data-i="'+i+'">احفظ</button></div>';}).join('')+
+   '<h3 style="margin-top:8px">إضافة محتوى</h3><div class="row"><label for="ct-k">النوع'+sel('ct-k',['ندوة','برنامج','مقال','مجموعة في زاد المريض'])+'</label><label for="ct-t">العنوان<input id="ct-t"></label></div><button class="btn btn-p btn-s" type="button" data-a="ctadd" style="justify-self:start">انشر</button></div></div>';}},
+ {k:'msgs',l:'الرسائل',r:function(){return '<div class="two"><form class="card" novalidate style="display:grid;gap:12px"><h2>رسالة جديدة</h2><label for="ms-to">إلى'+sel('ms-to',['كل الفريق','كل المرشدين','كل المستشارين','كل المستفيدين','المرضى فقط','المرافقون فقط'])+'</label><label for="ms-c">القناة'+sel('ms-c',['واتساب والمنصة','المنصة فقط','واتساب فقط'])+'</label><label for="ms-s">العنوان<input id="ms-s"></label><label for="ms-b">النص<textarea id="ms-b"></textarea><span class="err" id="mse"></span></label><button class="btn btn-p" type="button" data-a="send" style="justify-self:start">أرسل</button></form>'+
+   '<div class="card" style="display:grid;gap:10px;align-content:start"><h2>المرسلة</h2>'+(SENT.length?SENT.map(function(m){return '<div class="item" style="--c:var(--ok)"><div style="grid-column:1/-1"><h4>'+esc(m.s)+'</h4><p>إلى '+esc(m.to)+' · عبر '+esc(m.c)+' · الآن</p></div></div>';}).join(''):'<p class="empty">لم تُرسل رسائل بعد.</p>')+'</div></div>';}}
+];};
+ACT.assign=function(b){var i=+b.getAttribute('data-i'),r=AREQ[i];r.to=$('as'+i).value;render();toast('أُسند الطلب إلى '+r.to+'، ووصله في لوحته');};
+ACT.stf=function(b){var s=STAFF[+b.getAttribute('data-i')];s.st=b.getAttribute('data-v');render();toast(s.t+': '+s.st);};
+ACT.addstf=function(){var t=$('ns-t').value.trim();if(!setErr('nse',t?'':'اكتب الاسم أو المسمى'))return;STAFF.push({t:t,role:$('ns-r').value,spec:$('ns-s').value.trim()||'—',st:'بانتظار الموافقة',load:0});render();toast('أُضيف '+t+'، وأُرسلت له دعوة الدخول');};
+ACT.reassign=function(b){toast('حُفظ المرشد المسؤول');};
+ACT.svsave=function(b){var i=+b.getAttribute('data-i');SVC[i]=$('sv'+i).value.trim()||SVC[i];toast('حُفظ المسمى، ويظهر في الموقع');};
+ACT.svadd=function(){var v=$('sv-new').value.trim();if(!v)return;SVC.push(v);render();toast('أُضيفت: '+v);};
+ACT.tysave=function(b){var i=+b.getAttribute('data-i');TYPES[i].t=$('ty-'+i).value.trim()||TYPES[i].t;toast('حُفظ نوع الجلسة');};
+ACT.ctadd=function(){var t=$('ct-t').value.trim();if(!t){toast('اكتب العنوان');return;}$('ct-t').value='';toast('نُشر: '+t);};
+ACT.send=function(){var s=$('ms-s').value.trim(),b=$('ms-b').value.trim();if(!setErr('mse',s&&b?'':'اكتب العنوان والنص'))return;SENT.unshift({s:s,to:$('ms-to').value,c:$('ms-c').value});render();toast('أُرسلت الرسالة');};
+
+/* افتح الصفحة من الداخل مباشرة */
+enter();
+</script>
+
+</body></html>
