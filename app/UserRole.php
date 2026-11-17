@@ -45,6 +45,19 @@ enum UserRole: string
     }
 
     /**
+     * Accent colour of the role's dashboard (a CSS custom property from theme.css).
+     */
+    public function accentColor(): string
+    {
+        return match ($this) {
+            self::Patient, self::Companion, self::Guide => 'var(--spirit)',
+            self::Fiqh, self::Admin => 'var(--accent)',
+            self::Medical => 'var(--coral)',
+            self::Legal => 'var(--grape)',
+        };
+    }
+
+    /**
      * The panel key the dashboard script understands.
      */
     public function panel(): string

@@ -70,6 +70,19 @@ class DashboardControllerTest extends TestCase
         }
     }
 
+    public function test_administrator_gets_the_team_link_and_pending_request_count(): void
+    {
+        User::factory()->pending()->count(2)->create();
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('staff.dashboard'))
+            ->assertViewHas('config', fn (array $config) => $config['teamUrl'] === route('staff.team') && $config['pendingCount'] === 2);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('staff.dashboard'))
+            ->assertViewHas('config', fn (array $config) => $config['teamUrl'] === null && $config['pendingCount'] === 0);
+    }
+
     public function test_page_includes_logout_form_and_service_whatsapp_number(): void
     {
         config(['services.whatsapp.number' => '966500000000']);

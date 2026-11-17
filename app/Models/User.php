@@ -8,6 +8,8 @@ use App\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -62,6 +64,17 @@ class User extends Authenticatable
     public function oneTimeCodes(): HasMany
     {
         return $this->hasMany(OneTimeCode::class);
+    }
+
+    /**
+     * Guides, consultants and administrators (everyone who is not a beneficiary).
+     *
+     * @param  Builder<User>  $query
+     */
+    #[Scope]
+    protected function staff(Builder $query): void
+    {
+        $query->whereNotIn('role', UserRole::beneficiaries());
     }
 
     public function isActive(): bool

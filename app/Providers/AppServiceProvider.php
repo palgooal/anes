@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\UserRole;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -59,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
                 ->action('تعيين كلمة مرور جديدة', $url)
                 ->line('صلاحية الرابط ساعة واحدة. إن لم تطلب ذلك فتجاهل هذه الرسالة.');
         });
+
+        /** Approving, adding and suspending team members is reserved for administrators. */
+        Gate::define('manage-team', fn (User $user): bool => $user->role === UserRole::Admin);
 
         View::share('waNumber', config('services.whatsapp.number'));
     }

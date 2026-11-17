@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\AccountStatus;
+use App\Models\User;
 use App\UserRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +37,10 @@ class DashboardController extends Controller
                 'patientName' => $patient?->name ?? $user->name,
                 'companionName' => $role === UserRole::Companion ? $user->name : null,
                 'waNumber' => config('services.whatsapp.number'),
+                'teamUrl' => $user->can('manage-team') ? route('staff.team') : null,
+                'pendingCount' => $user->can('manage-team')
+                    ? User::staff()->where('status', AccountStatus::Pending)->count()
+                    : 0,
             ],
         ]);
     }

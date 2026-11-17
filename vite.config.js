@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/site.js',
                 'resources/css/dashboard.css',
                 'resources/js/dashboard.js',
+                'resources/js/staff.js',
                 'resources/css/auth.css',
                 'resources/js/auth.js',
             ],

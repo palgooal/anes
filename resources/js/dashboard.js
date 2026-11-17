@@ -121,9 +121,11 @@ var TABS=[],CUR=null;
 function buildTabs(){
   TABS=MODULES[ROLE]();
   $('tabs').innerHTML=TABS.map(function(t){return '<button type="button" role="tab" data-tab="'+t.k+'">'+t.l+'<span class="nb" id="nb-'+t.k+'"></span></button>';}).join('');
-  show(TABS[0].k);
+  /* ?tab=key opens that tab (used when returning from a Blade page such as /staff/team) */
+  var wanted=new URLSearchParams(location.search).get('tab');
+  show(TABS.some(function(t){return t.k===wanted&&!t.href;})?wanted:TABS[0].k);
 }
-function show(k){CUR=k;document.querySelectorAll('#tabs button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===k);});render();}
+function show(k){var t=TABS.filter(function(x){return x.k===k;})[0];if(t&&t.href){location.href=t.href;return;}CUR=k;document.querySelectorAll('#tabs button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===k);});render();}
 function render(){var t=TABS.filter(function(x){return x.k===CUR;})[0];$('pane').innerHTML=t.r();if(HELLO[ROLE])HELLO[ROLE]();badges();}
 $('tabs').addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b)show(b.getAttribute('data-tab'));});
 var ACT={};
@@ -375,7 +377,7 @@ var AREQ=[
 var SVC=['جلسات الدعم الروحي','جلسات التدبر','كيف ترقي نفسك','زاد المريض','الفقد والمواساة','الاستشارة الفقهية','استشارة الوصايا (بالشراكة مع مركز واقف)'];
 var SENT=[];
 HELLO.admin=function(){$('hi').textContent='لوحة الإدارة';$('hi-sub').textContent='صلاحيات كاملة على الخدمة';$('hi-act').innerHTML='';};
-BADGES.admin=function(){badge('req',AREQ.filter(function(r){return !r.to;}).length);badge('team',STAFF.filter(function(s){return s.st==='بانتظار الموافقة';}).length);};
+BADGES.admin=function(){badge('req',AREQ.filter(function(r){return !r.to;}).length);badge('team',APP.pendingCount||0);};
 function staffFor(svc){if(/الوصايا/.test(svc))return STAFF.filter(function(s){return s.role==='مستشار عدلي';});if(/فقه/.test(svc))return STAFF.filter(function(s){return s.role==='مستشار فقهي';});if(/ختمة|أمنية|زاد/.test(svc))return [{t:'فريق زاد المريض'}];return STAFF.filter(function(s){return s.role==='مرشد'&&s.st==='مفعّل';});}
 MODULES.admin=function(){return [
  {k:'ov',l:'نظرة عامة',r:function(){
@@ -388,7 +390,7 @@ MODULES.admin=function(){return [
  {k:'req',l:'الطلبات الواردة',r:function(){return '<div class="sec-h"><h2>الطلبات الواردة من واتساب</h2><span class="small muted">أسند كل طلب إلى المختص، فيصله في لوحته</span></div><div class="list">'+AREQ.map(function(r,i){
    var opts=staffFor(r.svc).map(function(s){return s.t;});
    return '<div class="item" style="--c:'+(r.to?'var(--ok)':'var(--coral)')+'"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(r.name)+' <span class="pill">'+r.kind+'</span></h4>'+(r.to?'<span class="pill ok">أُسند إلى: '+esc(r.to)+'</span>':'<span class="pill new">بانتظار الإسناد</span>')+'</div><p>'+esc(r.svc)+' · '+esc(r.when)+'</p></div>'+(r.to?'':'<div class="acts" style="align-items:center"><label for="as'+i+'" class="small" style="display:flex;gap:6px;align-items:center">إلى'+sel('as'+i,opts)+'</label><button class="btn btn-p btn-s" type="button" data-a="assign" data-i="'+i+'">أسند الطلب</button></div>')+'</div>';}).join('')+'</div>';}},
- {k:'team',l:'الفريق',r:function(){return '<div class="two"><div class="list">'+STAFF.map(function(s,i){var c=s.st==='مفعّل'?'ok':s.st==='موقوف'?'cx':'wait';
+ {k:'team',l:'الفريق',href:APP.teamUrl,r:function(){return '<div class="two"><div class="list">'+STAFF.map(function(s,i){var c=s.st==='مفعّل'?'ok':s.st==='موقوف'?'cx':'wait';
    return '<div class="item" style="--c:var(--'+(s.role==='مرشد'?'spirit':s.role==='مستشار فقهي'?'accent':s.role==='مستشار طبي'?'coral':'grape')+')"><div style="grid-column:1/-1;display:grid;gap:4px"><div class="sec-h"><h4>'+esc(s.t)+'</h4><span class="pill '+c+'"'+(c==='cx'?' style="text-decoration:none"':'')+'>'+s.st+'</span></div><p>'+esc(s.role)+' · '+esc(s.spec)+' · الحالات الحالية: '+ar(s.load)+'</p></div><div class="acts">'+(s.st==='بانتظار الموافقة'?'<button class="btn btn-p btn-s" type="button" data-a="stf" data-v="مفعّل" data-i="'+i+'">موافقة وتفعيل</button><button class="btn btn-g btn-s" type="button" data-a="stf" data-v="مرفوض" data-i="'+i+'">رفض</button>':s.st==='مفعّل'?'<button class="btn btn-g btn-s" type="button" data-a="stf" data-v="موقوف" data-i="'+i+'">إيقاف</button>':'<button class="btn btn-g btn-s" type="button" data-a="stf" data-v="مفعّل" data-i="'+i+'">تفعيل</button>')+'</div></div>';}).join('')+'</div>'+
    '<form class="card" id="ns" novalidate style="display:grid;gap:12px;align-content:start"><h3>إضافة عضو إلى الفريق</h3><label for="ns-t">الاسم أو المسمى<input id="ns-t"><span class="err" id="nse"></span></label><label for="ns-r">الدور'+sel('ns-r',['مرشد','مستشار فقهي','مستشار طبي','مستشار عدلي'])+'</label><label for="ns-s">التخصص<input id="ns-s" placeholder="مثال: مرشد تدبر"></label><label for="ns-e">البريد<input id="ns-e" dir="ltr" type="email"></label><button class="btn btn-p" type="button" data-a="addstf" style="justify-self:start">أضف وأرسل دعوة الدخول</button></form></div>';}},
  {k:'bene',l:'المستفيدون',r:function(){var g=STAFF.filter(function(s){return s.role==='مرشد'&&s.st==='مفعّل';}).map(function(s){return s.t;});

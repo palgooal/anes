@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\StaffLoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Staff\TeamController;
+use App\Http\Controllers\Staff\TeamMemberStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -46,4 +48,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/portal', [DashboardController::class, 'show'])->middleware('role:beneficiary')->name('portal');
     Route::get('/staff/dashboard', [DashboardController::class, 'show'])->middleware('role:staff')->name('staff.dashboard');
     Route::post('/logout', LogoutController::class)->name('logout');
+});
+
+/*
+| Administration (staff area, administrators only).
+*/
+Route::prefix('staff')->middleware(['auth', 'role:staff', 'can:manage-team'])->group(function () {
+    Route::get('/team', [TeamController::class, 'index'])->name('staff.team');
+    Route::post('/team', [TeamController::class, 'store'])->name('staff.team.store');
+    Route::delete('/team/{member}', [TeamController::class, 'destroy'])->name('staff.team.destroy');
+    Route::patch('/team/{member}/status', [TeamMemberStatusController::class, 'update'])->name('staff.team.status');
 });

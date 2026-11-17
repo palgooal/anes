@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\StaffLoginRequest;
 use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Models\User;
-use App\UserRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,10 +36,7 @@ class StaffLoginController extends Controller
             return $this->lockedView($seconds, 'staff.login', 'staff');
         }
 
-        $user = User::query()
-            ->where('email', $request->validated('email'))
-            ->whereNotIn('role', UserRole::beneficiaries())
-            ->first();
+        $user = User::staff()->where('email', $request->validated('email'))->first();
 
         if (! $user || ! $user->password || ! Hash::check($request->validated('password'), $user->password)) {
             RateLimiter::hit($throttleKey, (int) config('auth.one_time_codes.lockout_seconds'));

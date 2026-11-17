@@ -13,6 +13,8 @@
 
 @source "../views/dashboard.blade.php";
 @source "../js/dashboard.js";
+@source "../views/staff";
+@source "../views/components/staff-layout.blade.php";
 
 
 /* ---------- Base ---------- */
@@ -129,7 +131,13 @@
     font: inherit; font-family: var(--display); font-size: .9rem;
     border: 0; border-bottom: 3px solid transparent;
   }
-  .tabs button.on { @apply text-role; border-bottom-color: var(--role); }
+  .tabs button.on, .tabs a.on { @apply text-role; border-bottom-color: var(--role); }
+  /* Blade pages render the tabs as links with the same look as the script's buttons. */
+  .tabs a {
+    @apply px-[13px] py-2.5 whitespace-nowrap text-muted no-underline hover:text-role;
+    font-family: var(--display); font-size: .9rem;
+    border-bottom: 3px solid transparent;
+  }
   .nb:not(:empty) { @apply ms-[5px] rounded-full bg-coral px-[7px] py-0 text-[.7rem] text-white; }
   #pane { @apply grid gap-[18px] pb-[60px]; }
   .kpis { @apply grid grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-3; }
@@ -197,6 +205,20 @@
   dl.kv dt { @apply text-muted; }
   dl.kv dd { @apply m-0; }
   @media (max-width: 480px) { dl.kv { @apply grid-cols-1; } dl.kv dd { @apply mb-1.5; } }
+
+  /* Blade staff pages: flash message, status filters, search, pager */
+  .flash {
+    @apply rounded-xl border px-[13px] py-2.5 text-[.9rem];
+    background: color-mix(in srgb, var(--ok) 12%, var(--bg));
+    border-color: color-mix(in srgb, var(--ok) 35%, var(--bg));
+  }
+  .filter-links { @apply flex flex-wrap gap-1.5; }
+  .filter-links a { @apply inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-line px-3 py-[5px] text-[.85rem] text-ink no-underline hover:border-role; }
+  .filter-links a b { @apply font-display text-[.78rem] text-muted; }
+  .filter-links a.on { @apply border-role text-role; background: color-mix(in srgb, var(--role) 10%, var(--bg)); }
+  .search { @apply flex gap-2; }
+  .search input { @apply min-w-0 flex-1; }
+  .pager { @apply flex items-center justify-center gap-3; }
 
   /* modal & toast */
   .overlay {
