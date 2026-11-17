@@ -9,83 +9,13 @@
  */
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "./theme.css";
 
 @source "../index.html";
 
-/* ---------- Design tokens → Tailwind theme ----------
-   The CSS variables in :root (below) remain the single source of truth, so
-   dark mode and the colours referenced from JavaScript (var(--spirit) …)
-   keep working. Tailwind classes like bg-spirit / text-muted read them. */
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --color-accent-soft: var(--accent-soft);
-  --color-sun: var(--sun);
-  --color-coral: var(--coral);
-  --color-mint: var(--mint);
-  --color-grape: var(--grape);
-  --color-ok: var(--ok);
-  --color-danger: var(--danger);
-  --color-spirit: var(--spirit);
-  --color-spirit-soft: var(--spirit-soft);
-  --color-wa: #1fa855;
-  --color-wa-dark: #198f48;
-  --color-sun-ink: #3a2a05;
-  --color-mint-ink: #04261f;
-
-  --font-display: var(--display);
-  --font-body: var(--body);
-  --font-naskh: var(--naskh);
-
-  --radius-card: var(--r);
-}
-
-@theme {
-  --breakpoint-xs: 35rem;    /* 560px */
-  --breakpoint-sm: 40rem;    /* 640px */
-  --breakpoint-tab: 47.5rem; /* 760px */
-  --breakpoint-lg: 56.25rem; /* 900px */
-}
-
 /* ---------- Base ---------- */
 @layer base {
-  :root {
-    color-scheme: light;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-
-    --bg: #ffffff; --surface: #ebf7f5; --surface-2: #d7efeb; --ink: #0b2a30; --muted: #456a70; --line: #c7e5e0;
-    --accent: #0d7d86; --accent-ink: #ffffff; --accent-soft: #d2eef0;
-    --sun: #ffc21a; --coral: #ff6b5e; --mint: #10b896; --grape: #8a5cf6; --ok: #14a37f; --danger: #d63b2f;
-    --spirit: #0f8f78; --spirit-soft: #dff6ef;
-    --display: "Readex Pro", "IBM Plex Sans Arabic", Tahoma, sans-serif;
-    --body: "IBM Plex Sans Arabic", "Readex Pro", Tahoma, sans-serif;
-    --naskh: "Amiri", "Traditional Arabic", serif;
-    --r: 16px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #08191c; --surface: #0f2a2e; --surface-2: #143a3f; --ink: #e6f6f4; --muted: #9fc3c1; --line: #1f4a4f;
-      --accent: #4fcad3; --accent-ink: #04191b; --accent-soft: #12424a; --sun: #ffcf4a; --coral: #ff8a7f; --mint: #3ddcb9; --grape: #a98bff; --ok: #4cc58e; --danger: #ff7b70;
-      --spirit: #4fd8b9; --spirit-soft: #103a34;
-      color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #08191c; --surface: #0f2a2e; --surface-2: #143a3f; --ink: #e6f6f4; --muted: #9fc3c1; --line: #1f4a4f;
-    --accent: #4fcad3; --accent-ink: #04191b; --accent-soft: #12424a; --sun: #ffcf4a; --coral: #ff8a7f; --mint: #3ddcb9; --grape: #a98bff; --ok: #4cc58e; --danger: #ff7b70;
-    --spirit: #4fd8b9; --spirit-soft: #103a34;
-    color-scheme: dark;
-  }
-
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }

@@ -3,8 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tailwindcss -i ./src/input.css -o ./dist/style.css --minify",
-    "watch": "tailwindcss -i ./src/input.css -o ./dist/style.css --watch"
+    "build": "npm run build:site && npm run build:dashboard",
+    "build:site": "tailwindcss -i ./src/input.css -o ./dist/style.css --minify",
+    "build:dashboard": "tailwindcss -i ./src/dashboard.css -o ./dist/dashboard.css --minify",
+    "watch": "tailwindcss -i ./src/input.css -o ./dist/style.css --watch",
+    "watch:dashboard": "tailwindcss -i ./src/dashboard.css -o ./dist/dashboard.css --watch"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.5",
