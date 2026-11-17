@@ -52,13 +52,6 @@
   .otp[data-state="error"] input { @apply border-danger; animation: shake .35s; }
   .otp[data-state="ok"] input { @apply border-ok bg-ok/10; }
 
-  /* big choice cards (patient / companion) */
-  .choice {
-    @apply flex cursor-pointer items-center gap-4 rounded-2xl border-[1.5px] border-line bg-bg p-4 text-start transition hover:border-role;
-  }
-  .choice:has(input:checked) { @apply border-role bg-[color-mix(in_srgb,var(--role)_9%,var(--bg))] shadow-[inset_0_0_0_1px_var(--role)]; }
-  .choice:has(input:focus-visible) { @apply outline-3 outline-offset-2 outline-role; }
-
   /* alert boxes */
   .alert { @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-[.9rem] leading-[1.75]; }
   .alert-warn { @apply border-[color-mix(in_srgb,var(--sun)_45%,var(--bg))] bg-[color-mix(in_srgb,var(--sun)_16%,var(--bg))]; }

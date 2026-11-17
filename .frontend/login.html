@@ -32,39 +32,12 @@
         <span>انتهت جلستك لحمايتك. سجّل الدخول مرة أخرى للمتابعة.</span>
       </div>
 
-      <!-- STEP 1: who -->
-      <form data-step="who" class="step grid gap-6" id="f-who" novalidate>
+      <!-- STEP 1: phone (patient or companion: the account type is known from the number) -->
+      <form data-step="phone" class="step grid gap-6" id="f-phone" novalidate>
         <div class="grid gap-2">
           <p class="text-[.85rem] font-semibold text-role">صفحة المستفيد</p>
           <h1 class="text-[1.75rem] font-bold sm:text-[2rem]">أهلاً بك</h1>
-          <p class="text-muted">ادخل لمتابعة مواعيدك ومقاييسك وخطة متابعتك، دون كلمة مرور.</p>
-        </div>
-        <fieldset class="grid gap-3">
-          <legend class="mb-3 font-medium">أدخل بصفتك</legend>
-          <label class="choice">
-            <input class="sr-only" type="radio" name="kind" value="patient" checked>
-            <span class="grid size-12 flex-none place-items-center rounded-xl bg-spirit-soft text-spirit">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-            </span>
-            <span class="grid gap-0.5"><b class="font-display text-[1.05rem]">المريض</b><span class="text-[.86rem] text-muted">أدخل برقم جوالي المسجّل لدى الخدمة</span></span>
-          </label>
-          <label class="choice">
-            <input class="sr-only" type="radio" name="kind" value="companion">
-            <span class="grid size-12 flex-none place-items-center rounded-xl bg-accent-soft text-accent">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>
-            </span>
-            <span class="grid gap-0.5"><b class="font-display text-[1.05rem]">المرافق</b><span class="text-[.86rem] text-muted">أتابع المريض بالنيابة عنه من رقمي</span></span>
-          </label>
-        </fieldset>
-        <button class="btn btn-primary w-full" type="submit">متابعة</button>
-      </form>
-
-      <!-- STEP 2: phone -->
-      <form data-step="phone" class="step grid gap-6" id="f-phone" novalidate hidden>
-        <button type="button" class="link justify-self-start text-[.88rem]" data-go="who">→ رجوع</button>
-        <div class="grid gap-2">
-          <h1 class="text-[1.75rem] font-bold">رقم الجوال</h1>
-          <p class="text-muted" id="phone-hint">رقم الجوال المسجّل لدى الخدمة.</p>
+          <p class="text-muted">للمريض والمرافق: ادخل برقم جوالك المسجّل لدى الخدمة، دون كلمة مرور.</p>
         </div>
         <label class="field" for="phone">
           رقم الجوال
@@ -78,7 +51,7 @@
         <p class="text-center text-[.84rem] text-muted">سيصلك رمز من ٤ أرقام في رسالة واتساب.</p>
       </form>
 
-      <!-- STEP 2b: not registered -->
+      <!-- not registered -->
       <div data-step="unknown" class="step grid gap-5 text-center" hidden>
         <span class="mx-auto grid size-16 place-items-center rounded-full bg-[color-mix(in_srgb,var(--sun)_22%,var(--bg))] text-[color-mix(in_srgb,var(--sun)_55%,var(--ink))]">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
@@ -94,7 +67,7 @@
         <button type="button" class="link text-[.92rem]" data-go="phone">جرّب رقماً آخر</button>
       </div>
 
-      <!-- STEP 3: code -->
+      <!-- STEP 2: code -->
       <form data-step="code" class="step grid gap-6" id="f-code" novalidate hidden>
         <button type="button" class="link justify-self-start text-[.88rem]" data-go="phone">→ رجوع</button>
         <div class="grid gap-2">
@@ -136,7 +109,7 @@
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
         </span>
         <h1 class="text-[1.5rem] font-bold">تم التحقق</h1>
-        <p class="text-muted" role="status">جارٍ فتح صفحتك…</p>
+        <p class="text-muted" role="status" id="done-msg">جارٍ فتح صفحتك…</p>
       </div>
 
       <!-- trust + demo -->
@@ -148,7 +121,9 @@
         <details class="rounded-xl border border-dashed border-line px-4 py-3 text-[.84rem] text-muted">
           <summary class="cursor-pointer font-medium text-ink">نموذج تجريبي: كيف أجرّب؟</summary>
           <ul class="mt-2 grid list-disc gap-1 ps-5">
-            <li>أي رقم يبدأ بـ <span class="num">05</span> مسجّل، ما عدا <span class="num">0500000000</span> فهو غير مسجّل.</li>
+            <li>أي رقم يبدأ بـ <span class="num">05</span> مسجّل كمريض.</li>
+            <li><span class="num">0511111111</span> رقم مرافق، فتُفتح صفحة المريض باسم المرافق.</li>
+            <li><span class="num">0500000000</span> رقم غير مسجّل.</li>
             <li>الرمز الصحيح <span class="num">1234</span>، وأي رمز آخر خاطئ (٥ محاولات ثم إيقاف مؤقت).</li>
             <li>لعرض رسالة انتهاء الجلسة أضف <span class="num">?expired=1</span> إلى الرابط.</li>
           </ul>
@@ -188,7 +163,7 @@
 (function () {
   'use strict';
   var A = window.Auth, $ = A.$;
-  var DEMO_CODE = '1234', UNREGISTERED = '0500000000', MAX_TRIES = 5, LOCK_SECONDS = 15 * 60, RESEND_SECONDS = 60;
+  var DEMO_CODE = '1234', UNREGISTERED = '0500000000', COMPANION = '0511111111', MAX_TRIES = 5, LOCK_SECONDS = 15 * 60, RESEND_SECONDS = 60;
   var kind = 'patient', phone = '', tries = 0, stopResend = null;
   var code = A.otp($('otp'), function () { submitCode(); });
 
@@ -197,20 +172,13 @@
     if (b) A.showStep(b.getAttribute('data-go'));
   });
 
-  $('f-who').addEventListener('submit', function (e) {
-    e.preventDefault();
-    kind = this.querySelector('input[name=kind]:checked').value;
-    $('phone-hint').textContent = kind === 'patient'
-      ? 'رقم جوالك المسجّل لدى الخدمة.'
-      : 'رقم جوالك أنت كمرافق، المسجّل مع ملف المريض.';
-    A.showStep('phone');
-  });
-
   $('f-phone').addEventListener('submit', function (e) {
     e.preventDefault();
     var p = A.latin($('phone').value).replace(/\D/g, '').replace(/^966/, '0');
     if (!A.setErr($('phone'), $('phone-err'), /^05\d{8}$/.test(p) ? '' : 'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05')) return;
     phone = p;
+    /* in the real system the server tells us whether this number is a patient or a companion */
+    kind = p === COMPANION ? 'companion' : 'patient';
     if (p === UNREGISTERED) { $('unknown-num').textContent = p; A.showStep('unknown'); return; }
     $('code-num').textContent = p;
     tries = 0; code.clear(); code.state(); $('code-err').textContent = '';
@@ -235,6 +203,7 @@
     if (v === DEMO_CODE) {
       code.state('ok'); code.disable(true);
       if (stopResend) stopResend();
+      $('done-msg').textContent = kind === 'companion' ? 'جارٍ فتح صفحة المريض الذي ترافقه…' : 'جارٍ فتح صفحتك…';
       setTimeout(function () {
         A.showStep('done');
         setTimeout(function () { location.href = 'patient-portal.html' + (kind === 'companion' ? '?as=companion' : ''); }, 1100);
