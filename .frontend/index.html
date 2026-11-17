@@ -29,6 +29,7 @@
     </nav>
     <div class="userbox">
       <span hidden><span class="hello" id="hello" hidden></span><button class="btn btn-ghost btn-sm demo-btn" type="button" id="btn-demo">استعراض تجريبي</button><a class="btn btn-primary btn-sm" href="#register" id="btn-auth">تسجيل</a><button class="btn btn-ghost btn-sm" id="btn-out" type="button" hidden>خروج</button></span>
+      <a class="btn btn-ghost btn-sm" href="login.html" aria-label="دخول المستفيد" title="دخول المريض أو المرافق"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="hidden xs:inline">دخول</span></a>
       <a class="btn btn-wa btn-sm" data-wa="أرغب في طلب خدمة من خدمة الدعم والمساندة لمرضى الرعاية التلطيفية" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6z"/></svg>اطلب عبر واتساب</a>
     </div>
   </div>
@@ -903,6 +904,8 @@
           <li><a href="#contact">راسلنا</a></li>
           <li><a href="#ruqya">كيف ترقي نفسك</a></li>
           <li><a href="#zad">زاد المريض</a></li>
+          <li><a href="login.html">دخول المستفيد</a></li>
+          <li><a href="staff-login.html">دخول فريق العمل</a></li>
         </ul>
       </nav>
 
@@ -2295,7 +2298,7 @@ document.querySelectorAll('input[name=kh-t],input[name=kh-d]').forEach(function(
 
 /* =================== WHATSAPP-ONLY MODE =================== */
 /* الموقع للعرض فقط: لا تسجيل ولا حسابات، وكل الطلبات عبر واتساب */
-var WA_NUMBER=''; /* ضع رقم واتساب الخدمة بالصيغة الدولية دون + مثل 9665XXXXXXXX */
+var WA_NUMBER='966539564429'; /* ضع رقم واتساب الخدمة بالصيغة الدولية دون + مثل 9665XXXXXXXX */
 function waText(req){return 'السلام عليكم ورحمة الله\n'+req+'\n\nمقدم الطلب: (المريض / المرافق)\nالاسم:\nالمنطقة والمستشفى:';}
 function waUrl(msg){return 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);}
 function waOpen(title,req,raw){

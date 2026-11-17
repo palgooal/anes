@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var WA_NUMBER = ''; /* رقم واتساب الخدمة بالصيغة الدولية بدون + مثل 9665XXXXXXXX */
+  var WA_NUMBER = '966539564429'; /* رقم واتساب الخدمة بالصيغة الدولية بدون + مثل 9665XXXXXXXX */
 
   var $ = function (id) { return document.getElementById(id); };
   var toAr = function (n) { return String(n).replace(/\d/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }); };
