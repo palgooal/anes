@@ -28,6 +28,21 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    | WhatsApp Business (Meta Cloud API). With the "log" driver codes are
+    | written to the log instead of being sent: use it until the number is
+    | connected in Meta. WHATSAPP_NUMBER is the public number for wa.me links.
+    */
+    'whatsapp' => [
+        'driver' => env('WHATSAPP_DRIVER', 'log'),
+        'number' => env('WHATSAPP_NUMBER', '966539564429'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'access_token' => env('WHATSAPP_ACCESS_TOKEN'),
+        'api_version' => env('WHATSAPP_API_VERSION', 'v23.0'),
+        'login_template' => env('WHATSAPP_LOGIN_TEMPLATE', 'login_code'),
+        'template_language' => env('WHATSAPP_TEMPLATE_LANGUAGE', 'ar'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

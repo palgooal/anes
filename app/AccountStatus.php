@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+enum AccountStatus: string
+{
+    case Active = 'active';
+    case Pending = 'pending';
+    case Suspended = 'suspended';
+}

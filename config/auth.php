@@ -114,4 +114,23 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | One-Time Codes (WhatsApp)
+    |--------------------------------------------------------------------------
+    |
+    | Beneficiaries sign in with a code sent to their phone on WhatsApp, and
+    | staff confirm their password with a second code. After `max_attempts`
+    | wrong codes or passwords the account is locked for `lockout_seconds`.
+    |
+    */
+
+    'one_time_codes' => [
+        'length' => 4,
+        'expires_minutes' => 10,
+        'resend_after_seconds' => 60,
+        'max_attempts' => 5,
+        'lockout_seconds' => 900,
+    ],
+
 ];

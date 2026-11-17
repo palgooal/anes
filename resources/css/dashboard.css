@@ -1,0 +1,214 @@
+/*
+ * Tailwind CSS v4: role dashboards (resources/views/dashboard.blade.php).
+ * Built by Vite: npm run dev / npm run build.
+ *
+ * Shares colours, fonts and dark mode with the public site (theme.css).
+ * --role is the dashboard's accent colour; the page script sets it per role
+ * (spirit for the guide), so every component below reads var(--role).
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "./theme.css";
+
+@source "../views/dashboard.blade.php";
+@source "../js/dashboard.js";
+
+
+/* ---------- Base ---------- */
+@layer base {
+  :root { --role: var(--spirit); }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+  img { max-width: 100%; }
+
+  body { @apply m-0 bg-bg font-body text-[15.5px]/[1.7] text-ink; }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; z-index: 10;
+    height: env(safe-area-inset-top, 0px); background: var(--bg);
+  }
+  h1, h2, h3, h4 { @apply m-0 font-display leading-[1.35] text-balance; }
+  p { @apply m-0; }
+  a { color: inherit; }
+  :focus-visible { @apply rounded-md outline-3 outline-offset-3 outline-role; }
+
+  label { @apply grid gap-[5px] text-[.88rem] font-medium; }
+  input, select, textarea {
+    @apply w-full rounded-[10px] border-[1.5px] border-line bg-surface px-3 py-[9px] text-ink;
+    font: inherit;
+  }
+  input:focus, select:focus, textarea:focus { @apply border-role outline-none; }
+  textarea { @apply min-h-[90px] resize-y; }
+  fieldset { @apply m-0 grid gap-[7px] border-0 p-0; }
+  legend { @apply mb-[5px] p-0 text-[.88rem] font-medium; }
+}
+
+/* ---------- Components ----------
+   Most of the dashboard is rendered by JavaScript with these class names,
+   so they stay as reusable components written with @apply. */
+@layer components {
+  .app { direction: rtl; }
+  .wrap {
+    @apply mx-auto max-w-[1180px];
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .muted { @apply text-muted; }
+  .small { @apply text-[.86rem]; }
+  .num { @apply tabular-nums; direction: ltr; unicode-bidi: isolate; }
+
+  /* top bar */
+  header.top {
+    @apply sticky z-[9] border-b border-line backdrop-blur-[8px];
+    top: env(safe-area-inset-top, 0px);
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+  }
+  .bar { @apply flex items-center justify-between gap-3 py-2.5; }
+  .brand { @apply flex items-center gap-2.5 font-display text-[.98rem] leading-[1.25] font-bold; }
+  .brand small { @apply block text-[.74rem] font-medium text-role; }
+  .ub { @apply flex items-center gap-2.5 text-[.86rem]; }
+  .ub .who { @apply text-muted; }
+  @media (max-width: 560px) { .ub .who { @apply hidden; } .brand { @apply text-[.86rem]; } }
+  .demo {
+    @apply border-b py-1.5 text-[.82rem];
+    background: color-mix(in srgb, var(--sun) 20%, var(--bg));
+    border-color: color-mix(in srgb, var(--sun) 45%, var(--bg));
+  }
+
+  /* buttons */
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-[7px] rounded-full border-0 bg-transparent px-4 py-[9px] font-display text-[.9rem] font-medium whitespace-nowrap text-inherit no-underline hover:-translate-y-px;
+    transition: transform .15s, translate .15s, filter .15s;
+  }
+  .btn-p { @apply bg-role text-white; }
+  .btn-g { @apply shadow-[inset_0_0_0_1.5px_var(--line)] hover:text-role hover:shadow-[inset_0_0_0_1.5px_var(--role)]; }
+  .btn-wa { @apply bg-wa text-white; }
+  .btn-s { @apply px-3 py-1.5 text-[.82rem]; }
+  .btn[disabled] { @apply translate-none cursor-not-allowed opacity-45; }
+
+  /* login */
+  .login { @apply mx-auto mt-10 mb-[60px] grid max-w-[900px] gap-[22px] min-[820px]:grid-cols-[1.1fr_.9fr] min-[820px]:items-start; }
+  .login .card { @apply grid gap-3.5; }
+  .login h1 { @apply text-[clamp(1.5rem,3.4vw,2rem)]; }
+  .rolebadge {
+    @apply inline-flex items-center gap-2 justify-self-start rounded-full px-3 py-1 font-display text-[.85rem] font-semibold text-role;
+    background: color-mix(in srgb, var(--role) 14%, var(--bg));
+  }
+
+  /* forms */
+  .card { @apply rounded-card border border-line bg-bg p-[18px]; }
+  .row { @apply grid gap-3 xs:grid-cols-2; }
+  .seg { @apply flex flex-wrap gap-[7px]; }
+  .seg label { @apply flex cursor-pointer items-center gap-[7px] rounded-full border-[1.5px] border-line px-3 py-[5px] font-medium; }
+  .seg input { @apply w-auto accent-role; }
+  .seg label:has(input:checked), .checks label:has(input:checked) {
+    @apply border-role;
+    background: color-mix(in srgb, var(--role) 12%, var(--bg));
+  }
+  .checks { @apply flex flex-wrap gap-[7px]; }
+  .checks label { @apply flex cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-line px-[11px] py-1 text-[.84rem] font-normal; }
+  .checks input { @apply w-auto accent-role; }
+  .err { @apply min-h-[1em] text-[.78rem] font-normal text-danger; }
+  .info { @apply rounded-xl bg-surface px-[13px] py-2.5 text-[.84rem] text-muted; }
+  .note {
+    @apply rounded-xl border px-[13px] py-2.5 text-[.86rem];
+    background: color-mix(in srgb, var(--sun) 14%, var(--bg));
+    border-color: color-mix(in srgb, var(--sun) 40%, var(--bg));
+  }
+
+  /* dashboard */
+  .hello { @apply flex flex-wrap items-end justify-between gap-3 pt-[22px] pb-4; }
+  .hello h1 { @apply text-[clamp(1.35rem,3vw,1.8rem)]; }
+  .tabs { @apply mb-5 flex gap-1 overflow-x-auto border-b border-line; scrollbar-width: thin; }
+  .tabs button {
+    @apply cursor-pointer bg-transparent px-[13px] py-2.5 whitespace-nowrap text-muted;
+    font: inherit; font-family: var(--display); font-size: .9rem;
+    border: 0; border-bottom: 3px solid transparent;
+  }
+  .tabs button.on { @apply text-role; border-bottom-color: var(--role); }
+  .nb:not(:empty) { @apply ms-[5px] rounded-full bg-coral px-[7px] py-0 text-[.7rem] text-white; }
+  #pane { @apply grid gap-[18px] pb-[60px]; }
+  .kpis { @apply grid grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-3; }
+  .kpi { @apply rounded-[14px] border border-t-4 border-line bg-bg px-[15px] py-[13px]; border-top-color: var(--k, var(--role)); }
+  .kpi b { @apply block font-display text-[1.55rem] tabular-nums; }
+  .kpi span { @apply text-[.8rem] text-muted; }
+  .sec-h { @apply flex flex-wrap items-center justify-between gap-2; }
+  .sec-h h2 { @apply text-[1.15rem]; }
+  .cards { @apply grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-3.5; }
+  .two { @apply grid gap-[18px] lg:grid-cols-2; }
+  .list { @apply grid gap-2.5; }
+  .item {
+    @apply grid grid-cols-[auto_1fr] items-start gap-3 rounded-[14px] border border-s-[5px] border-line bg-bg px-[15px] py-[13px];
+    border-inline-start-color: var(--c, var(--role));
+  }
+  .item .date { @apply min-w-[52px] text-center font-display leading-[1.15]; }
+  .item .date b { @apply block text-[1.35rem]; }
+  .item .date span { @apply text-[.72rem] text-muted; }
+  .item h4 { @apply text-[.97rem]; }
+  .item p { @apply text-[.84rem] text-muted; }
+  .acts { @apply col-span-full flex flex-wrap gap-1.5 pt-[9px]; border-top: 1px dashed var(--line); }
+
+  .pill { @apply inline-block rounded-full bg-surface px-2.5 py-0.5 font-display text-[.72rem] whitespace-nowrap text-muted; }
+  .pill.new { @apply text-ink; background: color-mix(in srgb, var(--coral) 18%, var(--bg)); }
+  .pill.ok { @apply text-ok; background: color-mix(in srgb, var(--ok) 16%, var(--bg)); }
+  .pill.wait { @apply text-ink; background: color-mix(in srgb, var(--sun) 28%, var(--bg)); }
+  .pill.role { @apply text-role; background: color-mix(in srgb, var(--role) 14%, var(--bg)); }
+  .pill.cx { @apply bg-surface text-muted line-through; }
+  .tags { @apply flex flex-wrap gap-1.5; }
+  .box { @apply grid gap-[7px] rounded-xl px-[13px] py-[11px] text-[.88rem]; background: color-mix(in srgb, var(--role) 9%, var(--bg)); }
+  .quote { @apply rounded-xl bg-surface px-[13px] py-[11px] text-[.92rem]; }
+  .empty { @apply rounded-[14px] border-[1.5px] border-dashed border-line p-5 text-center text-muted; }
+
+  .bar-row { @apply grid grid-cols-[minmax(0,150px)_1fr_30px] items-center gap-2.5 text-[.85rem]; }
+  .track { @apply h-3 overflow-hidden rounded-full bg-surface; }
+  .track i { @apply block h-full rounded-full bg-role; }
+  .steps-line { @apply flex flex-wrap gap-1.5; }
+  .steps-line span { @apply rounded-full bg-surface px-2.5 py-[3px] font-display text-[.74rem] text-muted; }
+  .steps-line span.done { @apply text-role; background: color-mix(in srgb, var(--role) 16%, var(--bg)); }
+  .steps-line span.cur { @apply bg-role text-white; }
+
+  .hero-card {
+    @apply grid gap-2.5 rounded-[20px] p-5 text-white;
+    background: linear-gradient(150deg, var(--role), color-mix(in srgb, var(--role) 55%, var(--accent)));
+  }
+  .hero-card .muted, .hero-card p { @apply text-white/90; }
+  .hero-card .btn { @apply justify-self-start bg-white text-role; }
+
+  .chk { @apply flex cursor-pointer items-center gap-2.5 rounded-xl border border-line px-3 py-[9px]; }
+  .chk input { @apply size-[18px] accent-role; }
+  .chk:has(input:checked) {
+    background: color-mix(in srgb, var(--ok) 10%, var(--bg));
+    border-color: color-mix(in srgb, var(--ok) 40%, var(--bg));
+  }
+  .chk:has(input:checked) span { @apply text-muted line-through; }
+
+  .likert { @apply grid grid-cols-5 gap-[5px]; }
+  .likert label { @apply grid cursor-pointer place-items-center rounded-[10px] border-[1.5px] border-line px-0.5 py-[7px] text-center text-[.72rem] font-normal; }
+  .likert input { @apply absolute size-px opacity-0; }
+  .likert label:has(input:checked) { @apply border-role font-semibold; background: color-mix(in srgb, var(--role) 12%, var(--bg)); }
+  .likert label:has(input:focus-visible) { @apply outline-3 outline-role; }
+  .q { @apply grid gap-[7px] border-b border-line py-[9px]; }
+  .dua { @apply font-naskh text-[1.2rem]/[1.9]; }
+  dl.kv { @apply m-0 grid grid-cols-[140px_1fr] gap-x-3 gap-y-1 text-[.88rem]; }
+  dl.kv dt { @apply text-muted; }
+  dl.kv dd { @apply m-0; }
+  @media (max-width: 480px) { dl.kv { @apply grid-cols-1; } dl.kv dd { @apply mb-1.5; } }
+
+  /* modal & toast */
+  .overlay {
+    @apply fixed inset-0 z-20 grid place-items-center bg-[rgba(4,20,22,.55)];
+    padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  }
+  .modal { @apply grid max-h-full w-[min(600px,100%)] gap-[13px] overflow-auto rounded-[20px] bg-bg p-5; direction: rtl; }
+  .modal header { @apply flex items-center justify-between gap-2.5; }
+  .x { @apply size-[34px] cursor-pointer rounded-[50%] border-0 bg-surface text-[1.1rem] text-ink; }
+  #mform { @apply grid gap-[13px]; }
+  .toast {
+    @apply fixed left-1/2 z-30 max-w-[calc(100%-32px)] -translate-x-1/2 rounded-full bg-ink px-[18px] py-2.5 text-[.9rem] text-bg shadow-[0_10px_30px_rgba(0,0,0,.25)];
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+}

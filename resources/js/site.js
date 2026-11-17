@@ -1,0 +1,1360 @@
+var I={
+  ask:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11h-9l-5 4v-4H4z"/><path d="M10 9a2 2 0 1 1 2.5 1.9c-.3.1-.5.4-.5.7V12"/><circle cx="12" cy="14" r=".6" fill="currentColor"/></svg>',
+  scroll:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h11a2 2 0 0 1 2 2v1h-3M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V6M9 9h6M9 13h6M9 17h3"/></svg>',
+  heart:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  book:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2zM12 6v14"/></svg>',
+  hand:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 11V6a1.5 1.5 0 0 1 3 0v4M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V12M16 9a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-12.5 4.3L4 15a1.6 1.6 0 0 1 2.5-2L8 14.5"/></svg>',
+  leaf:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19C5 10 11 5 20 4c0 9-5 15-14 15zM5 19l7-7"/></svg>',
+  drop:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
+  send:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 3L3 10.5l7 2.5 2.5 7z"/></svg>',
+  clock:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  moon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/></svg>',
+  pulse:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>',
+  mind:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="7"/><path d="M9 21h6M12 17v4M9 10h6"/></svg>',
+  people:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>',
+  arch:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 21V11a7 7 0 0 1 14 0v10zM9 21v-6a3 3 0 0 1 6 0v6"/></svg>',
+  move:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-6 3 3v3M8 11l3-3 3 2 3 1M12 15l-1-6"/></svg>',
+  apple:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 7c-3-2-8-1-8 5 0 5 3 9 5 9 1.5 0 2-1 3-1s1.5 1 3 1c2 0 5-4 5-9 0-6-5-7-8-5zM12 7c0-2 1-4 3-4"/></svg>'
+};
+
+/* expand ${I.x} placeholders written in markup */
+(function(){
+  var site=document.querySelector('.site');
+  site.innerHTML=site.innerHTML.replace(/\$\{I\.(\w+)\}/g,function(_,k){return I[k]||'';});
+})();
+
+var DEPTS=[
+ {id:'spiritual',name:'الدعم الديني والروحي',c:'var(--spirit)',icon:'arch',featured:true,desc:'الملاذ الآمن للروح.',items:[],staff:[['أ. عبدالرحمن البقمي','مرشد روحي'],['أ. أمل القرشي','مرشدة روحية'],['د. صالح الشهري','مرشد فقهي'],['أ. ماجد الحارثي','مرشد تدبر'],['أ. منيرة الحربي','مرشدة فقد ومواساة'],['د. سليمان العمري','مستشار في الوصايا والمواريث']]}
+];
+var LOSS_STAFF=[['أ. عبدالرحمن البقمي','مرشد في الفقد والمواساة'],['أ. أمل القرشي','مرشدة في الفقد والمواساة']];
+var REGIONS=['الرياض','مكة المكرمة','المدينة المنورة','القصيم','المنطقة الشرقية','عسير','تبوك','حائل','الحدود الشمالية','جازان','نجران','الباحة','الجوف'];
+var TIMES=['١٠:٠٠ ص','١:٠٠ م','٧:٠٠ م','٨:٣٠ م'];
+var TELEGRAM_URL=''; /* ضع رابط قناة البرنامج هنا */
+
+var state={user:null,pending:null,scaleDone:false,slot:null,booked:{},bookings:[],scaleLevel:null};
+function addBooking(b){b.id=ref();b.status='up';state.bookings.unshift(b);if(window.logAct&&state.user)logAct('حجز جديد: '+b.title+' — '+state.user.name);return b.id;}
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function initials(n){var w=n.replace(/^(د\.|أ\.)\s*/,'').split(/\s+/);return w.slice(0,2).map(function(x){return x.replace(/^ال/,'').charAt(0);}).join(' ');}
+function $(id){return document.getElementById(id);}
+
+/* dates */
+var fmtG,fmtH;
+try{fmtG=new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-arab',{weekday:'long',day:'numeric',month:'long'});}catch(e){fmtG={format:function(d){return d.toDateString();}};}
+try{fmtH=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab',{day:'numeric',month:'long'});}catch(e){fmtH=null;}
+function nextDays(n){var out=[],d=new Date();d.setHours(0,0,0,0);while(out.length<n){d.setDate(d.getDate()+1);if(d.getDay()!==5)out.push(new Date(d));}return out;}
+var DAYS=nextDays(6);
+function dayLabel(d){return fmtG.format(d);}
+function hijri(d){try{return fmtH?fmtH.format(d):'';}catch(e){return '';}}
+
+function renderDepts(){if(typeof TILES!=='undefined'&&TILES)renderServices();}
+var SV_COLORS=['var(--spirit)','var(--accent)','var(--sun)','var(--coral)','var(--grape)','var(--mint)','var(--ok)'];
+function renderServices(){
+  $('pillars').innerHTML=TILES.map(function(t,k){return '<a class="pillar" href="#'+t.id+'" style="--c:'+SV_COLORS[k%SV_COLORS.length]+';text-decoration:none"><span class="ico">'+I[t.icon]+'</span><b>'+esc(t.t)+'</b></a>';}).join('');
+  $('sv-grid').innerHTML=TILES.map(function(t,k){return '<article class="svc" style="--c:'+SV_COLORS[k%SV_COLORS.length]+'"><div class="top"><span class="ico">'+I[t.icon]+'</span><h3>'+esc(t.t)+'</h3></div><p>'+esc(t.d)+'</p>'+(t.m?'<span class="pill" style="justify-self:start">'+esc(t.m)+'</span>':'')+'<div class="actions"><a class="btn btn-spirit btn-sm" href="#'+t.id+'">ادخل إلى الخدمة</a></div></article>';}).join('');
+  $('sv-types').innerHTML=SS_TYPES.map(function(x){return '<a class="chip" href="#spiritual-support" style="text-decoration:none">'+esc(x.t)+'</a>';}).join('');
+  $('sv-team').innerHTML=DEPTS[0].staff.map(function(p,k){return '<div class="doc" style="display:flex;gap:12px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)"><span class="avatar" style="background:'+SV_COLORS[k%SV_COLORS.length]+';width:48px;height:48px">'+initials(p[0])+'</span><div><b style="font-family:var(--display)">'+p[0]+'</b><p class="small muted">'+p[1]+'</p></div></div>';}).join('');
+}
+
+$('r-region').innerHTML='<option value="">اختر المنطقة</option>'+REGIONS.map(function(r){return '<option>'+r+'</option>';}).join('');
+
+/* ---------- router ---------- */
+var HOME_SECTIONS=['home','about','services','steps','blog','faq','contact'];
+var GATED=['spiritual-support','tadabbur','ruqya','zad','loss','fiqh','wills','record'];
+function show(view){
+  document.querySelectorAll('[data-view]').forEach(function(v){v.hidden=v.getAttribute('data-view')!==view;});
+}
+function route(){
+  var h=(location.hash||'#home').slice(1);
+  var navKey=h;
+  if(HOME_SECTIONS.indexOf(h)>-1){
+    show('home');
+    var el=$('sec-'+h);
+    requestAnimationFrame(function(){ if(h==='home')window.scrollTo(0,0); else if(el)el.scrollIntoView({block:'start'}); });
+  }else if(/^spx\d+$/.test(h)&&TILES.some(function(t){return t.id===h;})){
+    if(!state.user){state.pending={route:h};location.replace('#register');return;}
+    show('spcustom');window.scrollTo(0,0);renderCustom(h);navKey='spiritual';
+  }else if(document.querySelector('[data-view="'+h+'"]')){
+    if(h==='provider'&&!state.provider){location.replace('#provider-auth');return;}
+    if(h==='admin'&&!state.admin){location.replace('#admin-login');return;}
+    if(GATED.indexOf(h)>-1&&!state.user){state.pending={route:h};location.replace('#register');return;}
+    show(h);window.scrollTo(0,0);
+    if((GATED.indexOf(h)>-1||h==='spiritual')&&h!=='record')navKey='spiritual';
+    if(h==='record')renderRecord();
+    if(h==='provider'){renderProvider();navKey='record';}
+    if(h==='admin'){renderAdminAll();navKey='record';}
+    if(h==='register'){$('reg-why').textContent=state.pending?'سجّل أولاً لتكمل ما بدأته. التسجيل مطلوب مرة واحدة للمريض أو المرافق.':'التسجيل مطلوب مرة واحدة للمريض أو المرافق قبل أي حجز.';}
+  }else{show('home');navKey='home';}
+  document.querySelectorAll('[data-nav]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-nav')===navKey);});
+}
+window.addEventListener('hashchange',route);
+
+/* ---------- auth ---------- */
+function renderUser(){
+  var u=state.user,pv=state.provider;
+  var ad=state.admin,lbl=ad?'لوحة الإدارة':pv?'لوحتي':'سجلي',hr=ad?'#admin':pv?'#provider':'#record';
+  $('nav-rec').textContent=lbl;$('nav-rec').href=hr;
+  $('mb-rec').textContent=ad?'الإدارة':lbl;$('mb-rec').parentNode.href=hr;
+  if(ad){
+    $('hello').hidden=false;$('hello').textContent=adminLabel();
+    $('btn-out').hidden=false;$('btn-auth').hidden=true;$('btn-demo').hidden=true;$('portal-demo').hidden=true;
+    $('lock-note').textContent='أنت داخل بحساب الإدارة. الأقسام الداخلية للمرضى والمرافقين.';
+    return;
+  }
+  if(pv){
+    $('hello').hidden=false;$('hello').textContent=pv.name+' · '+pv.spec;
+    $('btn-out').hidden=false;$('btn-auth').hidden=true;$('btn-demo').hidden=true;$('portal-demo').hidden=true;
+    $('lock-note').textContent='أنت داخل بحساب مقدم خدمة. الأقسام الداخلية للمرضى والمرافقين.';
+    return;
+  }
+  $('hello').hidden=!u;$('btn-out').hidden=!u;$('btn-auth').hidden=!!u;$('btn-demo').hidden=!!u;$('portal-demo').hidden=!!u;
+  if(u){$('hello').textContent='مرحباً، '+u.name.split(/\s+/)[0]+(u.role==='مرافق'?' (مرافق)':'');if(u.demo)$('hello').insertAdjacentHTML('beforeend','<span class="demo-tag">تجريبي</span>');}
+  $('lock-note').textContent=u?'أنت مسجّل، ويمكنك الدخول إلى جميع الأقسام.':'يلزم التسجيل للدخول إلى الأقسام الداخلية.';
+}
+$('btn-out').addEventListener('click',function(){state.admin=null;state.provider=null;state.user=null;state.scaleDone=false;state.bookings=[];state.booked={};state.scaleLevel=null;renderUser();location.hash='#home';});
+
+$('nafath-start').addEventListener('click',function(){$('nafath-wait').hidden=false;$('nafath-code').textContent=String(10+Math.floor(Math.random()*89)).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d];});});
+$('nafath-ok').addEventListener('click',function(){
+  $('r-name').value='عبدالله محمد السبيعي';$('r-id').value='1012345678';$('r-dob').value='1958-03-14';$('r-gender').value='ذكر';
+  ['r-name','r-id','r-dob'].forEach(function(i){$(i).readOnly=true;});
+  document.querySelectorAll('[data-v]').forEach(function(s){s.hidden=false;});
+  $('nafath-wait').innerHTML='<p class="verified">تم التحقق عبر نفاذ (بيانات تجريبية). أكمل بقية الحقول.</p>';
+});
+
+function setErr(id,msg){var e=$(id);if(e)e.textContent=msg||'';return !msg;}
+$('reg-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var name=$('r-name').value.trim(),phone=$('r-phone').value.replace(/\D/g,''),id=$('r-id').value.replace(/\D/g,''),dob=$('r-dob').value,g=$('r-gender').value,reg=$('r-region').value,hosp=$('r-hosp').value.trim();
+  var ok=true;
+  ok=setErr('re-name',name.split(/\s+/).length>=2?'':'اكتب الاسم الثلاثي على الأقل')&&ok;
+  ok=setErr('re-phone',/^05\d{8}$/.test(phone)?'':'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05')&&ok;
+  ok=setErr('re-id',/^[12]\d{9}$/.test(id)?'':'رقم الهوية ١٠ أرقام يبدأ بـ 1 أو 2')&&ok;
+  ok=setErr('re-dob',dob?'':'اختر تاريخ الميلاد')&&ok;
+  ok=setErr('re-gender',g?'':'اختر الجنس')&&ok;
+  ok=setErr('re-region',reg?'':'اختر المنطقة')&&ok;
+  ok=setErr('re-hosp',hosp?'':'اكتب اسم المستشفى')&&ok;
+  if(!ok)return;
+  var role=document.querySelector('input[name=role]:checked').value;
+  state.provider=null;state.admin=null;
+  state.user={name:name,role:role,phone:phone,region:reg,hosp:hosp};registerUser(state.user);
+  renderUser();
+  var p=state.pending;state.pending=null;
+  if(p&&p.route)location.hash='#'+p.route;
+  else if(p&&p.book){location.hash='#services';setTimeout(function(){openBooking(p.book);},60);}
+  else location.hash='#spiritual';
+});
+
+/* ---------- demo login ---------- */
+function demoLogin(){
+  state.provider=null;state.admin=null;
+  if(!Object.keys(subs).some(function(k){return subs[k];})){subs.a0=true;subs.b0=true;renderZad();}
+  state.user={name:'عبدالله محمد السبيعي',role:'مريض',phone:'0500000000',region:'الرياض',hosp:'مستشفى الملك فهد',demo:true};registerUser(state.user);
+  renderUser();
+  var p=state.pending;state.pending=null;
+  if(p&&p.route)location.hash='#'+p.route;
+  else if(p&&p.book){location.hash='#services';setTimeout(function(){openBooking(p.book);},60);}
+  else location.hash='#record';
+}
+document.addEventListener('click',function(e){if(e.target.closest('.demo-btn'))demoLogin();});
+
+/* ---------- booking modal ---------- */
+var mctx=null;
+function openBooking(opts){
+  if(!state.user){state.pending={book:opts};location.hash='#register';return;}
+  mctx=opts;
+  $('m-title').textContent=opts.title;
+  $('m-staff').innerHTML=opts.staff.map(function(s,i){return '<option value="'+i+'">'+s[0]+' — '+s[1]+'</option>';}).join('');
+  if(opts.instant){
+    $('m-day').innerHTML='<option value="-1">اليوم، أقرب وقت متاح</option>';
+    $('m-time').innerHTML='<option>خلال ٦٠ دقيقة</option>';
+  }else{
+    $('m-day').innerHTML=DAYS.map(function(d,i){return '<option value="'+i+'">'+dayLabel(d)+'</option>';}).join('');
+    $('m-time').innerHTML=TIMES.map(function(t){return '<option>'+t+'</option>';}).join('');
+  }
+  $('m-typebox').hidden=true; /* حجز الجلسة وطلب الاستشارة بمعنى واحد */
+  $('mt-s').checked=opts.type!=='استشارة';$('mt-c').checked=opts.type==='استشارة';
+  $('m-notes').value='';$('m-form').hidden=false;$('m-ok').hidden=true;
+  $('modal').hidden=false;$('m-close').focus();
+}
+function closeModal(){$('modal').hidden=true;}
+$('m-close').addEventListener('click',closeModal);
+$('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('modal').hidden)closeModal();});
+function ref(){return 'LT-'+Math.floor(100000+Math.random()*900000);}
+$('m-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var s=mctx.staff[$('m-staff').value],d=mctx.instant?new Date():DAYS[$('m-day').value],t=$('m-time').value;
+  var type='جلسة';
+  if(mctx.instant)type='جلسة اليوم';
+  var mode=document.querySelector('input[name=mmode]:checked').value;
+  var id=addBooking({title:type+' — '+(mctx.dept||''),dept:mctx.dept||'',c:mctx.c||'var(--accent)',staff:s[0],date:d,time:t,mode:mode});
+  $('m-form').hidden=true;
+  $('m-ok').hidden=false;
+  $('m-ok').innerHTML='<b>تم استلام طلب '+esc(type)+' '+esc(mode)+'</b><br>مع '+esc(s[0])+'، '+(mctx.instant?'اليوم':'يوم '+esc(dayLabel(d)))+' '+esc(t)+'.<br>رقم الطلب: <span class="num">'+id+'</span><br><a href="#record" class="small">اعرضه في سجلي</a><br><span class="small muted">نسخة عرض: في النسخة الفعلية تصل رسالة تأكيد ورابط الجلسة إلى الجوال.</span>';
+});
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-book]');if(!b)return;
+  var d=DEPTS.filter(function(x){return x.id===b.getAttribute('data-book');})[0];
+  openBooking({title:'حجز جلسة — '+d.name,staff:d.staff,type:b.getAttribute('data-type'),dept:d.name,c:d.c});
+});
+$('loss-book').addEventListener('click',function(){openBooking({title:'حجز جلسة مواساة',staff:LOSS_STAFF,noType:true,dept:'الفقد والمواساة',c:'var(--spirit)'});});
+var SP_CONSULT={
+  fiqh:{name:'الاستشارة الفقهية',staff:[['د. صالح الشهري','مرشد فقهي، فقه المريض'],['أ. أمل القرشي','مرشدة فقهية']],ph:'مثال: كيف أتوضأ ومعي قسطرة؟'},
+  wills:{name:'استشارة الوصايا (بالشراكة مع مركز واقف)',staff:[['د. سليمان العمري','مستشار في الوصايا والمواريث'],['د. صالح الشهري','مرشد فقهي']],ph:'مثال: هل يجوز أن أوصي بجزء من مالي لمسجد؟'}
+};
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-sp-book]');
+  if(b){var c=SP_CONSULT[b.getAttribute('data-sp-book')];openBooking({title:'حجز '+c.name,staff:c.staff,noType:true,dept:c.name,c:'var(--spirit)'});return;}
+  var a=e.target.closest('[data-sp-ask]');if(!a)return;
+  var kk=a.getAttribute('data-sp-ask');waOpen('سؤال مكتوب: '+SP_CONSULT[kk].name,'لدي سؤال في '+SP_CONSULT[kk].name+':\n(اكتب سؤالك هنا)');return;
+  var k=a.getAttribute('data-sp-ask'),c2=SP_CONSULT[k];
+  openForm('سؤال مكتوب: '+c2.name,
+    '<label for="ask-q">سؤالك<textarea id="ask-q" style="min-height:140px" placeholder="'+c2.ph+'"></textarea><span class="err" id="aske-q"></span></label>'+
+    '<label for="ask-ctx">ما يحسن أن يعرفه المرشد عن حالتك الصحية (اختياري)<textarea id="ask-ctx"></textarea></label>'+
+    '<button class="btn btn-spirit" type="submit">أرسل السؤال</button>',
+    function(){
+      var q=$('ask-q').value.trim();if(!setErr('aske-q',q?'':'اكتب سؤالك'))return;
+      var id=addBooking({title:'سؤال مكتوب — '+c2.name,dept:'الدعم الديني والروحي',c:'var(--spirit)',staff:'يُحدَّد المرشد عند الرد',date:new Date(),time:'الرد خلال يومي عمل',mode:'مكتوبة'});
+      done('استلمنا سؤالك، ويصلك الرد خلال يومي عمل في صفحة سجلي. رقم الطلب: <span class="num">'+id+'</span>');
+    });
+});
+$('instant-btn').addEventListener('click',function(){
+  openBooking({title:'جلسة اليوم مع المرشد المناوب',staff:DEPTS[0].staff.slice(0,2),noType:true,instant:true,dept:'الدعم الديني والروحي',c:'var(--spirit)'});
+});
+
+/* ---------- spiritual scale ---------- */
+var ITEMS=[
+ ['أجد الطمأنينة حين أذكر الله أو أسمع القرآن.',false],
+ ['أرى لما أمرّ به من مرض معنى وحكمة.',false],
+ ['أستطيع المحافظة على صلاتي وعباداتي بقدر استطاعتي.',false],
+ ['أشعر أن الله قريب مني ورحيم بي في مرضي.',false],
+ ['يقلقني المستقبل وما بعد هذا المرض.',true],
+ ['أجد صعوبة في تقبّل ما أصابني.',true],
+ ['أشعر بالوحدة في هذه المرحلة.',true],
+ ['تشغلني أمور أريد إنهاءها، كالوصية أو مسامحة أحد.',true]
+];
+var LIK=['لا تنطبق','قليلاً','أحياناً','غالباً','تماماً'];
+$('scale-items').innerHTML=ITEMS.map(function(it,i){
+  return '<fieldset class="q" style="border:0;margin:0;padding-inline:0"><legend style="padding:0"><p>'+(i+1).toLocaleString('ar-SA')+'. '+it[0]+'</p></legend><div class="likert">'+LIK.map(function(l,v){return '<label for="q'+i+'-'+v+'"><input type="radio" name="q'+i+'" id="q'+i+'-'+v+'" value="'+v+'">'+l+'</label>';}).join('')+'</div></fieldset>';
+}).join('');
+/* (removed an earlier 4-step stepper(): the 2-step version below always overrode it) */
+/* ---------- spiritual sessions: two paths ---------- */
+var SS_TYPES=[
+ {t:'جلسة معالجة الخوف والقلق',d:'تهدئة المخاوف من المرض والمستقبل وما بعد الموت، بالإنصات أولاً ثم التذكير برحمة الله وسعة فضله.',plan:'أربع جلسات أسبوعية: إنصات وتفريغ للمخاوف، ثم تدبر آيات الطمأنينة والرجاء، ثم تعزيز حسن الظن بالله، ثم ختام وقياس بعدي.'},
+ {t:'جلسة السكينة والطمأنينة',d:'ذكر وتدبر ودعاء يعين القلب على الهدوء، ويعيد للنفس أنسها بالله.',plan:'ثلاث جلسات: أذكار وتدبر ودعاء، مع ورد يومي يسير بين الجلسات، ثم قياس بعدي.'},
+ {t:'جلسة مواجهة الألم',d:'معاني الصبر وأجر المريض، مع الرقية والدعاء عند الألم، بما يخفف وطأته على النفس.',plan:'ثلاث جلسات: معاني الصبر وأجر المريض، والرقية والدعاء عند الألم، بالتنسيق مع فريق الألم، ثم قياس بعدي.'},
+ {t:'جلسة الحياة الطيبة: إعادة متعة الحياة',d:'استعادة المعنى والفرح بما بقي من الأيام، واستثمارها فيما يحبه المريض ويرضي الله. ﴿فَلَنُحْيِيَنَّهُ حَيَاةً طَيِّبَةً﴾',plan:'أربع جلسات: استكشاف ما يحبه المريض، وتحويل أيامه إلى أعمال باقية، وإشراك الأسرة، ثم قياس بعدي.'},
+ {t:'جلسة مواجهة الخبر السيئ',d:'مرافقة المريض وأسرته بعد تلقي خبر صعب، وإعانتهم على استقباله بالصبر والاسترجاع.',plan:'جلستان متقاربتان: استقبال الخبر والمواساة بالصبر والاسترجاع، ثم متابعة للمريض والأسرة خلال أسبوع.'},
+ {t:'جلسة التفكر والتأمل',d:'تأمل هادئ في آيات الله ونعمه، وفي معنى هذه الرحلة، يفتح للقلب نافذة رحبة.',plan:'ثلاث جلسات: تأمل في آيات الله ونعمه ومعنى الرحلة، مع وقت تأمل يومي قصير.'}
+];
+function planFor(t){var x=SS_TYPES.filter(function(y){return y.t===t;})[0];return x?x.plan:'';}
+function levelOf(pct){return pct>=67?'احتياج روحي مرتفع':pct>=34?'احتياج روحي متوسط':'احتياج روحي منخفض';}
+function suggestFor(pct){var r=pct>=67?[0,4]:pct>=34?[1,2]:[3,5];return {main:SS_TYPES[r[0]].t,alt:SS_TYPES[r[1]].t};}
+/* بيانات الاستقبال لكل مستفيد: الطريق، النتيجة (للمرشد فقط)، الترشيح، النوع المعتمد، المتابعة */
+var INTAKE={
+ 'فاطمة علي الشهري':{path:'scale',pct:78,lvl:'احتياج روحي مرتفع',suggested:SS_TYPES[0].t,alt:SS_TYPES[4].t},
+ 'سعد ناصر القحطاني':{path:'direct',type:SS_TYPES[2].t,chosenBy:'المريض'}
+};
+function intakeType(name){var it=INTAKE[name];if(!it)return '';return it.type?it.type:'بانتظار اعتمادك (ترشيح النظام: '+it.suggested+')';}
+function guideEmailByName(n){var p=PROVIDERS.filter(function(x){return x.name===n;})[0];return p?p.email:'guide@latif.demo';}
+
+function ssSet(path){
+  state.ssPath=path;state.ssType=null;state.slot=null;
+  $('ss-paths').hidden=true;$('ss-change').hidden=false;$('ss-stepper').hidden=false;$('ss-ok').hidden=true;
+  $('st1').textContent=path==='scale'?'١ المقياس القبلي':'١ نوع الجلسة';$('st2').textContent='٢ الموعد';
+  $('scale-form').hidden=path!=='scale';$('ss-sent').hidden=true;
+  $('ss-types-card').hidden=path!=='direct';$('ss-slots-card').hidden=path!=='direct';
+  if(path==='direct'){renderTypes();renderSlots();}
+  stepper(1);
+}
+function ssReset(){state.ssPath=null;$('ss-paths').hidden=false;['ss-change','ss-stepper','scale-form','ss-sent','ss-types-card','ss-slots-card'].forEach(function(id){$(id).hidden=true;});$('scale-form').reset();}
+function stepper(n){['st1','st2'].forEach(function(id,i){var el=$(id);el.className=i+1<n?'done':(i+1===n?'on':'');});}
+$('ss-paths').addEventListener('click',function(e){var b=e.target.closest('[data-path]');if(b)ssSet(b.getAttribute('data-path'));});
+$('ss-change').addEventListener('click',ssReset);
+$('scale-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var need=0,missing=0;
+  ITEMS.forEach(function(it,i){var c=document.querySelector('input[name=q'+i+']:checked');if(!c){missing++;return;}var v=+c.value;need+=it[1]?v:4-v;});
+  if(missing){$('scale-err').textContent='بقيت '+missing.toLocaleString('ar-SA')+' عبارات دون إجابة.';return;}
+  $('scale-err').textContent='';
+  var pct=Math.round(need/32*100),sg=suggestFor(pct);
+  state.scaleLevel={lvl:levelOf(pct),pct:pct};state.scaleDone=true;state.slot=null;
+  INTAKE[state.user.name]={path:'scale',pct:pct,lvl:levelOf(pct),suggested:sg.main,alt:sg.alt};
+  logAct('مقياس قبلي من '+state.user.name+' (النتيجة للمرشد)');
+  $('scale-form').hidden=true;$('ss-sent').hidden=false;$('ss-slots-card').hidden=false;renderSlots();stepper(2);window.scrollTo(0,0);
+});
+function renderTypes(){
+  $('ss-types').innerHTML=SS_TYPES.map(function(x,i){return '<label class="stype" for="sst-'+i+'"><input type="radio" name="ss-type" id="sst-'+i+'" value="'+esc(x.t)+'"><b>'+esc(x.t)+'</b><span class="d">'+esc(x.d)+'</span></label>';}).join('');
+}
+function canBook(){return !!state.slot&&(state.ssPath==='scale'||!!state.ssType);}
+$('ss-types').addEventListener('change',function(e){if(e.target.name!=='ss-type')return;state.ssType=e.target.value;$('ss-book').disabled=!canBook();stepper(2);});
+$('ss-guide').innerHTML=DEPTS[0].staff.map(function(s,i){return '<option value="'+i+'">'+s[0]+'</option>';}).join('');
+function renderSlots(){
+  $('ss-slots').innerHTML=DAYS.slice(0,5).map(function(d,di){
+    return '<div class="day"><b>'+dayLabel(d)+'<small>'+hijri(d)+'</small></b><div class="times">'+TIMES.map(function(t,ti){var taken=(di+ti)%5===1;return '<button type="button" class="slot" data-slot="'+di+'|'+ti+'"'+(taken?' disabled aria-label="'+t+' محجوز"':'')+'>'+t+'</button>';}).join('')+'</div></div>';
+  }).join('');
+  $('ss-book').disabled=true;
+}
+$('ss-slots').addEventListener('click',function(e){
+  var b=e.target.closest('.slot');if(!b||b.disabled)return;
+  this.querySelectorAll('.slot').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');
+  state.slot=b.getAttribute('data-slot').split('|').map(Number);$('ss-book').disabled=!canBook();if(canBook())stepper(2);
+});
+$('ss-book').addEventListener('click',function(){
+  if(!canBook())return;var u=state.user,d=DAYS[state.slot[0]],t=TIMES[state.slot[1]],g=DEPTS[0].staff[$('ss-guide').value][0];
+  var scalePath=state.ssPath==='scale';
+  var title=scalePath?'جلسة دعم روحي (يحدد المرشد نوعها بعد المقياس)':'جلسة دعم روحي: '+state.ssType;
+  var id=addBooking({title:title,dept:'الدعم الديني والروحي',c:'var(--spirit)',staff:g,date:d,time:t,mode:'مرئية'});
+  if(!scalePath){
+    INTAKE[u.name]={path:'direct',type:state.ssType,chosenBy:'المريض'};
+    state.tasks.push({id:ref(),kind:'scale',scale:'spirit',phase:'قبلي',patient:u.name,by:guideEmailByName(g),byName:g,title:scaleTitle('spirit','قبلي'),note:'يمكنك إجراؤه قبل جلستك أو بعدها، وتظهر نتيجته لمرشدك فقط.',status:'pending'});
+  }
+  INTAKE[u.name].guide=g;
+  var pt=PATIENTS.filter(function(x){return x.name===u.name;})[0];
+  if(pt){pt.next={d:state.slot[0],time:t};pt.closed=false;}else PATIENTS.push({name:u.name,age:'—',hosp:u.hosp,sessions:0,last:0,next:{d:state.slot[0],time:t}});
+  $('ss-ok').hidden=false;
+  $('ss-ok').innerHTML='<b>تم الحجز مع '+esc(g)+'</b><br>يوم '+esc(dayLabel(d))+' ('+esc(hijri(d))+') الساعة '+esc(t)+'.<br>'+(scalePath?'سيحدد المرشد نوع جلستك وخطتها بعد الاطلاع على المقياس، ويبدأ معك الجلسة الأولى.':'نوع الجلسة: '+esc(state.ssType)+'. وصلك المقياس القبلي في صفحة سجلي لتجريه لاحقاً.')+'<br>بعد الجلسة يفعّل المرشد متابعتك عبر واتساب أو النظام.<br>رقم الحجز: <span class="num">'+id+'</span> · <a href="#record">اعرضه في سجلي</a>';
+  this.disabled=true;
+});
+
+/* ---------- tadabbur ---------- */
+var TAD=[
+ {t:'سورة الضحى: الأنس بعد الوحشة',g:'أ. عبدالرحمن البقمي',d:0,time:'٨:٣٠ م',seats:6,aud:'للمرضى والمرافقين'},
+ {t:'سورة الشرح: مع العسر يسرا',g:'أ. أمل القرشي',d:1,time:'٧:٠٠ م',seats:2,aud:'للنساء'},
+ {t:'آيات الصبر في سورة البقرة',g:'أ. عبدالرحمن البقمي',d:2,time:'٨:٣٠ م',seats:8,aud:'للمرضى والمرافقين'},
+ {t:'سورة يوسف: الفرج بعد الشدة',g:'أ. أمل القرشي',d:3,time:'٧:٠٠ م',seats:0,aud:'للنساء'},
+ {t:'اسم الله اللطيف في القرآن',g:'أ. عبدالرحمن البقمي',d:4,time:'٨:٣٠ م',seats:5,aud:'للمرضى والمرافقين'},
+ {t:'دعاء أيوب عليه السلام: الشكوى إلى الله',g:'أ. أمل القرشي',d:5,time:'١:٠٠ م',seats:4,aud:'للمرضى والمرافقين'}
+];
+function renderTad(){
+  $('tad-list').innerHTML=TAD.map(function(s,i){
+    var d=DAYS[s.d],booked=state.booked[i],full=s.seats<=0&&!booked;
+    return '<article class="sess"><div class="when"><span class="pill g">'+dayLabel(d)+'</span><span class="pill">'+s.time+'</span><span class="pill">'+s.aud+'</span></div><h3>'+s.t+'</h3><p class="muted small">يقدّمها: '+s.g+' · '+hijri(d)+'</p><p class="small">'+(full?'<span class="pill w">اكتملت المقاعد</span>':'المقاعد المتبقية: <b>'+s.seats.toLocaleString('ar-SA')+'</b>')+'</p><button class="btn '+(booked?'btn-ghost sub-on':'btn-spirit')+' btn-sm" type="button" data-tad="'+i+'" style="justify-self:start"'+(full?' disabled':'')+'>'+'اطلب مقعدك عبر واتساب'+'</button></article>';
+  }).join('');
+}
+$('tad-list').addEventListener('click',function(e){
+  var b=e.target.closest('[data-tad]');if(!b||b.disabled)return;var i=+b.getAttribute('data-tad');
+  waOpen('طلب مقعد في جلسة تدبر','أرغب في حجز مقعد في جلسة التدبر: '+TAD[i].t+' ('+dayLabel(DAYS[TAD[i].d])+'، '+TAD[i].time+')');return;
+  if(state.booked[i]){
+    state.bookings=state.bookings.filter(function(x){return x.id!==state.booked[i];});
+    state.booked[i]=false;TAD[i].seats++;
+  }else{
+    state.booked[i]=addBooking({title:'جلسة تدبر: '+TAD[i].t,dept:'الدعم الديني والروحي',c:'var(--spirit)',staff:TAD[i].g,date:DAYS[TAD[i].d],time:TAD[i].time,mode:'جماعية مرئية'});
+    TAD[i].seats--;
+  }
+  renderTad();
+});
+renderTad();
+
+/* ---------- zad ---------- */
+var ZAD1=[
+ {t:'ختمة القرآن الجماعية',f:'يومي',d:'جزء يومي بالتلاوة أو الاستماع، مع مجموعة تتابع معك وتختم معك.',s:'ورد اليوم: الجزء الأول، مع تسجيل صوتي لمن يصعب عليه القراءة.'},
+ {t:'صدقتي الجارية',f:'أسبوعي',d:'أفكار ميسّرة لوقف أو صدقة جارية تناسب قدرتك، وتعريف بفرص موثوقة.',s:'هذا الأسبوع: سقيا الماء، وكيف تجعلها باسمك أو باسم والديك.'},
+ {t:'الوصية والحقوق',f:'جلسة شهرية',d:'إرشاد هادئ لكتابة الوصية وتسوية الحقوق والمسامحة.',s:'نموذج وصية شرعية مختصرة، ومتى يُستحسن مراجعة المحكمة.'},
+ {t:'أذكار وباقيات صالحات',f:'يومي',d:'ورد يسير من الأذكار يمكن قوله على السرير.',s:'سبحان الله، والحمد لله، ولا إله إلا الله، والله أكبر: الباقيات الصالحات.'}
+];
+var ZAD2=[
+ {t:'سكينة الليل',f:'يومي',d:'رسالة مسائية قصيرة قبل النوم: آية ودعاء وكلمة طمأنينة.',s:'«بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ…»'},
+ {t:'الصبر والرضا',f:'أسبوعي',d:'مقاطع قصيرة عن أجر المريض ومعاني الابتلاء.',s:'«مَا يُصِيبُ الْمُسْلِمَ مِنْ نَصَبٍ وَلَا وَصَبٍ… إِلَّا كَفَّرَ اللهُ بِهَا مِنْ خَطَايَاهُ» متفق عليه.'},
+ {t:'حسن الظن بالله',f:'أسبوعي',d:'تأملات في أسماء الله الحسنى وسعة رحمته.',s:'«أَنَا عِنْدَ ظَنِّ عَبْدِي بِي» متفق عليه.'},
+ {t:'دعاء المريض',f:'أسبوعي',d:'أدعية مأثورة يرددها المريض والمرافق.',s:'﴿أَنِّي مَسَّنِيَ الضُّرُّ وَأَنتَ أَرْحَمُ الرَّاحِمِينَ﴾'}
+];
+var subs={};
+function groupHtml(g,key){
+  var on=subs[key];
+  return '<div class="group"><div class="g-top"><div><h4>'+g.t+'</h4><span class="pill" style="margin-top:4px;display:inline-block">'+g.f+'</span></div><button class="btn btn-sm '+(on?'sub-on':'btn-ghost')+'" type="button" data-sub="'+key+'">'+'اشترك عبر واتساب'+'</button></div><p class="muted small">'+g.d+'</p><details><summary class="small" style="cursor:pointer;color:var(--spirit);font-family:var(--display)">اعرض نموذجاً من المحتوى</summary><p class="sample" style="margin-top:8px">'+g.s+'</p></details></div>';
+}
+function renderZad(){
+  $('zad-1').innerHTML=ZAD1.map(function(g,i){return groupHtml(g,'a'+i);}).join('');
+  $('zad-2').innerHTML=ZAD2.map(function(g,i){return groupHtml(g,'b'+i);}).join('');
+}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-sub]');if(!b)return;var k=b.getAttribute('data-sub');var zg=(k[0]==='a'?ZAD1:ZAD2)[+k.slice(1)];waOpen('الاشتراك في زاد المريض','أرغب في الاشتراك في مجموعة «'+zg.t+'» من زاد المريض');return;subs[k]=!subs[k];renderZad();if(state.user&&!document.querySelector('[data-view="record"]').hidden)renderRecord();});
+renderZad();
+
+/* ---------- telegram ---------- */
+if(TELEGRAM_URL){$('tg-link').href=TELEGRAM_URL;$('tg-link').target='_blank';$('tg-link').rel='noopener';$('tg-note').hidden=true;}
+else{$('tg-link').addEventListener('click',function(e){e.preventDefault();$('tg-note').textContent='رابط القناة لم يُضف بعد في هذه النسخة.';});}
+
+/* ---------- contact ---------- */
+$('contact-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var n=$('c-name').value.trim(),p=$('c-phone').value.replace(/\D/g,''),m=$('c-msg').value.trim(),ok=true;
+  ok=setErr('ce-name',n?'':'اكتب اسمك')&&ok;
+  ok=setErr('ce-phone',/^05\d{8}$/.test(p)?'':'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05')&&ok;
+  ok=setErr('ce-msg',m?'':'اكتب رسالتك')&&ok;
+  if(!ok){$('c-ok').hidden=true;return;}
+  var t=document.querySelector('input[name=ctype]:checked').value;
+  waOpen('إرسال '+(t==='شكوى'?'الشكوى':t==='مقترح'?'المقترح':'الاستفسار'),'نوع الرسالة: '+t+'\nالاسم: '+n+'\nالجوال: '+p+'\n'+m,true);return;
+  $('c-ok').hidden=false;$('c-ok').innerHTML='تم استلام '+esc(t==='شكوى'?'الشكوى':t==='مقترح'?'المقترح':'الاستفسار')+'. رقم المتابعة: <span class="num">'+ref()+'</span><br><span class="small muted">نسخة عرض: الرسالة لا تُرسل فعلياً.</span>';
+});
+
+/* ---------- blog ---------- */
+var C={accent:'var(--accent)',grape:'var(--grape)',spirit:'var(--spirit)',coral:'var(--coral)',ok:'var(--ok)',sun:'var(--sun)'};
+var POSTS=[
+ {k:'ندوة',t:'فقه المريض: الطهارة والصلاة على السرير',by:'د. صالح الشهري',d:1,time:'٩:٠٠ م',len:'٤٥ دقيقة',c:C.spirit,icon:'ask',seats:200},
+ {k:'برنامج',t:'برنامج المرافق المطمئن: زاد روحي لمن يرعى المريض',by:'أ. أمل القرشي',d:3,time:'٨:٠٠ م',len:'٤ لقاءات أسبوعية',c:C.grape,icon:'people',seats:60},
+ {k:'ندوة',t:'حسن الظن بالله في أيام المرض',by:'أ. عبدالرحمن البقمي',d:2,time:'٨:٣٠ م',len:'ساعة واحدة',c:C.accent,icon:'heart',seats:150},
+ {k:'مقال',t:'كيف تواسي مريضاً تحبه؟',by:'أ. عبدالرحمن البقمي',read:'٥ دقائق قراءة',c:C.coral,icon:'drop',body:[
+   ['أنصت أكثر مما تتكلم','المريض يحتاج إلى من يسمعه قبل أن يحتاج إلى النصيحة. دعه يبوح بخوفه وحزنه دون أن تقاطعه أو تستعجل الرد.'],
+   ['ذكّره بما يطمئنه','من السنة أن يُدعى للمريض بالشفاء، وأن يُذكَّر بأجر صبره، دون أن تُشعره بأنك تعظه. كلمة صادقة واحدة تكفي.'],
+   ['كن حاضراً لا خطيباً','لا يلزمك أن تجد الكلمات المناسبة دائماً. جلوسك بجانبه، وقراءة القرآن عنده، والدعاء له، كلها مواساة.']]},
+ {k:'برنامج',t:'ختمة الصبر: ختمة جماعية للمرضى وأسرهم',by:'أ. ماجد الحارثي',d:4,time:'بعد العصر',len:'٣٠ يوماً',c:C.ok,icon:'book',seats:300},
+ {k:'مقال',t:'الوصية: لماذا لا تؤجلها؟',by:'د. سليمان العمري',read:'٤ دقائق قراءة',c:C.sun,icon:'scroll',body:[
+   ['الوصية سنة للصحيح والمريض','قال النبي ﷺ: «مَا حَقُّ امْرِئٍ مُسْلِمٍ لَهُ شَيْءٌ يُوصِي فِيهِ، يَبِيتُ لَيْلَتَيْنِ إِلَّا وَوَصِيَّتُهُ مَكْتُوبَةٌ عِنْدَهُ» (متفق عليه). فكتابتها ليست علامة يأس، بل حفظ للحقوق وطمأنينة للقلب.'],
+   ['ما الذي يُكتب فيها؟','الديون والحقوق التي لك وعليك، والوصية بالثلث فأقل لغير الوارث في الصدقة والوقف، والوصية بالأهل في دينهم ورعايتهم.'],
+   ['كيف نعينك؟','احجز جلسة في استشارة الوصايا، ويعينك المستشار على صياغتها، ويرشدك إلى توثيقها لدى الجهات المختصة.']]}
+];var regs={},blogF='all';
+function renderBlog(){
+  $('blog-list').innerHTML=POSTS.map(function(p,i){
+    if(blogF!=='all'&&p.k!==blogF)return '';
+    var meta=p.read?'<span>'+p.read+'</span>':'<span>'+dayLabel(DAYS[p.d])+'</span><span>'+p.time+'</span><span>'+p.len+'</span>';
+    var btn=p.read?'<button class="btn btn-ghost btn-sm" type="button" data-read="'+i+'">اقرأ المقال</button>'
+      :'<button class="btn btn-sm '+(regs[i]?'sub-on':'btn-primary')+'" type="button" data-reg="'+i+'">'+'سجّل مجاناً عبر واتساب'+'</button>';
+    return '<article class="post" style="--c:'+p.c+'"><div class="cover">'+I[p.icon]+'<span class="kind">'+p.k+'</span>'+(p.read?'':'<span class="free">مجاني</span>')+'</div><div class="body"><div class="meta">'+meta+'</div><h3>'+p.t+'</h3><p class="by">بقلم وتقديم: '+p.by+(p.seats?' · '+p.seats.toLocaleString('ar-SA')+' مقعداً':'')+'</p>'+btn+'</div></article>';
+  }).join('');
+}
+document.querySelector('.filters').addEventListener('click',function(e){
+  var b=e.target.closest('[data-f]');if(!b)return;blogF=b.getAttribute('data-f');
+  this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});renderBlog();
+});
+function openDoc(title,html){$('d-title').textContent=title;$('d-body').innerHTML=html;$('doc-modal').hidden=false;$('d-close').focus();}
+$('d-close').addEventListener('click',function(){$('doc-modal').hidden=true;});
+$('doc-modal').addEventListener('click',function(e){if(e.target===this)this.hidden=true;});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')$('doc-modal').hidden=true;});
+$('blog-list').addEventListener('click',function(e){
+  var r=e.target.closest('[data-read]');
+  if(r){var p=POSTS[+r.getAttribute('data-read')];openDoc(p.t,'<p class="small muted">بقلم '+p.by+' · '+p.read+'</p>'+p.body.map(function(s){return '<h4>'+s[0]+'</h4><p>'+s[1]+'</p>';}).join(''));return;}
+  var g=e.target.closest('[data-reg]');if(!g)return;var i=+g.getAttribute('data-reg');
+  var pb=POSTS[+g.getAttribute('data-reg')];waOpen('التسجيل في '+pb.k,'أرغب في التسجيل في '+pb.k+': '+pb.t);return;
+  if(regs[i]){state.bookings=state.bookings.filter(function(x){return x.id!==regs[i];});regs[i]=false;}
+  else{var p=POSTS[i];regs[i]=addBooking({title:p.k+': '+p.t,dept:'مدونة الخدمة (مجاني)',c:p.c,staff:p.by,date:DAYS[p.d],time:p.time,mode:'عن بُعد'});}
+  renderBlog();
+});
+renderBlog();
+
+/* ---------- faq ---------- */
+var FAQ=[
+ ['كيف أطلب الخدمة؟','عبر واتساب: راسلنا بصفتك المريض أو المرافق، واذكر الاسم والمنطقة والمستشفى والخدمة التي تحتاجها، ونرسل لك المواعيد المتاحة.'],
+ ['من يستفيد من خدماتنا؟','مرضى الرعاية التلطيفية في أي مرحلة، ومرافقوهم وأسرهم. ويستطيع المرافق طلب الخدمة للمريض أو لنفسه.'],
+ ['هل يلزم إجراء المقياس قبل الجلسة؟','لا. لك أن تبدأ بالمقياس القبلي الذي يرسله لك المرشد عبر واتساب ليحدد جلستك المناسبة، أو تختار جلسة مباشرة وتجري المقياس لاحقاً.'],
+ ['من يرى نتيجة المقياس؟','مرشدك فقط، ليختار لك الجلسة الأنسب ويضع خطة متابعتك.'],
+ ['كيف أحضر الجلسة؟','يصلك رابط الجلسة المرئية أو موعد الاتصال على واتساب قبل الموعد. تحتاج فقط إلى جوال واتصال بالإنترنت.'],
+ ['هل البرامج والندوات مجانية؟','نعم، كل ما يُنشر في مدونة الخدمة من ندوات وبرامج مجاني، ويكون التسجيل فيها عبر واتساب.'],
+ ['هل تقدّم الخدمة علاجاً طبياً؟','لا. الخدمة متخصصة في الدعم الديني والروحي، ويعمل بالتنسيق مع الفريق الطبي المعالج. وعند أي طارئ صحي اتصل بالرقم 997.'],
+ ['كيف أغيّر موعدي أو ألغيه؟','راسلنا على واتساب قبل الموعد بوقت كافٍ، ليستفيد غيرك من الموعد.']
+];
+$('faq-list').innerHTML=FAQ.map(function(f){return '<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>';}).join('');
+$('faq-q').addEventListener('input',function(){
+  var q=this.value.trim(),n=0;
+  $('faq-list').querySelectorAll('details').forEach(function(d,i){var m=!q||(FAQ[i][0]+FAQ[i][1]).indexOf(q)>-1;d.hidden=!m;if(m)n++;d.open=!!q&&m;});
+  $('faq-none').hidden=n>0;
+});
+
+/* ---------- newsletter ---------- */
+$('news-form').addEventListener('submit',function(e){
+  e.preventDefault();var v=$('news-email').value.trim();
+  $('news-msg').textContent=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)?'تم الاشتراك. ستصلك مواعيد الندوات القادمة (نسخة عرض).':'اكتب بريداً إلكترونياً صحيحاً.';
+});
+
+/* ---------- record ---------- */
+var PAST=[
+ {title:'جلسة دعم روحي: جلسة السكينة والطمأنينة',dept:'الدعم الديني والروحي',c:'var(--spirit)',staff:'أ. عبدالرحمن البقمي',days:-21,time:'٧:٠٠ م',mode:'مرئية',status:'done'},
+ {title:'جلسة — الاستشارة الفقهية',dept:'الدعم الديني والروحي',c:'var(--accent)',staff:'د. صالح الشهري',days:-14,time:'٨:٣٠ م',mode:'صوتية',status:'done'},
+ {title:'جلسة تدبر: سورة الضحى',dept:'الدعم الديني والروحي',c:'var(--sun)',staff:'أ. ماجد الحارثي',days:-9,time:'٨:٣٠ م',mode:'جماعية مرئية',status:'done'},
+ {title:'جلسة — استشارة الوصايا',dept:'الدعم الديني والروحي',c:'var(--coral)',staff:'د. سليمان العمري',days:-4,time:'١:٠٠ م',mode:'مرئية',status:'cx'}
+];PAST.forEach(function(p){var d=new Date();d.setDate(d.getDate()+p.days);p.date=d;p.id='LT-'+(400000+Math.abs(p.days)*137);});
+var REPORTS=[
+ {t:'ملخص الجلسة الأولى',dept:'جلسات الدعم الروحي',by:'أ. عبدالرحمن البقمي',days:-21,c:'var(--spirit)',icon:'heart',body:[['ما تم في الجلسة','تعارف وإنصات، وحديث عن مخاوف المستقبل، وتذكير بأجر الصبر وسعة رحمة الله.'],['التوصية','ورد يسير من الأذكار صباحاً ومساءً، والاستمرار في الجلسات الأسبوعية.']]},
+ {t:'إجابة الاستشارة الفقهية',dept:'الاستشارة الفقهية',by:'د. صالح الشهري',days:-14,c:'var(--accent)',icon:'ask',body:[['السؤال','كيفية الطهارة والصلاة مع صعوبة الحركة.'],['الخلاصة','يتطهر المريض بحسب استطاعته، ويتيمم إذا شق عليه استعمال الماء، ويصلي قاعداً أو على جنبه إن لم يستطع القيام. ويجوز له الجمع عند المشقة.']]},
+ {t:'ملخص جلسة التدبر',dept:'جلسات التدبر',by:'أ. ماجد الحارثي',days:-9,c:'var(--sun)',icon:'book',body:[['الموضوع','تدبر سورة الضحى: الأنس بعد الوحشة.'],['أثر الجلسة','عبّر المستفيد عن شعور بالطمأنينة، وطلب الاشتراك في ختمة الصبر.']]}
+];function renderRecord(){
+  var u=state.user;if(!u)return;
+  $('rec-name').textContent=u.role==='مرافق'?'ملف المريض الذي ترافقه':u.name;
+  $('rec-role').textContent=u.role==='مرافق'?'تتصفح بصفتك مرافقاً: '+u.name:'المريض';
+  $('rec-init').textContent=initials(u.name);
+  $('rec-region').textContent=u.region;$('rec-hosp').textContent=u.hosp;
+  renderTasks();
+  var up=state.bookings.filter(function(b){return b.status==='up';}).sort(function(a,b){return a.date-b.date;});
+  var done=PAST.filter(function(p){return p.status==='done';}).length;
+  $('rec-kpis').innerHTML=
+    '<div class="kpi"><b>'+up.length.toLocaleString('ar-SA')+'</b><span>مواعيد قادمة</span></div>'+
+    '<div class="kpi"><b>'+done.toLocaleString('ar-SA')+'</b><span>جلسات مكتملة</span></div>'+
+    '<div class="kpi"><b>'+REPORTS.length.toLocaleString('ar-SA')+'</b><span>تقارير</span></div>'+
+    '<div class="kpi"><b>'+(up[0]?dayLabel(up[0].date).split('،')[0]:'—')+'</b><span>أقرب موعد</span></div>';
+  function apptHtml(b,cancel){
+    var d=b.date,st=b.status==='up'?'<span class="status up">قادم</span>':b.status==='done'?'<span class="status done">مكتمل</span>':'<span class="status cx">ملغى</span>';
+    var day=d.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{day:'numeric'}),mon=d.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{month:'short'});
+    return '<div class="appt" style="--c:'+b.c+'"><div class="date"><b>'+day+'</b><span>'+mon+'</span></div><div style="min-width:0"><h4>'+esc(b.title)+'</h4><p>'+esc(b.staff)+' · '+esc(b.time)+' · '+esc(b.mode)+' · <span class="num">'+b.id+'</span></p></div><div class="act">'+st+(cancel&&b.status==='up'?' <button class="btn btn-ghost btn-sm" type="button" data-cancel="'+b.id+'">إلغاء</button>':'')+'</div></div>';
+  }
+  $('rec-bookings').innerHTML=state.bookings.length?state.bookings.map(function(b){return apptHtml(b,true);}).join('')
+    :'<div class="empty">لا توجد حجوزات بعد. <a href="#services">احجز جلسة</a> أو <a href="#blog">سجّل في ندوة مجانية</a>، وستظهر هنا.</div>';
+  var ups=up.slice().sort(function(a,b){return a.date-b.date;});
+  $('rec-up').innerHTML=ups.length?ups.map(function(b){return apptHtml(b,false);}).join(''):'<div class="empty">لا مواعيد قادمة.</div>';
+  $('rec-past').innerHTML=PAST.slice().reverse().map(function(b){return apptHtml(b,false);}).join('');
+  var sym=[['الألم',4,'var(--coral)'],['الإرهاق',6,'var(--sun)'],['الغثيان',3,'var(--grape)'],['القلق',3,'var(--accent)'],['النوم',5,'var(--mint)']];
+  $('rec-medical').innerHTML=
+    '<div class="card"><h3>البيانات الأساسية</h3><ul><li>نوع الرعاية: رعاية تلطيفية منزلية</li><li>الحساسية: البنسلين</li><li>فصيلة الدم: O+</li><li>المرافق الرئيس: الابنة</li></ul></div>'+
+    '<div class="card"><h3>الأدوية الحالية</h3><ul><li>مسكّن ممتد المفعول، كل ١٢ ساعة</li><li>مسكّن سريع عند اشتداد الألم</li><li>ملين، مرة يومياً</li><li>مضاد للغثيان عند الحاجة</li></ul></div>'+
+    '<div class="card"><h3>مقياس الأعراض الأسبوعي</h3><p class="small muted">من ٠ (لا يوجد) إلى ١٠ (أشد ما يكون)، آخر تحديث قبل ٣ أيام.</p>'+sym.map(function(s){return '<div class="sym"><span>'+s[0]+'</span><span class="bar"><i style="width:'+s[1]*10+'%;background:'+s[2]+'"></i></span><b>'+s[1].toLocaleString('ar-SA')+'/١٠</b></div>';}).join('')+'</div>'+
+    '<div class="card"><h3>خطة الرعاية</h3><ul><li>السيطرة على الألم بحيث لا يتجاوز ٣ من ١٠</li><li>تحسين النوم ليلاً</li><li>جلسة دعم روحي أسبوعية</li><li>تدريب المرافقة على النقل الآمن</li></ul></div>'+
+    '<div class="card"><h3>الجانب الروحي</h3>'+(state.scaleLevel?'<p>أجريت المقياس القبلي، وأُرسلت نتيجته إلى مرشدك.</p>':'<p class="muted">لم يُجرَ مقياس الدعم الروحي بعد.</p><a class="btn btn-spirit btn-sm" href="#spiritual-support" style="justify-self:start">أجرِ المقياس الآن</a>')+'</div>';
+  $('rec-reports').innerHTML=REPORTS.map(function(r,i){var d=new Date();d.setDate(d.getDate()+r.days);return '<div class="rep" style="--c:'+r.c+'"><span class="ico">'+I[r.icon]+'</span><div><h4>'+r.t+'</h4><p>'+r.dept+' · '+r.by+' · '+dayLabel(d)+'</p></div><button class="btn btn-ghost btn-sm" type="button" data-rep="'+i+'">عرض</button></div>';}).join('');
+}
+document.querySelector('[data-view="record"] .tabs').addEventListener('click',function(e){
+  var b=e.target.closest('[data-tab]');if(!b)return;var t=b.getAttribute('data-tab');
+  this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+  document.querySelectorAll('[data-pane]').forEach(function(p){p.hidden=p.getAttribute('data-pane')!==t;});
+});
+document.querySelector('[data-view="record"]').addEventListener('click',function(e){
+  var c=e.target.closest('[data-cancel]');
+  if(c){var id=c.getAttribute('data-cancel');state.bookings.forEach(function(b){if(b.id===id)b.status='cx';});
+    Object.keys(state.booked).forEach(function(k){if(state.booked[k]===id){state.booked[k]=false;TAD[k].seats++;}});
+    Object.keys(regs).forEach(function(k){if(regs[k]===id)regs[k]=false;});
+    renderTad();renderBlog();renderRecord();return;}
+  var r=e.target.closest('[data-rep]');
+  if(r){var x=REPORTS[+r.getAttribute('data-rep')];openDoc(x.t,'<p class="small muted">'+x.dept+' · '+x.by+'</p>'+x.body.map(function(s){return '<h4>'+s[0]+'</h4><p>'+s[1]+'</p>';}).join('')+'<p class="info">تقرير تجريبي لعرض الفكرة.</p>');}
+});
+
+/* =================== PROVIDERS =================== */
+var DOC_SPECS=[];
+var GUIDE_SPECS=['مرشد تدبر','مرشد فقهي','مرشد فقد ومواساة','مرشد روحي'];
+function specsFor(t){return t==='مرشد'?GUIDE_SPECS:DOC_SPECS;}
+function ar(n){return Number(n).toLocaleString('ar-SA');}
+var NOTE_SCALES='<p class="info"><b>تنويه:</b> جميع المقاييس الحالية مبدئية للعرض فقط، وستُضاف المقاييس المعتمدة لاحقاً.</p>';
+var SCALE_DEFS={
+ esas:{name:'مقياس إدمونتون لتقييم الأعراض',kind:'num',items:['الألم','الإرهاق','الغثيان','الحزن','القلق','النعاس','ضعف الشهية','ضيق التنفس','الإحساس العام بالراحة (٠ أفضل)']},
+ nrs:{name:'مقياس الألم الرقمي',kind:'num',items:['شدة الألم الآن','أشد ألم خلال ٢٤ ساعة','متوسط الألم خلال ٢٤ ساعة']},
+ func:{name:'مقياس القدرة الحركية اليومية',kind:'lik',items:['أستطيع الجلوس في السرير دون مساعدة','أستطيع المشي داخل المنزل','أنتقل من السرير إلى الكرسي بأمان','أقوم بتمارين التنفس يومياً']},
+ mood:{name:'مقياس المزاج والقلق المختصر',kind:'lik',items:['أشعر بالتوتر أو القلق','فقدت الاهتمام بما كنت أستمتع به','أجد صعوبة في النوم بسبب التفكير','أشعر باليأس من المستقبل']},
+ family:{name:'مقياس احتياجات الأسرة',kind:'lik',items:['تحتاج الأسرة مساعدة في الإجراءات','يشعر المرافق بالإنهاك','هناك صعوبات مالية تتعلق بالرعاية','تحتاج الأسرة إلى ترتيب أدوار الرعاية']},
+ spirit:{name:'مقياس الاحتياج الروحي',kind:'lik',items:ITEMS.map(function(x){return x[0];})},
+ tadabbur:{name:'مقياس أثر جلسات التدبر',kind:'lik',items:['أجد في الآيات ما يطمئن قلبي','أتذكر معاني الجلسة في يومي','زادني التدبر رضا بما أصابني']},
+ fiqh:{name:'استبيان الاحتياج الفقهي',kind:'lik',items:['أجد صعوبة في الطهارة بسبب المرض','لا أعرف كيف أصلي في وضعي الحالي','عندي أسئلة عن الصيام والعبادات','أحتاج إلى إرشاد في الوصية والحقوق']},
+ grief:{name:'مقياس الحزن والفقد المختصر',kind:'lik',items:['أفكر في الفقيد معظم الوقت','أجد صعوبة في تقبّل الفقد','أشعر بالوحدة منذ الفقد','يصعب عليّ العودة لشؤوني اليومية']},
+ diet:{name:'مقياس الشهية والتغذية',kind:'lik',items:['شهيتي للطعام ضعيفة','أشعر بالغثيان عند الأكل','أجد صعوبة في البلع','نقص وزني في الفترة الأخيرة']},
+ wellbeing:{name:'مقياس الرفاه الروحي',kind:'lik',items:['أشعر بالسلام الداخلي','أجد معنى لحياتي رغم المرض','أشعر بالأمل','علاقتي بالله تمنحني القوة','أشعر بالرضا عن حياتي التي مضت']},
+ closing:{name:'نموذج ختام الجلسات',kind:'lik',items:['استفدت من الجلسات','كان المختص متفهماً ومنصتاً','تحسّن حالي مقارنة ببداية الجلسات','أنصح غيري بهذه الخدمة'],note:true}
+};
+var SCALES_BY_SPEC={'طبيب ألم':['nrs','esas'],'طبيب أسرة':['esas'],'طبيب علاج طبيعي':['func'],'طبيب نفسي':['mood','esas'],'أخصائي اجتماعي':['family'],'أخصائي تغذية علاجية':['diet','esas'],'مرشد روحي':['spirit'],'مرشد تدبر':['tadabbur','spirit'],'مرشد فقهي':['fiqh'],'مرشد فقد ومواساة':['grief']};
+
+/* المرشدون: مقاييس تخصصية (قبلي وبعدي) ومهنية */
+var GUIDE_SCALES={'مرشد روحي':{spec:['spirit'],prof:['wellbeing']},'مرشد تدبر':{spec:['tadabbur','spirit'],prof:['wellbeing']},'مرشد فقهي':{spec:['fiqh'],prof:['wellbeing']},'مرشد فقد ومواساة':{spec:['grief'],prof:['wellbeing']}};
+var G_STATES=['مطمئن','قلق','حزين','خائف','غاضب أو رافض','مشوّش','متقبّل وراضٍ'];
+var G_NEEDS=['المعنى والحكمة من المرض','الخوف من الموت وما بعده','الشعور بالذنب','الصبر والرضا','القرب من الله','المسامحة ورد الحقوق','العبادات في المرض','الوصية','الحزن والفقد'];
+var G_INTERV=['إنصات وتفريغ للمشاعر','تذكير بأجر المريض','رقية ودعاء','تدبر آيات','تعليم فقه المريض','إرشاد في الوصية','تعزيز حسن الظن بالله','مواساة في الفقد','إشراك الأسرة'];
+var G_PHASES=['تقييم أولي','تدخل','متابعة','ختام'];
+var G_RESP=['متجاوب جداً','متجاوب','محايد','غير متجاوب'];
+function scaleTitle(k,phase){return SCALE_DEFS[k].name+(phase?' ('+phase+')':'');}
+function prePost(name,email){
+  var out=[];var gs={};state.tasks.forEach(function(t){if(t.patient===name&&t.by===email&&t.status==='done'&&(t.phase==='قبلي'||t.phase==='بعدي')){(gs[t.scale]=gs[t.scale]||{})[t.phase]=t;}});
+  Object.keys(gs).forEach(function(k){var a=gs[k]['قبلي'],b=gs[k]['بعدي'];if(a&&b)out.push({k:k,pre:a.score,post:b.score});});
+  return out;
+}
+
+var PROVIDERS=[
+  {name:'أ. عبدالرحمن البقمي',type:'مرشد',spec:'مرشد روحي',email:'guide@latif.demo',pass:'Latif2026',phone:'0553334455',years:9,lic:'إجازة في القراءات، تزكية جمعية لطيف',bio:'مرشد ديني وروحي لمرضى الرعاية التلطيفية.',status:'approved',created:-45},
+ {name:'أ. ياسر الغامدي',type:'مرشد',spec:'مرشد تدبر',email:'yasser@example.sa',pass:'x',phone:'0557778899',years:6,lic:'إجازة في القرآن الكريم، ماجستير التفسير',bio:'',status:'pending',created:-2},
+ {name:'أ. منيرة الحربي',type:'مرشد',spec:'مرشد فقد ومواساة',email:'muneera@example.sa',pass:'x',phone:'0559990011',years:5,lic:'بكالوريوس الشريعة، دبلوم الإرشاد الأسري',bio:'',status:'pending',created:-1}
+];
+var PATIENTS=[
+ {name:'عبدالله محمد السبيعي',age:68,hosp:'مستشفى الملك فهد',sessions:3,last:-5,next:{d:0,time:'٧:٠٠ م'}},
+ {name:'فاطمة علي الشهري',age:54,hosp:'مدينة الملك عبدالعزيز الطبية',sessions:5,last:-2,next:{d:1,time:'١٠:٠٠ ص'}},
+ {name:'سعد ناصر القحطاني',age:72,hosp:'مستشفى الملك خالد',sessions:1,last:-9,next:{d:3,time:'١:٠٠ م'}},
+ {name:'نورة حمد العتيبي',age:47,hosp:'مستشفى الحرس الوطني',sessions:2,last:-1,next:{d:4,time:'٨:٣٠ م'},companion:true},
+ {name:'خالد إبراهيم الدوسري',age:61,hosp:'مستشفى الملك فيصل التخصصي',sessions:6,last:-12,next:null,closed:true}
+];
+var COMPLETED=[];
+/* الخطط العلاجية الشرعية والوصفات الروحية (مثال للمستفيد التجريبي) */
+var PLANS={'عبدالله محمد السبيعي':{by:'أ. عبدالرحمن البقمي',spec:'مرشد روحي',sample:true,goals:['تخفيف القلق من المستقبل وما بعد المرض','تعزيز الرضا وحسن الظن بالله','المحافظة على الصلاة بقدر الاستطاعة وبالكيفية الميسّرة للمريض','ترتيب الوصية والمسامحة ورد الحقوق'],dur:'٤ أسابيع',freq:'جلسة أسبوعية',review:'بعد القياس البعدي',notes:'يُستحسن أن يشارك أحد أفراد الأسرة في الجلسة الثالثة الخاصة بالوصية.',start:(function(){var d=new Date();d.setDate(d.getDate()-12);return d;})()}};
+var RX={'عبدالله محمد السبيعي':[
+ {t:'أذكار الصباح والمساء',what:'يقرؤها المستفيد أو يستمع إليها من تسجيل صوتي.',freq:'يومياً',time:'بعد الفجر وبعد العصر',by:'أ. عبدالرحمن البقمي',doneDays:9,today:false},
+ {t:'الرقية قبل النوم',what:'قراءة الإخلاص والفلق والناس ثلاثاً، والنفث في الكفين والمسح بهما على الجسد.',freq:'كل ليلة',time:'قبل النوم',by:'أ. عبدالرحمن البقمي',doneDays:7,today:false},
+ {t:'دعاء الشفاء عند الألم',what:'«اللهم رب الناس، أذهب البأس، اشفِ أنت الشافي، لا شفاء إلا شفاؤك، شفاءً لا يغادر سقماً».',freq:'عند الحاجة',time:'عند اشتداد الألم',by:'أ. عبدالرحمن البقمي',doneDays:5,today:false},
+ {t:'الاستغفار',what:'مئة مرة موزعة على اليوم، ولو بالقلب عند التعب.',freq:'يومياً',time:'في أي وقت',by:'أ. عبدالرحمن البقمي',doneDays:11,today:false}
+]};
+PATIENTS.forEach(function(p,i){for(var k=0;k<Math.min(p.sessions,2);k++){var d=new Date();d.setDate(d.getDate()+p.last-k*7);COMPLETED.push({p:i,date:d,time:['١٠:٠٠ ص','٧:٠٠ م'][k%2],doc:k===1?{kind:'generic',mode:'مرئية',min:30,sum:'جلسة متابعة: مراجعة الحالة العامة وما استجد منذ الجلسة السابقة.',plan:'الاستمرار على الخطة الحالية.',next:'بعد أسبوع'}:null});}});
+state.tasks=[];state.referrals=[];
+
+function plainName(n){return n.replace(/^(د\.|أ\.)\s*/,'');}
+function dateBox(d){return '<div class="date"><b>'+d.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{day:'numeric'})+'</b><span>'+d.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{month:'short'})+'</span></div>';}
+
+/* --- auth tabs --- */
+$('pa-tabs').addEventListener('click',function(e){
+  var b=e.target.closest('[data-pa]');if(!b)return;var t=b.getAttribute('data-pa');
+  this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+  document.querySelectorAll('[data-papane]').forEach(function(p){p.hidden=p.getAttribute('data-papane')!==t;});
+});
+function fillSpecs(sel,hint,type,current){
+  sel.innerHTML='<option value="">اختر التخصص</option>'+specsFor(type).map(function(s){return '<option'+(s===current?' selected':'')+'>'+s+'</option>';}).join('');
+  hint.textContent=type==='مرشد'?'تظهر تخصصات المرشدين فقط.':'تظهر تخصصات القسم الطبي فقط: الطب والنفسي والاجتماعي والتغذية.';
+}
+function syncJoinType(){
+  var t=document.querySelector('input[name=ptype]:checked').value;
+  fillSpecs($('pj-spec'),$('pj-spec-hint'),t);
+  $('pj-lic-label').textContent=t==='مرشد'?'المؤهل الشرعي أو جهة التزكية':'رقم التصنيف المهني (الهيئة السعودية للتخصصات الصحية)';
+}
+document.querySelectorAll('input[name=ptype]').forEach(function(r){r.addEventListener('change',syncJoinType);});
+syncJoinType();
+
+function providerLogin(p){state.admin=null;state.user=null;state.provider=p;
+  document.querySelectorAll('#pv-tabs button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-pv')==='up');});
+  document.querySelectorAll('[data-pvpane]').forEach(function(x){x.hidden=x.getAttribute('data-pvpane')!=='up';});renderUser();location.hash='#provider';}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-pvdemo]');if(b)providerLogin(PROVIDERS[+b.getAttribute('data-pvdemo')]);});
+$('pl-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var em=$('pl-email').value.trim().toLowerCase(),pw=$('pl-pass').value;
+  var p=PROVIDERS.filter(function(x){return x.email.toLowerCase()===em;})[0];
+  if(!p||p.pass!==pw){$('pl-err').textContent='البريد أو كلمة المرور غير صحيحة.';return;}
+  $('pl-err').textContent='';providerLogin(p);
+});
+function strongPass(p){return p.length>=8&&/[A-Za-z؀-ۿ]/.test(p)&&/\d/.test(p);}
+$('pj-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var type=document.querySelector('input[name=ptype]:checked').value;
+  var v={name:$('pj-name').value.trim(),email:$('pj-email').value.trim(),phone:$('pj-phone').value.replace(/\D/g,''),id:$('pj-id').value.replace(/\D/g,''),gender:$('pj-gender').value,spec:$('pj-spec').value,lic:$('pj-lic').value.trim(),years:$('pj-years').value,pass:$('pj-pass').value,pass2:$('pj-pass2').value};
+  var ok=true;
+  ok=setErr('pje-name',v.name.split(/\s+/).length>=2?'':'اكتب الاسم الثنائي على الأقل')&&ok;
+  ok=setErr('pje-email',/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)?(PROVIDERS.some(function(x){return x.email.toLowerCase()===v.email.toLowerCase();})?'هذا البريد مسجّل من قبل':''):'اكتب بريداً صحيحاً')&&ok;
+  ok=setErr('pje-phone',/^05\d{8}$/.test(v.phone)?'':'رقم جوال من ١٠ أرقام يبدأ بـ 05')&&ok;
+  ok=setErr('pje-id',/^[12]\d{9}$/.test(v.id)?'':'رقم الهوية ١٠ أرقام يبدأ بـ 1 أو 2')&&ok;
+  ok=setErr('pje-gender',v.gender?'':'اختر الجنس')&&ok;
+  ok=setErr('pje-spec',v.spec?'':'اختر التخصص')&&ok;
+  ok=setErr('pje-lic',v.lic?'':(type==='مرشد'?'اكتب المؤهل أو جهة التزكية':'اكتب رقم التصنيف المهني'))&&ok;
+  ok=setErr('pje-years',v.years!==''&&+v.years>=0?'':'اكتب سنوات الخبرة')&&ok;
+  ok=setErr('pje-pass',strongPass(v.pass)?'':'٨ أحرف على الأقل، فيها حروف وأرقام')&&ok;
+  ok=setErr('pje-pass2',v.pass2&&v.pass2===v.pass?'':'كلمتا المرور غير متطابقتين')&&ok;
+  ok=setErr('pje-agree',$('pj-agree').checked?'':'يلزم الإقرار قبل الإرسال')&&ok;
+  if(!ok)return;
+  var pre=type==='طبيب'&&v.spec.indexOf('طبيب')===0?'د. ':'أ. ';
+  /* القسم الطبي يشمل الأطباء والأخصائيين النفسيين والاجتماعيين والتغذية */
+  var p={name:/^(د\.|أ\.)/.test(v.name)?v.name:pre+v.name,type:type,spec:v.spec,email:v.email,pass:v.pass,phone:v.phone,years:+v.years,lic:v.lic,bio:$('pj-bio').value.trim(),status:'pending',created:0};
+  PROVIDERS.push(p);logAct('طلب انضمام جديد: '+p.name+' — '+p.spec);$('pj-form').reset();syncJoinType();
+  providerLogin(p);
+});
+
+/* --- dashboard --- */
+function renderProvider(){
+  var p=state.provider;if(!p)return;
+  if(p.status!=='approved'){
+    $('pv-dash').hidden=true;$('pv-pending').hidden=false;
+    var rej=p.status==='rejected'||p.status==='suspended';
+    $('pv-pending').innerHTML='<div class="card" style="display:grid;gap:12px"><span class="status '+(rej?'cx':'wait')+'" style="justify-self:start">'+(rej?'لم تتم الموافقة':'بانتظار موافقة الإدارة')+'</span><h2>'+esc(p.name)+'</h2><p class="muted">'+esc(p.spec)+' · '+(p.type==='مرشد'?'مرشد ديني وروحي':'طبيب أو أخصائي')+'</p><p>'+(rej?'نأسف، لم تُعتمد بيانات حسابك. تواصل مع إدارة الخدمة من صفحة راسلنا لمعرفة السبب وتحديث بياناتك.':'استلمنا طلب انضمامك. ستراجع الإدارة بياناتك ومؤهلاتك، وتصلك رسالة على جوالك عند تفعيل الحساب. لن تظهر لك المواعيد والمرضى قبل الموافقة.')+'</p><div style="display:flex;flex-wrap:wrap;gap:8px"><a class="btn btn-ghost btn-sm" href="#admin-login">ادخل كمدير للموافقة (تجريبي)</a><a class="btn btn-ghost btn-sm" href="#contact">راسل الإدارة</a></div></div>';
+    return;
+  }
+  $('pv-pending').hidden=true;$('pv-dash').hidden=false;
+  renderInbox('provider',p,$('pv-inbox'),$('pv-in-n'));
+  var g=p.type==='مرشد';
+  $('pv-hello').textContent='مرحباً، '+p.name;
+  $('pv-init').textContent=initials(p.name);$('pv-init').style.background=g?'var(--spirit)':'var(--accent)';
+  $('pv-name').textContent=p.name;
+  $('pv-spec').innerHTML='<span class="typebadge'+(g?' g':'')+'">'+(g?'مرشد':'طبيب / أخصائي')+'</span> '+esc(p.spec);
+  $('pv-email').textContent=p.email;$('pv-phone').textContent=p.phone;$('pv-years').textContent=ar(p.years)+' سنوات';
+  var mine=state.tasks.filter(function(t){return t.by===p.email;});
+  var upc=PATIENTS.filter(function(x){return x.next&&!x.closed;});
+  var doneCount=COMPLETED.length;
+  $('pv-kpis').innerHTML=
+    '<div class="kpi"><b>'+ar(PATIENTS.length)+'</b><span>عدد المرضى</span></div>'+
+    '<div class="kpi"><b>'+ar(upc.length)+'</b><span>مواعيد قادمة</span></div>'+
+    '<div class="kpi"><b>'+ar(doneCount)+'</b><span>جلسات منجزة</span></div>'+
+    '<div class="kpi"><b>'+ar(COMPLETED.filter(function(c){return !c.doc;}).length)+'</b><span>جلسات بانتظار التوثيق</span></div>'+
+    '<div class="kpi"><b>'+ar(mine.filter(function(t){return t.kind==='scale'||t.kind==='closing';}).length)+'</b><span>مقاييس ونماذج مرسلة</span></div>'+
+    '<div class="kpi"><b>'+ar(state.referrals.filter(function(r){return r.by===p.email;}).length)+'</b><span>إحالات</span></div>';
+  function acts(i){return '<div class="acts">'+(g?'<button class="btn btn-ghost btn-sm" type="button" data-act="soon" data-what="الخطة العلاجية الشرعية" data-p="'+i+'" style="opacity:.7">الخطة العلاجية الشرعية · يُضاف لاحقاً</button><button class="btn btn-ghost btn-sm" type="button" data-act="soon" data-what="الوصفة الروحية" data-p="'+i+'" style="opacity:.7">الوصفة الروحية · يُضاف لاحقاً</button>':'')+'<button class="btn btn-ghost btn-sm" type="button" data-act="refer" data-p="'+i+'">إحالة مريض</button><button class="btn btn-ghost btn-sm" type="button" data-act="scale" data-p="'+i+'">'+(g?'إجراء مقياس (تخصصي، مهني، بعدي)':'إجراء مقياس')+'</button><button class="btn btn-ghost btn-sm" type="button" data-act="end" data-p="'+i+'">إنهاء الجلسات</button></div>';}
+  var ups=PATIENTS.map(function(x,i){return {x:x,i:i};}).filter(function(o){return o.x.next&&!o.x.closed;}).sort(function(a,b){return a.x.next.d-b.x.next.d;});
+  $('pv-up').innerHTML=ups.length?ups.map(function(o){var d=DAYS[o.x.next.d];return '<div class="appt pv" style="--c:'+(g?'var(--spirit)':'var(--accent)')+'">'+dateBox(d)+'<div style="min-width:0"><h4>'+o.x.name+(o.x.companion?' <span class="small muted">(مرافقة)</span>':'')+'</h4><p>'+dayLabel(d)+' · '+o.x.next.time+' · '+(g&&INTAKE[o.x.name]?esc(intakeType(o.x.name))+' · ':'')+'الجلسة رقم '+ar(o.x.sessions+1)+'</p></div><div><button class="btn btn-primary btn-sm" type="button" data-act="docnew" data-p="'+o.i+'">وثّق الجلسة</button></div>'+acts(o.i)+'</div>';}).join(''):'<div class="empty">لا مواعيد قادمة.</div>';
+  $('pv-done').innerHTML=COMPLETED.map(function(c,ci){return {c:c,ci:ci};}).sort(function(a,b){return b.c.date-a.c.date;}).map(function(o){var c=o.c,x=PATIENTS[c.p];
+    return '<div class="appt pv" style="--c:'+(c.doc?'var(--ok)':'var(--sun)')+'">'+dateBox(c.date)+'<div style="min-width:0"><h4>'+x.name+'</h4><p>'+c.time+' · '+esc(p.spec)+(c.doc&&c.doc.phase?' · '+c.doc.phase:'')+'</p></div>'+(c.doc?'<span class="status done">موثّقة</span>':'<span class="status wait">بانتظار التوثيق</span>')+
+      '<div class="acts">'+(c.doc?'<button class="btn btn-ghost btn-sm" type="button" data-act="docview" data-c="'+o.ci+'">عرض التوثيق</button><button class="btn btn-ghost btn-sm" type="button" data-act="docedit" data-c="'+o.ci+'">تعديل</button>':'<button class="btn btn-primary btn-sm" type="button" data-act="docedit" data-c="'+o.ci+'">وثّق الجلسة</button>')+'</div></div>';}).join('');
+  $('pv-pts').innerHTML=PATIENTS.map(function(x,i){
+    var ts=mine.filter(function(t){return t.patient===x.name;});
+    var chips=ts.map(function(t){return t.status==='pending'?'<span class="status wait">'+t.title+': بانتظار المريض</span>':'<span class="status res">'+t.title+': '+t.result+'</span>';}).join('');
+    var refs=state.referrals.filter(function(r){return r.patient===x.name&&r.by===p.email;}).map(function(r){return '<span class="status ref">أُحيل إلى '+r.to+'</span>';}).join('');
+    var pp=g?prePost(x.name,p.email).map(function(c){var diff=c.post-c.pre;return '<div class="prepost">'+SCALE_DEFS[c.k].name+': قبلي <b>'+ar(Math.round(c.pre))+'٪</b> ← بعدي <b>'+ar(Math.round(c.post))+'٪</b> <span class="small muted">('+(diff>=0?'+':'−')+ar(Math.abs(Math.round(diff)))+')</span></div>';}).join(''):'';
+    var nDocs=COMPLETED.filter(function(c){return c.p===i;}).length;
+    if(g&&PLANS[x.name])refs+='<span class="status done">خطة علاجية شرعية</span>';
+    if(g&&(RX[x.name]||[]).length)refs+='<span class="status res">وصفات روحية: '+ar(RX[x.name].length)+'</span>';
+    refs+=pp;
+    return '<div class="pt"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><h4>'+x.name+'</h4><p class="small muted">'+ar(x.age)+' سنة · '+x.hosp+'</p></div>'+(x.closed?'<span class="status cx" style="text-decoration:none">أُنهيت الجلسات</span>':'<span class="status up">نشط</span>')+'</div><p class="small">الجلسات المنجزة: <b>'+ar(x.sessions)+'</b>'+(x.next&&!x.closed?' · القادمة: '+dayLabel(DAYS[x.next.d]):'')+'</p>'+(chips||refs?'<div class="chips2">'+chips+refs+'</div>':'')+(g?intakeBox(x,i):'')+'<button class="btn btn-ghost btn-sm" type="button" data-act="history" data-p="'+i+'" style="justify-self:start">سجل الجلسات الموثّقة ('+ar(nDocs)+')</button>'+(x.closed?'':acts(i))+'</div>';
+  }).join('');
+  // profile
+  $('pp-name').value=p.name;$('pp-email').value=p.email;$('pp-phone').value=p.phone;$('pp-years').value=p.years;$('pp-bio').value=p.bio||'';
+  fillSpecs($('pp-spec'),$('pp-spec-hint'),p.type,p.spec);
+}
+$('pv-tabs').addEventListener('click',function(e){
+  var b=e.target.closest('[data-pv]');if(!b)return;var t=b.getAttribute('data-pv');
+  this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+  document.querySelectorAll('[data-pvpane]').forEach(function(p){p.hidden=p.getAttribute('data-pvpane')!==t;});
+});
+
+/* --- generic form in modal --- */
+function openForm(title,inner,onSubmit){
+  openDoc(title,'<form id="dyn-form" novalidate style="display:grid;gap:14px">'+inner+'</form>');
+  var f=$('dyn-form');f.addEventListener('submit',function(e){e.preventDefault();onSubmit(f);});
+}
+function done(msg){$('d-body').innerHTML='<div class="ok-msg">'+msg+'</div><button class="btn btn-ghost btn-sm close-doc" type="button" style="justify-self:start">إغلاق</button>';}
+$('d-body').addEventListener('click',function(e){if(e.target.closest('.close-doc'))$('doc-modal').hidden=true;});
+$('d-body').addEventListener('input',function(e){if(e.target.matches('input[type=range]')){var o=$(e.target.getAttribute('data-out'));if(o)o.textContent=ar(e.target.value);}});
+
+$('pv-dash').addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b)return;
+  var p=state.provider,i=+b.getAttribute('data-p'),x=PATIENTS[i],act=b.getAttribute('data-act');
+  if(act==='settype'){var it0=INTAKE[x.name],v=$('it-'+i).value;it0.type=v;it0.chosenBy='المرشد';logAct('اعتمد '+p.name+' '+v+' لـ'+x.name);renderProvider();return;}
+  if(act==='follow'){
+    var it1=INTAKE[x.name],f0=it1.followup||{};
+    openForm('تفعيل متابعة الجلسة: '+x.name,
+      '<p class="small muted">نوع الجلسة: <b>'+esc(it1.type)+'</b>. تصل خطة المتابعة للمستفيد عبر القناة التي تختارها.</p>'+
+      '<fieldset class="fs"><legend>قناة المتابعة</legend>'+segRadios('fu-ch',['واتساب','النظام','واتساب والنظام'],f0.channel||'واتساب والنظام')+'</fieldset>'+
+      '<label for="fu-freq">تكرار المتابعة'+selectList('fu-freq',['يومياً','مرتين أسبوعياً','أسبوعياً'],f0.freq||'مرتين أسبوعياً')+'</label>'+
+      '<label for="fu-plan">خطة متابعة الجلسة<textarea id="fu-plan" style="min-height:120px">'+esc(f0.plan||planFor(it1.type))+'</textarea><span class="err" id="fue-plan"></span></label>'+
+      '<button class="btn btn-spirit" type="submit">فعّل المتابعة وأرسل الخطة</button>',
+      function(fm){
+        var pl=$('fu-plan').value.trim();if(!setErr('fue-plan',pl?'':'اكتب خطة المتابعة'))return;
+        var ch=fm.querySelector('input[name=fu-ch]:checked').value;
+        it1.followup={channel:ch,freq:$('fu-freq').value,plan:pl,by:p.name,date:new Date()};
+        if(ch.indexOf('النظام')>-1)sendMsg({type:'person',key:'u:'+x.name,label:x.name},'خطة متابعة جلستك',it1.type+'\n'+pl+'\nالتكرار: '+it1.followup.freq,p.name);
+        logAct('فعّل '+p.name+' متابعة '+x.name+' عبر '+ch);
+        done('فُعّلت متابعة '+esc(x.name)+(ch.indexOf('النظام')>-1?'، وأُرسلت الخطة إلى صفحته في النظام':'')+(ch.indexOf('واتساب')>-1?'، وتُرسل عبر واتساب إلى جواله عند ربط خدمة واتساب':'')+'.');
+        renderProvider();
+      });
+    return;
+  }
+  if(act==='soon'){var w=b.getAttribute('data-what');openDoc(w,'<div class="empty" style="display:grid;gap:8px;justify-items:center"><span class="status wait">يُضاف لاحقاً</span><b>'+w+'</b><span>سيُضاف هذا القسم لاحقاً، وما يكتبه المرشد هنا سيظهر للمستفيد في صفحة سجلي تحت تبويب الدعم الروحي.</span></div>');return;}
+  if(act==='plan'){
+    var pl=PLANS[x.name]||{};
+    openForm('الخطة العلاجية الشرعية: '+x.name,
+      '<p class="small muted">تظهر الخطة للمستفيد في صفحة سجلي، تحت تبويب الدعم الروحي.</p>'+
+      '<label for="pl-goals">الأهداف (هدف في كل سطر)<textarea id="pl-goals" style="min-height:120px">'+esc((pl.goals||[]).join('\n'))+'</textarea><span class="err" id="ple-goals"></span></label>'+
+      '<div class="row"><label for="pl-dur">مدة الخطة'+selectList('pl-dur',['أسبوعان','٤ أسابيع','٦ أسابيع','٨ أسابيع'],pl.dur||'٤ أسابيع')+'</label>'+
+      '<label for="pl-freq">الجلسات'+selectList('pl-freq',['جلسة أسبوعية','جلستان أسبوعياً','جلسة كل أسبوعين'],pl.freq||'جلسة أسبوعية')+'</label></div>'+
+      '<label for="pl-review">موعد المراجعة<input id="pl-review" value="'+esc(pl.review||'بعد القياس البعدي')+'"></label>'+
+      '<label for="pl-notes">توجيه للمستفيد وأسرته<textarea id="pl-notes">'+esc(pl.notes||'')+'</textarea></label>'+
+      '<button class="btn btn-spirit" type="submit">احفظ الخطة</button>',
+      function(){
+        var goals=$('pl-goals').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+        if(!setErr('ple-goals',goals.length?'':'اكتب هدفاً واحداً على الأقل'))return;
+        PLANS[x.name]={by:p.name,spec:p.spec,goals:goals,dur:$('pl-dur').value,freq:$('pl-freq').value,review:$('pl-review').value.trim(),notes:$('pl-notes').value.trim(),start:pl.start||new Date(),updated:new Date()};
+        done('حُفظت الخطة العلاجية الشرعية، وتظهر الآن للمستفيد في صفحة سجلي.');renderProvider();
+      });
+    return;
+  }
+  if(act==='rx'){
+    openForm('وصفة روحية: '+x.name,
+      '<p class="small muted">الوصفة الروحية ورد أو عمل يسير يلتزم به المستفيد، ويستطيع تسجيل إنجازه يومياً من صفحة سجلي.</p>'+
+      '<label for="rx-title">عنوان الوصفة<input id="rx-title" placeholder="مثال: أذكار الصباح والمساء"><span class="err" id="rxe-title"></span></label>'+
+      '<label for="rx-what">التفاصيل وطريقة الأداء<textarea id="rx-what"></textarea><span class="err" id="rxe-what"></span></label>'+
+      '<div class="row"><label for="rx-freq">التكرار'+selectList('rx-freq',['يومياً','كل ليلة','بعد كل صلاة','أسبوعياً','عند الحاجة'],'يومياً')+'</label>'+
+      '<label for="rx-time">الوقت المناسب<input id="rx-time" placeholder="مثال: بعد الفجر وبعد العصر"></label></div>'+
+      '<button class="btn btn-spirit" type="submit">أضف الوصفة</button>',
+      function(){
+        var t=$('rx-title').value.trim(),w=$('rx-what').value.trim(),ok=true;
+        ok=setErr('rxe-title',t?'':'اكتب عنوان الوصفة')&&ok;ok=setErr('rxe-what',w?'':'اكتب التفاصيل')&&ok;if(!ok)return;
+        (RX[x.name]=RX[x.name]||[]).push({t:t,what:w,freq:$('rx-freq').value,time:$('rx-time').value.trim(),by:p.name,doneDays:0,today:false});
+        done('أُضيفت الوصفة الروحية، وتظهر الآن للمستفيد في صفحة سجلي.');renderProvider();
+      });
+    return;
+  }
+  if(act==='docnew'){openDocForm(p,i,null);return;}
+  if(act==='docedit'){var ce=COMPLETED[+b.getAttribute('data-c')];openDocForm(p,ce.p,ce);return;}
+  if(act==='docview'){var cv=COMPLETED[+b.getAttribute('data-c')];openDoc('توثيق جلسة: '+PATIENTS[cv.p].name,docViewHtml(cv));return;}
+  if(act==='history'){
+    var hs=COMPLETED.map(function(c,ci){return {c:c,ci:ci};}).filter(function(o){return o.c.p===i;}).sort(function(a,b){return b.c.date-a.c.date;});
+    var ppx=p.type==='مرشد'?prePost(x.name,p.email).map(function(c){return '<div class="prepost">'+SCALE_DEFS[c.k].name+': قبلي <b>'+ar(Math.round(c.pre))+'٪</b> ← بعدي <b>'+ar(Math.round(c.post))+'٪</b></div>';}).join(''):'';
+    openDoc('سجل جلسات: '+x.name,(ppx||'')+(x.summary?'<div class="info"><b>الملخص الختامي:</b> '+esc(x.summary)+'</div>':'')+'<div class="hist">'+(hs.length?hs.map(function(o,n){var c=o.c;return '<div class="h"><div><b>الجلسة '+ar(hs.length-n)+' · '+dayLabel(c.date)+'</b><p>'+(c.doc?esc((c.doc.phase?c.doc.phase+' · ':'')+c.doc.sum).slice(0,90)+'…':'لم تُوثّق بعد')+'</p></div>'+(c.doc?'<button class="btn btn-ghost btn-sm" type="button" data-cview="'+o.ci+'">عرض</button>':'<span class="status wait">بانتظار التوثيق</span>')+'</div>';}).join(''):'<p class="empty">لا جلسات بعد.</p>')+'</div>');
+    return;
+  }
+  if(act==='refer'){
+    var opts=GUIDE_SPECS.concat(['الفريق الطبي المعالج','الأخصائي النفسي','الأخصائي الاجتماعي']).filter(function(s){return s!==p.spec;});
+    openForm('إحالة المريض: '+x.name,
+      '<label for="rf-to">القسم أو التخصص المحال إليه<select id="rf-to"><option value="">اختر</option>'+opts.map(function(s){return '<option>'+s+'</option>';}).join('')+'</select><span class="err" id="rfe-to"></span></label>'+
+      '<fieldset style="border:0;padding:0;margin:0"><legend style="font-weight:500;font-size:.9rem;margin-bottom:8px">درجة الأولوية</legend><div class="seg"><label><input type="radio" name="rf-u" value="عادية" checked>عادية</label><label><input type="radio" name="rf-u" value="عاجلة">عاجلة</label></div></fieldset>'+
+      '<label for="rf-why">سبب الإحالة<textarea id="rf-why"></textarea><span class="err" id="rfe-why"></span></label>'+
+      '<button class="btn btn-primary" type="submit">أرسل الإحالة</button>',
+      function(f){
+        var to=$('rf-to').value,why=$('rf-why').value.trim(),ok=true;
+        ok=setErr('rfe-to',to?'':'اختر جهة الإحالة')&&ok;ok=setErr('rfe-why',why?'':'اكتب سبب الإحالة')&&ok;if(!ok)return;
+        var u=f.querySelector('input[name=rf-u]:checked').value;
+        state.referrals.push({patient:x.name,by:p.email,byName:p.name,to:to,urgency:u,why:why});
+        state.tasks.push({id:ref(),kind:'referral',patient:x.name,by:p.email,byName:p.name,title:'إحالة إلى '+to,urgency:u,why:why,status:'info'});
+        done('أُرسلت الإحالة إلى <b>'+esc(to)+'</b> بأولوية '+esc(u)+'، وأُشعر المريض بها في صفحة سجلي.');renderProvider();
+      });
+    return;
+  }
+  if(act==='scale'&&p.type==='مرشد'){
+    var gsx=GUIDE_SCALES[p.spec]||{spec:['spirit'],prof:['wellbeing']};
+    function grp(title,hint,keys,phase,first){return '<fieldset class="fs"><legend>'+title+'</legend><span class="small muted">'+hint+'</span>'+keys.map(function(k,j){var s=SCALE_DEFS[k],id='gs-'+k+'-'+phase;return '<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px" for="'+id+'"><input type="radio" name="gsc" id="'+id+'" value="'+k+'|'+phase+'"'+(first&&!j?' checked':'')+' style="width:auto;margin-top:6px"><span><b>'+s.name+'</b><br><span class="small muted">'+ar(s.items.length)+' بنود</span></span></label>';}).join('')+'</fieldset>';}
+    openForm('إرسال مقياس إلى: '+x.name,
+      NOTE_SCALES+'<p class="small muted">يصل المقياس إلى المستفيد في صفحة سجلي، وتظهر النتيجة في بطاقته عندك. وعند وجود قياس قبلي وبعدي للمقياس نفسه تظهر المقارنة بينهما.</p>'+
+      grp('مقياس تخصصي (قبلي)','يُطبّق في بداية الرحلة لقياس الاحتياج.',gsx.spec,'قبلي',true)+
+      grp('مقياس مهني','لتقييم الرفاه الروحي العام.',gsx.prof,'مهني',false)+
+      grp('قياس بعدي','يُعاد فيه المقياس التخصصي لقياس أثر الجلسات.',gsx.spec,'بعدي',false)+
+      '<label for="gsc-note">رسالة للمستفيد (اختياري)<textarea id="gsc-note"></textarea></label>'+
+      '<button class="btn btn-spirit" type="submit">أرسل المقياس</button>',
+      function(f){
+        var v=f.querySelector('input[name=gsc]:checked').value.split('|');
+        state.tasks.push({id:ref(),kind:'scale',scale:v[0],phase:v[1],patient:x.name,by:p.email,byName:p.name,title:scaleTitle(v[0],v[1]),note:$('gsc-note').value.trim(),status:'pending'});
+        done('أُرسل <b>'+scaleTitle(v[0],v[1])+'</b> إلى '+esc(x.name)+'.');renderProvider();
+      });
+    return;
+  }
+  if(act==='scale'){
+    var list=SCALES_BY_SPEC[p.spec]||['esas'];
+    openForm('إرسال مقياس إلى: '+x.name,
+      NOTE_SCALES+'<p class="small muted">تظهر لك المقاييس الخاصة بتخصصك ('+esc(p.spec)+'). يصل المقياس إلى المريض في صفحة سجلي ليجيب عنه، ثم تظهر النتيجة عندك.</p>'+
+      '<fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend style="font-weight:500;font-size:.9rem;margin-bottom:6px">المقياس</legend>'+list.map(function(k,j){var s=SCALE_DEFS[k];return '<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px" for="sc-'+k+'"><input type="radio" name="sc" id="sc-'+k+'" value="'+k+'"'+(j?'':' checked')+' style="width:auto;margin-top:6px"><span><b>'+s.name+'</b><br><span class="small muted">'+ar(s.items.length)+' بنود · '+(s.kind==='num'?'درجات من ٠ إلى ١٠':'خمسة خيارات')+'</span></span></label>';}).join('')+'</fieldset>'+
+      '<label for="sc-note">رسالة للمريض (اختياري)<textarea id="sc-note" placeholder="مثال: أجب عن المقياس قبل جلستنا القادمة"></textarea></label>'+
+      '<button class="btn btn-primary" type="submit">أرسل المقياس للمريض</button>',
+      function(f){
+        var k=f.querySelector('input[name=sc]:checked').value;
+        state.tasks.push({id:ref(),kind:'scale',scale:k,patient:x.name,by:p.email,byName:p.name,title:SCALE_DEFS[k].name,note:$('sc-note').value.trim(),status:'pending'});
+        done('أُرسل <b>'+SCALE_DEFS[k].name+'</b> إلى '+esc(x.name)+'. ستظهر النتيجة في تبويب "مرضاي" بعد أن يجيب عنه.');renderProvider();
+      });
+    return;
+  }
+  if(act==='end'){
+    openForm('إنهاء الجلسات: '+x.name,
+      '<p class="small muted">بعد الإنهاء تُلغى المواعيد القادمة لهذا المريض معك، ويُرسل إليه نموذج ختام الجلسات ليقيّم الخدمة.</p>'+
+      '<label for="en-sum">ملخص ختامي يُحفظ في سجل المريض<textarea id="en-sum"></textarea><span class="err" id="ene-sum"></span></label>'+
+      (p.type==='مرشد'?'<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400" for="en-post"><input type="checkbox" id="en-post" checked style="width:auto;margin-top:6px">أرسل القياس البعدي ('+SCALE_DEFS[(GUIDE_SCALES[p.spec]||{spec:['spirit']}).spec[0]].name+')</label>':'')+
+      '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400" for="en-send"><input type="checkbox" id="en-send" checked style="width:auto;margin-top:6px">أرسل نموذج ختام الجلسات للمريض</label>'+
+      '<button class="btn btn-primary" type="submit">أنهِ الجلسات</button>',
+      function(){
+        var s=$('en-sum').value.trim();if(!setErr('ene-sum',s?'':'اكتب ملخصاً ختامياً'))return;
+        var send=$('en-send').checked,post=!!($('en-post')&&$('en-post').checked);
+        if(post){var pk=(GUIDE_SCALES[p.spec]||{spec:['spirit']}).spec[0];state.tasks.push({id:ref(),kind:'scale',scale:pk,phase:'بعدي',patient:x.name,by:p.email,byName:p.name,title:scaleTitle(pk,'بعدي'),status:'pending'});}
+        x.closed=true;x.summary=s;
+        if(send)state.tasks.push({id:ref(),kind:'closing',scale:'closing',patient:x.name,by:p.email,byName:p.name,title:'نموذج ختام الجلسات',status:'pending',summary:s});
+        done('أُنهيت جلسات '+esc(x.name)+(send||post?'، وأُرسل إليه '+[post?'القياس البعدي':'',send?'نموذج ختام الجلسات':''].filter(Boolean).join(' و')+' في صفحة سجلي.':'.'));renderProvider();
+      });
+  }
+});
+
+/* --- spiritual intake box (guide only) --- */
+function intakeBox(x,i){
+  var it=INTAKE[x.name];if(!it)return '';
+  var h='<div class="intake">';
+  if(it.path==='scale'){
+    h+='<div><b>المقياس القبلي: '+esc(it.lvl)+' ('+ar(it.pct)+'٪)</b> <span class="small muted">· تظهر النتيجة لك فقط</span></div>';
+    h+='<div>ترشيح النظام: <b>'+esc(it.suggested)+'</b>'+(it.alt?' أو '+esc(it.alt):'')+'</div><p class="small muted">الخطة المقترحة: '+esc(planFor(it.suggested))+'</p>';
+  }else{
+    h+='<div>اختار المريض جلسة مباشرة: <b>'+esc(it.type)+'</b></div>';
+    h+='<div class="small">'+(it.pct!=null?'المقياس القبلي (أُجري لاحقاً): <b>'+esc(it.lvl)+' ('+ar(it.pct)+'٪)</b> · تظهر لك فقط':'المقياس القبلي: لم يُجرَ بعد')+'</div>';
+  }
+  if(!it.type){
+    h+='<div class="inl"><label for="it-'+i+'" class="small" style="flex:1;min-width:180px">اختر الأنسب للمريض<select id="it-'+i+'">'+SS_TYPES.map(function(s){return '<option'+(s.t===it.suggested?' selected':'')+'>'+esc(s.t)+'</option>';}).join('')+'</select></label><button class="btn btn-spirit btn-sm" type="button" data-act="settype" data-p="'+i+'" style="align-self:end">اعتماد نوع الجلسة</button></div>';
+  }else{
+    if(it.path==='scale')h+='<div>نوع الجلسة المعتمد: <b>'+esc(it.type)+'</b></div>';
+    h+=it.followup?'<div class="inl" style="align-items:center"><span class="status done">المتابعة مفعّلة عبر '+esc(it.followup.channel)+'</span><button class="btn btn-ghost btn-sm" type="button" data-act="follow" data-p="'+i+'">تعديل المتابعة</button></div>'
+      :'<button class="btn btn-spirit btn-sm" type="button" data-act="follow" data-p="'+i+'" style="justify-self:start">تفعيل المتابعة (واتساب أو النظام)</button>';
+  }
+  return h+'</div>';
+}
+
+/* --- session documentation --- */
+function segRadios(name,vals,cur){return '<div class="seg">'+vals.map(function(v,j){var id=name+'-'+j;return '<label for="'+id+'"><input type="radio" name="'+name+'" id="'+id+'" value="'+v+'"'+(v===cur?' checked':'')+'>'+v+'</label>';}).join('')+'</div>';}
+function checkList(name,vals,cur){cur=cur||[];return '<div class="checks">'+vals.map(function(v,j){var id=name+'-'+j;return '<label for="'+id+'"><input type="checkbox" name="'+name+'" id="'+id+'" value="'+v+'"'+(cur.indexOf(v)>-1?' checked':'')+'>'+v+'</label>';}).join('')+'</div>';}
+function selectList(id,vals,cur,empty){return '<select id="'+id+'">'+(empty?'<option value="">'+empty+'</option>':'')+vals.map(function(v){return '<option'+(v===cur?' selected':'')+'>'+v+'</option>';}).join('')+'</select>';}
+function sessionNo(i,entry){var list=COMPLETED.filter(function(c){return c.p===i;}).sort(function(a,b){return a.date-b.date;});return entry?list.indexOf(entry)+1:list.length+1;}
+function openDocForm(p,i,entry){
+  var x=PATIENTS[i],d=entry&&entry.doc||{},num=sessionNo(i,entry),g=p.type==='مرشد';
+  var when=entry?dayLabel(entry.date)+' · '+entry.time:(x.next?dayLabel(DAYS[x.next.d])+' · '+x.next.time:'');
+  var head='<p class="small muted">الجلسة رقم '+ar(num)+' · '+esc(x.name)+' · '+when+'</p>';
+  var html;
+  if(!g){
+    html=head+'<p class="info">نموذج توثيق مبدئي، يُستبدل بنموذج التوثيق المعتمد عند إضافة النظام الخاص بالقسم.</p>'+
+      '<fieldset class="fs"><legend>طريقة الجلسة</legend>'+segRadios('dc-mode',['مرئية','صوتية'],d.mode||'مرئية')+'</fieldset>'+
+      '<label for="dc-min">مدة الجلسة بالدقائق<input id="dc-min" type="number" min="5" max="180" value="'+(d.min||30)+'"></label>'+
+      '<label for="dc-sum">ما تم في الجلسة<textarea id="dc-sum">'+esc(d.sum||'')+'</textarea><span class="err" id="dce-sum"></span></label>'+
+      '<label for="dc-plan">التوصيات والخطة<textarea id="dc-plan">'+esc(d.plan||'')+'</textarea></label>'+
+      '<label for="dc-next">المتابعة'+selectList('dc-next',['بعد أسبوع','بعد أسبوعين','بعد شهر','حسب الحاجة'],d.next)+'</label>'+
+      '<button class="btn btn-primary" type="submit">احفظ التوثيق</button>';
+  }else{
+    var gsx=GUIDE_SCALES[p.spec]||{spec:['spirit'],prof:['wellbeing']};
+    var scOpts='<option value="">لا أرسل مقياساً الآن</option><optgroup label="تخصصي (قبلي)">'+gsx.spec.map(function(k){return '<option value="'+k+'|قبلي">'+SCALE_DEFS[k].name+'</option>';}).join('')+'</optgroup><optgroup label="مهني">'+gsx.prof.map(function(k){return '<option value="'+k+'|مهني">'+SCALE_DEFS[k].name+'</option>';}).join('')+'</optgroup><optgroup label="بعدي">'+gsx.spec.map(function(k){return '<option value="'+k+'|بعدي">'+SCALE_DEFS[k].name+'</option>';}).join('')+'</optgroup>';
+    html=head+
+      '<div class="dsec"><b>بيانات الجلسة</b>'+
+        '<fieldset class="fs"><legend>مرحلة الجلسة</legend>'+segRadios('dc-phase',G_PHASES,d.phase||(num===1?'تقييم أولي':'متابعة'))+'</fieldset>'+
+        '<div class="row"><fieldset class="fs"><legend>طريقة الجلسة</legend>'+segRadios('dc-mode',['مرئية','صوتية'],d.mode||'مرئية')+'</fieldset>'+
+        '<label for="dc-min">المدة بالدقائق<input id="dc-min" type="number" min="5" max="180" value="'+(d.min||40)+'"></label></div>'+
+        '<label style="display:flex;gap:8px;align-items:center;font-weight:400" for="dc-comp"><input type="checkbox" id="dc-comp" style="width:auto"'+(d.comp?' checked':'')+'>حضر المرافق أو أحد أفراد الأسرة</label>'+
+      '</div>'+
+      '<div class="dsec"><b>الحالة والاحتياج</b>'+
+        '<label for="dc-before">الحالة الروحية في بداية الجلسة'+selectList('dc-before',G_STATES,d.before,'اختر')+'<span class="err" id="dce-before"></span></label>'+
+        '<fieldset class="fs"><legend>الاحتياجات الروحية المرصودة</legend>'+checkList('dc-need',G_NEEDS,d.needs)+'</fieldset>'+
+      '</div>'+
+      '<div class="dsec"><b>ما تم في الجلسة</b>'+
+        '<fieldset class="fs"><legend>التدخلات المقدّمة</legend>'+checkList('dc-int',G_INTERV,d.ints)+'</fieldset>'+
+        '<label for="dc-sum">وصف ما تم في الجلسة<textarea id="dc-sum">'+esc(d.sum||'')+'</textarea><span class="err" id="dce-sum"></span></label>'+
+        '<fieldset class="fs"><legend>استجابة المستفيد</legend>'+segRadios('dc-resp',G_RESP,d.resp||'متجاوب')+'</fieldset>'+
+        '<label for="dc-after">الحالة الروحية في نهاية الجلسة'+selectList('dc-after',G_STATES,d.after,'اختر')+'</label>'+
+      '</div>'+
+      '<div class="dsec"><b>بعد الجلسة</b>'+
+        (entry?'':'<label for="dc-scale">إرسال مقياس للمستفيد<select id="dc-scale">'+scOpts+'</select></label>')+
+        '<label for="dc-plan">خطة الجلسة القادمة<textarea id="dc-plan">'+esc(d.plan||'')+'</textarea></label>'+
+        '<label for="dc-team">ملاحظات للفريق المعالج (لا تظهر للمستفيد)<textarea id="dc-team">'+esc(d.team||'')+'</textarea></label>'+
+      '</div>'+
+      '<button class="btn btn-spirit" type="submit">احفظ التوثيق</button>';
+  }
+  openForm((entry&&entry.doc?'تعديل توثيق':'توثيق')+' الجلسة: '+x.name,html,function(f){
+    var sum=$('dc-sum').value.trim(),ok=setErr('dce-sum',sum?'':'اكتب ما تم في الجلسة');
+    if(g)ok=setErr('dce-before',$('dc-before').value?'':'اختر حالة المستفيد')&&ok;
+    if(!ok)return;
+    var vals=function(n){return [].map.call(f.querySelectorAll('input[name='+n+']:checked'),function(e){return e.value;});};
+    var doc={kind:g?'guide':'generic',by:p.name,mode:vals('dc-mode')[0],min:+$('dc-min').value||0,sum:sum,plan:$('dc-plan').value.trim()};
+    if(g){doc.phase=vals('dc-phase')[0];doc.comp=$('dc-comp').checked;doc.before=$('dc-before').value;doc.needs=vals('dc-need');doc.ints=vals('dc-int');doc.resp=vals('dc-resp')[0];doc.after=$('dc-after').value;doc.team=$('dc-team').value.trim();}
+    else doc.next=$('dc-next').value;
+    var sent='';
+    if(g&&$('dc-scale')&&$('dc-scale').value){var v=$('dc-scale').value.split('|');state.tasks.push({id:ref(),kind:'scale',scale:v[0],phase:v[1],patient:x.name,by:p.email,byName:p.name,title:scaleTitle(v[0],v[1]),status:'pending'});sent=' وأُرسل '+scaleTitle(v[0],v[1])+' إلى المستفيد.';}
+    if(entry){entry.doc=doc;}
+    else{
+      COMPLETED.push({p:i,date:new Date(DAYS[x.next.d]),time:x.next.time,doc:doc});x.sessions++;x.last=0;
+      var nd=x.next.d+2;x.next=nd<DAYS.length?{d:nd,time:x.next.time}:null;
+    }
+    done('حُفظ توثيق الجلسة رقم '+ar(num)+'، وانتقلت إلى المواعيد المنجزة.'+sent);renderProvider();
+  });
+}
+function docViewHtml(c){
+  var d=c.doc,rows=[['التاريخ',dayLabel(c.date)+' · '+c.time]];
+  if(d.kind==='guide'){
+    rows=rows.concat([['المرحلة',d.phase],['الطريقة والمدة',d.mode+' · '+ar(d.min)+' دقيقة'+(d.comp?' · بحضور المرافق':'')],['الحالة في البداية',d.before],['الاحتياجات المرصودة',(d.needs||[]).join('، ')||'—'],['التدخلات المقدّمة',(d.ints||[]).join('، ')||'—'],['ما تم في الجلسة',d.sum],['استجابة المستفيد',d.resp],['الحالة في النهاية',d.after||'—'],['خطة الجلسة القادمة',d.plan||'—'],['ملاحظات للفريق',d.team||'—']]);
+  }else{
+    rows=rows.concat([['الطريقة والمدة',(d.mode||'مرئية')+' · '+ar(d.min||30)+' دقيقة'],['ما تم في الجلسة',d.sum],['التوصيات والخطة',d.plan||'—'],['المتابعة',d.next||'—']]);
+  }
+  return '<dl class="dv">'+rows.map(function(r){return '<dt>'+r[0]+'</dt><dd>'+esc(r[1]||'—')+'</dd>';}).join('')+'</dl>'+(d.by?'<p class="small muted">وثّقها: '+esc(d.by)+'</p>':'');
+}
+$('d-body').addEventListener('click',function(e){var b=e.target.closest('[data-cview]');if(!b)return;var c=COMPLETED[+b.getAttribute('data-cview')];openDoc('توثيق جلسة: '+PATIENTS[c.p].name,docViewHtml(c));});
+
+/* --- profile & password --- */
+$('pp-form').addEventListener('submit',function(e){
+  e.preventDefault();var p=state.provider;
+  var n=$('pp-name').value.trim(),em=$('pp-email').value.trim(),ph=$('pp-phone').value.replace(/\D/g,''),ok=true;
+  ok=setErr('ppe-name',n.split(/\s+/).length>=2?'':'اكتب الاسم الثنائي على الأقل')&&ok;
+  ok=setErr('ppe-email',/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)?'':'اكتب بريداً صحيحاً')&&ok;
+  ok=setErr('ppe-phone',/^05\d{8}$/.test(ph)?'':'رقم جوال من ١٠ أرقام يبدأ بـ 05')&&ok;
+  if(!ok)return;
+  var newSpec=$('pp-spec').value,changed=newSpec&&newSpec!==p.spec;
+  p.name=n;p.email=em;p.phone=ph;p.years=+$('pp-years').value||0;p.bio=$('pp-bio').value.trim();if(newSpec)p.spec=newSpec;
+  renderUser();renderProvider();
+  $('pp-ok').hidden=false;$('pp-ok').textContent='حُفظت التعديلات.'+(changed?' تغيير التخصص يُراجع من الإدارة.':'');
+});
+$('pw-form').addEventListener('submit',function(e){
+  e.preventDefault();var p=state.provider,ok=true;
+  ok=setErr('pwe-cur',$('pw-cur').value===p.pass?'':'كلمة المرور الحالية غير صحيحة')&&ok;
+  ok=setErr('pwe-new',strongPass($('pw-new').value)?($('pw-new').value===p.pass?'اختر كلمة مرور مختلفة عن الحالية':''):'٨ أحرف على الأقل، فيها حروف وأرقام')&&ok;
+  ok=setErr('pwe-new2',$('pw-new2').value===$('pw-new').value?'':'كلمتا المرور غير متطابقتين')&&ok;
+  if(!ok){$('pw-ok').hidden=true;return;}
+  p.pass=$('pw-new').value;$('pw-form').reset();$('pw-ok').hidden=false;$('pw-ok').textContent='غُيّرت كلمة المرور. استخدمها في دخولك القادم.';
+});
+
+/* --- admin --- */
+function renderAdmin(){
+  var c={pending:0,approved:0,rejected:0};PROVIDERS.forEach(function(p){c[p.status]++;});
+  $('ad-kpis').innerHTML='<div class="kpi"><b>'+ar(c.pending)+'</b><span>بانتظار المراجعة</span></div><div class="kpi"><b>'+ar(c.approved)+'</b><span>حسابات مفعّلة</span></div><div class="kpi"><b>'+ar(c.rejected)+'</b><span>مرفوضة</span></div>';
+  var order={pending:0,approved:1,rejected:2};
+  $('ad-list').innerHTML=PROVIDERS.map(function(p,i){return {p:p,i:i};}).sort(function(a,b){return order[a.p.status]-order[b.p.status];}).map(function(o){var p=o.p;
+    var st=p.status==='pending'?'<span class="status wait">بانتظار المراجعة</span>':p.status==='approved'?'<span class="status done">مفعّل</span>':'<span class="status cx" style="text-decoration:none">مرفوض</span>';
+    var btns=p.status==='pending'?'<div class="acts"><button class="btn btn-primary btn-sm" type="button" data-ad="approve" data-i="'+o.i+'">موافقة وتفعيل</button><button class="btn btn-ghost btn-sm" type="button" data-ad="reject" data-i="'+o.i+'">رفض</button></div>'
+      :'<div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-ad="'+(p.status==='approved'?'suspend':'approve')+'" data-i="'+o.i+'">'+(p.status==='approved'?'إيقاف الحساب':'إعادة التفعيل')+'</button></div>';
+    return '<div class="app"><div style="min-width:0"><h4>'+esc(p.name)+' <span class="typebadge'+(p.type==='مرشد'?' g':'')+'">'+(p.type==='مرشد'?'مرشد':'طبيب / أخصائي')+'</span> '+st+'</h4><p>'+esc(p.spec)+' · '+esc(p.lic)+' · '+ar(p.years)+' سنوات خبرة · <span class="num">'+esc(p.email)+'</span></p></div>'+btns+'</div>';
+  }).join('');
+}
+$('ad-list').addEventListener('click',function(e){
+  var b=e.target.closest('[data-ad]');if(!b)return;var p=PROVIDERS[+b.getAttribute('data-i')],a=b.getAttribute('data-ad');
+  p.status=a==='approve'?'approved':a==='reject'?'rejected':'suspended';
+  logAct((a==='approve'?'تفعيل حساب: ':a==='reject'?'رفض طلب: ':'إيقاف حساب: ')+p.name);
+  if(a==='approve')sendMsg({type:'person',key:'p:'+p.email,label:p.name},'تم تفعيل حسابك','مرحباً بك في فريق الخدمة. فُعّل حسابك، وتستطيع الآن استقبال المرضى من لوحتك.',adminFrom());
+  renderAdminAll();
+});
+
+/* --- patient tasks --- */
+function scaleFormHtml(def){
+  var h=def.kind==='num'
+    ?'<p class="small muted">٠ تعني لا يوجد، و١٠ تعني أشد ما يكون.</p>'+def.items.map(function(t,i){return '<label class="rng" for="sf'+i+'"><span>'+t+'<output id="so'+i+'">٥</output></span><input type="range" min="0" max="10" value="5" id="sf'+i+'" data-out="so'+i+'"></label>';}).join('')
+    :def.items.map(function(t,i){return '<fieldset class="q" style="border:0;margin:0;padding-inline:0"><legend style="padding:0"><p>'+t+'</p></legend><div class="likert">'+LIK.map(function(l,v){return '<label for="sf'+i+'-'+v+'"><input type="radio" name="sf'+i+'" id="sf'+i+'-'+v+'" value="'+v+'">'+l+'</label>';}).join('')+'</div></fieldset>';}).join('');
+  if(def.note)h+='<label for="sf-note">ملاحظاتك للمركز<textarea id="sf-note"></textarea></label>';
+  return (def.note?'':NOTE_SCALES)+h+'<span class="err" id="sf-err"></span><button class="btn btn-primary" type="submit">أرسل إجاباتي</button>';
+}
+function readScale(def,f){
+  if(def.kind==='num'){var s=0;def.items.forEach(function(_,i){s+=+$('sf'+i).value;});return {txt:'المتوسط '+ar((s/def.items.length).toFixed(1))+' من ١٠',score:s/def.items.length*10};}
+  var t=0,miss=0;def.items.forEach(function(_,i){var c=f.querySelector('input[name=sf'+i+']:checked');if(!c)miss++;else t+=+c.value;});
+  if(miss){setErr('sf-err','بقيت '+ar(miss)+' بنود دون إجابة.');return null;}
+  var sc=t/(4*def.items.length)*100;return {txt:ar(Math.round(sc))+'٪',score:sc};
+}
+function renderTasks(){
+  var u=state.user,box=$('rec-tasks');if(!u){box.innerHTML='';return;}
+  renderScalesTab(u);renderSpiritTab(u);renderZadTab();
+  var unread=renderInbox('user',u,$('rec-inbox'),$('tab-in-n'));
+  var pend=state.tasks.filter(function(t){return t.patient===u.name&&t.status==='pending';});
+  var refs=state.tasks.filter(function(t){return t.patient===u.name&&t.kind==='referral';});
+  var html='';
+  if(unread)html+='<div class="task ref"><div><b>رسائل جديدة: '+ar(unread)+'</b><p class="small muted">من إدارة الخدمة</p></div><button class="btn btn-primary btn-sm" type="button" data-gotab="inbox">اقرأ الرسائل</button></div>';
+  if(pend.length)html+='<div class="task"><div><b>مقاييس مطلوبة منك: '+ar(pend.length)+'</b><p class="small muted">'+pend.map(function(t){return esc(t.title);}).join('، ')+'</p></div><button class="btn btn-primary btn-sm" type="button" data-gotab="scales">اذهب إلى مقاييسي</button></div>';
+  html+=refs.map(function(t){return '<div class="task ref"><div><b>'+esc(t.title)+'</b><p class="small muted">من '+esc(t.byName)+' · أولوية '+esc(t.urgency)+' · '+esc(t.why)+'</p></div><a class="btn btn-ghost btn-sm" href="#services">احجز في القسم</a></div>';}).join('');
+  box.innerHTML=html?'<div class="tasks">'+html+'</div>':'';
+}
+function renderTasksOld(){
+  var u=state.user,box=$('rec-tasks');if(!u){box.innerHTML='';return;}
+  var ts=state.tasks.filter(function(t){return t.patient===u.name;});
+  if(!ts.length){box.innerHTML='';return;}
+  box.innerHTML='<h3 style="margin-bottom:10px">مطلوب منك ورسائل الفريق</h3><div class="tasks">'+ts.slice().reverse().map(function(t){
+    if(t.kind==='referral')return '<div class="task ref"><div><b>'+esc(t.title)+'</b><p class="small muted">من '+esc(t.byName)+' · أولوية '+esc(t.urgency)+' · '+esc(t.why)+'</p></div><a class="btn btn-ghost btn-sm" href="#services">احجز في القسم</a></div>';
+    if(t.status==='done')return '<div class="task done"><div><b>'+esc(t.title)+'</b><p class="small muted">أجبت عنه · النتيجة '+t.result+' · أُرسلت إلى '+esc(t.byName)+'</p></div><span class="status done">تم</span></div>';
+    return '<div class="task"><div><b>'+esc(t.title)+'</b><p class="small muted">أرسله '+esc(t.byName)+(t.note?' · '+esc(t.note):'')+(t.summary?' · الملخص: '+esc(t.summary):'')+'</p></div><button class="btn btn-primary btn-sm" type="button" data-task="'+t.id+'">ابدأ الآن</button></div>';
+  }).join('')+'</div>';
+}
+function switchRecTab(t){
+  document.querySelectorAll('[data-view="record"] .tabs button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-tab')===t);});
+  document.querySelectorAll('[data-pane]').forEach(function(p){p.hidden=p.getAttribute('data-pane')!==t;});
+}
+function renderScalesTab(u){
+  var ts=state.tasks.filter(function(t){return t.patient===u.name&&(t.kind==='scale'||t.kind==='closing');});
+  var pend=ts.filter(function(t){return t.status==='pending';}),dn=ts.filter(function(t){return t.status==='done';});
+  $('tab-sc-n').textContent=pend.length?ar(pend.length):'';
+  var own=state.scaleLevel?'<div class="task done"><div><b>مقياس الاحتياج الروحي (قبل حجز الجلسة)</b><p class="small muted">أجريته بنفسك · أُرسلت النتيجة إلى المرشد</p></div><span class="status done">تم</span></div>':'';
+  $('rec-scales').innerHTML=NOTE_SCALES+
+    '<div class="sec-h"><h3>مطلوب منك</h3></div><div class="tasks">'+(pend.length?pend.map(function(t){return '<div class="task"><div><b>'+esc(t.title)+'</b><p class="small muted">أرسله '+esc(t.byName)+(t.note?' · '+esc(t.note):'')+'</p></div><button class="btn btn-primary btn-sm" type="button" data-task="'+t.id+'">ابدأ الآن</button></div>';}).join(''):'<div class="empty">لا مقاييس مطلوبة منك الآن.</div>')+'</div>'+
+    '<div class="sec-h"><h3>أجبت عنها</h3></div><div class="tasks">'+(dn.length||own?dn.map(function(t){return '<div class="task done"><div><b>'+esc(t.title)+'</b><p class="small muted">'+(t.scale==='spirit'?'أُرسلت إجاباتك إلى '+esc(t.byName):'النتيجة '+t.result+' · أُرسلت إلى '+esc(t.byName))+'</p></div><span class="status done">تم</span></div>';}).join('')+own:'<div class="empty">لم تُجب عن أي مقياس بعد.</div>')+'</div>';
+}
+function hasSpiritual(u){return !!(u.demo||INTAKE[u.name]||PLANS[u.name]||(RX[u.name]||[]).length||state.scaleLevel||state.bookings.some(function(b){return b.dept==='الدعم الديني والروحي';}));}
+function renderSpiritTab(u){
+  if(!hasSpiritual(u)){
+    $('rec-spirit').innerHTML='<div class="empty" style="display:grid;gap:10px;justify-items:center"><b>لم تطلب خدمة الدعم الديني والروحي بعد</b><span>بعد طلبك للخدمة تظهر هنا خطتك العلاجية الشرعية ووصفاتك الروحية.</span><a class="btn btn-spirit btn-sm" href="#spiritual">ادخل إلى الدعم الروحي</a></div>';return;
+  }
+  var it=INTAKE[u.name],fu='';
+  if(it){
+    fu='<div class="plan"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h3>متابعة جلستي</h3>'+(it.followup?'<span class="status done">المتابعة مفعّلة</span>':'<span class="status wait">بانتظار المرشد</span>')+'</div>'+
+      '<p>'+(it.type?'نوع جلستك: <b>'+esc(it.type)+'</b>'+(it.chosenBy==='المريض'?' (اخترتها بنفسك)':' (حددها مرشدك)'):'أُرسلت نتيجة مقياسك إلى المرشد، وسيحدد نوع جلستك وخطتها في الجلسة الأولى.')+'</p>'+
+      (it.followup?'<div><b style="font-family:var(--display)">خطة متابعة الجلسة</b><p style="margin-top:6px">'+esc(it.followup.plan)+'</p></div><div class="meta2"><span class="pill g">'+esc(it.followup.freq)+'</span><span class="pill">تصلك عبر: '+esc(it.followup.channel)+'</span><span class="pill">من '+esc(it.followup.by)+'</span></div>':'<p class="small muted">بعد الجلسة يفعّل المرشد متابعتك وخطتها عبر واتساب أو النظام، وتظهر هنا.</p>')+'</div>';
+  }
+  function soon(t,d){return '<div class="plan" style="justify-items:start"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h3>'+t+'</h3><span class="status wait">يُضاف لاحقاً</span></div><p class="muted small">'+d+'</p></div>';}
+  $('rec-spirit').innerHTML='<div class="list">'+fu+
+    soon('خطتي العلاجية الشرعية','يُعدّها مرشدك بعد الجلسة الأولى، وتتضمن أهدافك ومدة الخطة وعدد الجلسات وموعد المراجعة.')+
+    soon('وصفاتي الروحية','أوراد وأعمال يسيرة يصفها لك مرشدك، وتسجّل إنجازها يومياً من هنا.')+
+    '</div>';
+}
+function renderSpiritTabOld(u){
+  if(!hasSpiritual(u)){
+    $('rec-spirit').innerHTML='<div class="empty" style="display:grid;gap:10px;justify-items:center"><b>لم تطلب خدمة الدعم الديني والروحي بعد</b><span>بعد طلبك للخدمة وجلستك الأولى، يُعدّ مرشدك خطتك العلاجية الشرعية ووصفاتك الروحية وتظهر هنا.</span><a class="btn btn-spirit btn-sm" href="#spiritual-support">اطلب جلسة دعم روحي</a></div>';return;
+  }
+  var pl=PLANS[u.name],rx=RX[u.name]||[];
+  var planHtml=pl?'<div class="plan"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start"><div><h3>خطتي العلاجية الشرعية</h3><p class="small muted">أعدّها '+esc(pl.by)+' · '+esc(pl.spec)+' · بدأت '+dayLabel(pl.start)+'</p></div>'+(pl.sample?'<span class="demo-tag">مثال</span>':'')+'</div>'+
+    '<div class="meta2"><span class="pill g">المدة: '+esc(pl.dur)+'</span><span class="pill g">'+esc(pl.freq)+'</span><span class="pill">المراجعة: '+esc(pl.review)+'</span></div>'+
+    '<div><b style="font-family:var(--display)">الأهداف</b><ol style="margin-top:6px">'+pl.goals.map(function(g){return '<li>'+esc(g)+'</li>';}).join('')+'</ol></div>'+
+    (pl.notes?'<p class="info">'+esc(pl.notes)+'</p>':'')+'</div>'
+    :'<div class="empty">سيُعدّ مرشدك خطتك العلاجية الشرعية بعد الجلسة الأولى، وتظهر هنا.</div>';
+  var rxHtml=rx.length?rx.map(function(r,j){return '<div class="rx"><span class="ico">'+I.leaf+'</span><div style="min-width:0"><h4>'+esc(r.t)+'</h4><p>'+esc(r.what)+'</p><p>'+esc(r.freq)+(r.time?' · '+esc(r.time):'')+' · أنجزتها '+ar(r.doneDays+(r.today?1:0))+' يوماً</p></div><button class="btn btn-sm '+(r.today?'done-today':'btn-ghost')+'" type="button" data-rx="'+j+'">'+(r.today?'أنجزتها اليوم ✓':'سجّل إنجاز اليوم')+'</button></div>';}).join('')
+    :'<div class="empty">لا وصفات روحية بعد.</div>';
+  $('rec-spirit').innerHTML=planHtml+'<div class="sec-h"><h3>وصفاتي الروحية</h3><span class="small muted">'+ar(rx.length)+' وصفات</span></div><div class="list">'+rxHtml+'</div>';
+}
+function renderZadTab(){
+  var all=[];ZAD1.forEach(function(g,i){all.push({g:g,k:'a'+i,sec:'استثمار العمر'});});ZAD2.forEach(function(g,i){all.push({g:g,k:'b'+i,sec:'زاد للسكينة'});});
+  var mine=all.filter(function(o){return subs[o.k];});
+  $('rec-zad').innerHTML=mine.length?'<div class="list">'+mine.map(function(o){return '<div class="group"><div class="g-top"><div><span class="pill g">'+o.sec+'</span><h4 style="margin-top:6px">'+o.g.t+'</h4></div><button class="btn btn-ghost btn-sm" type="button" data-sub="'+o.k+'">إلغاء الاشتراك</button></div><p class="small muted">'+o.g.d+' · '+o.g.f+'</p><p class="sample"><b>آخر ما وصلك:</b> '+o.g.s+'</p></div>';}).join('')+'</div><p style="margin-top:14px"><a href="#zad">تصفّح مجموعات زاد المريض</a></p>'
+    :'<div class="empty" style="display:grid;gap:10px;justify-items:center"><b>لم تشترك في زاد المريض بعد</b><a class="btn btn-spirit btn-sm" href="#zad">تصفّح المجموعات</a></div>';
+}
+document.querySelector('[data-view="record"]').addEventListener('click',function(e){
+  var x=e.target.closest('[data-rx]');if(x){var r=RX[state.user.name][+x.getAttribute('data-rx')];r.today=!r.today;renderSpiritTab(state.user);return;}
+  var go=e.target.closest('[data-gotab]');if(go){switchRecTab(go.getAttribute('data-gotab'));return;}
+});
+document.querySelector('[data-view="record"]').addEventListener('click',function(e){
+  var b=e.target.closest('[data-task]');if(!b)return;
+  var t=state.tasks.filter(function(x){return x.id===b.getAttribute('data-task');})[0],def=SCALE_DEFS[t.scale];
+  openForm(def.name,scaleFormHtml(def),function(f){
+    var r=readScale(def,f);if(r===null)return;
+    t.result=r.txt;t.score=r.score;t.status='done';if(t.scale==='spirit'&&t.phase==='قبلي'&&INTAKE[t.patient]&&INTAKE[t.patient].pct==null){var sp=Math.round(100-r.score);INTAKE[t.patient].pct=sp;INTAKE[t.patient].lvl=levelOf(sp);}logAct('أجاب '+t.patient+' عن '+t.title);if(def.note){var n=$('sf-note');t.patientNote=n?n.value.trim():'';}
+    done('شكراً لك. أُرسلت إجاباتك إلى '+esc(t.byName)+'.');renderRecord();
+  });
+});
+
+/* =================== ADMIN =================== */
+var ADMIN={email:'admin@latif.demo',pass:'Latif2026',name:'مدير النظام',role:'super'};
+var SEC_LABEL={medical:'القسم الطبي',spiritual:'قسم الدعم الديني والروحي'};
+var MANAGERS=[
+  {name:'أ. خالد الرشيد',email:'spiritual@latif.demo',pass:'Latif2026',section:'spiritual',status:'active',role:'section'}
+];
+function scope(){var a=state.admin;return a&&a.role==='section'?a.section:null;}
+function inScopeProv(p){var s=scope();return !s||(s==='medical'?p.type==='طبيب':p.type==='مرشد');}
+function inScopeDept(d){var s=scope();return !s||(s==='medical'?!d.featured:!!d.featured);}
+function adminLabel(){var a=state.admin;return a.role==='section'?'مدير '+SEC_LABEL[a.section]:'مدير النظام';}
+function adminFrom(){var a=state.admin;return a&&a.role==='section'?a.name+' — مدير '+SEC_LABEL[a.section]:'إدارة الخدمة';}
+state.admin=null;state.messages=[];state.log=[];
+var USERS=[];var EXTRA_COMPANIONS=['منى عبدالله السبيعي'];
+function registerUser(u){if(!USERS.some(function(x){return x.name===u.name;})){USERS.push({name:u.name,role:u.role});logAct('تسجيل مستفيد: '+u.name+' ('+u.role+')');}}
+function logAct(t){state.log.unshift({t:t,d:new Date()});if(state.log.length>40)state.log.pop();}
+window.logAct=logAct;
+function ago(d){var m=Math.round((Date.now()-d)/60000);if(m<1)return 'الآن';if(m<60)return 'قبل '+ar(m)+' دقيقة';var h=Math.round(m/60);if(h<24)return 'قبل '+ar(h)+' ساعة';return 'قبل '+ar(Math.round(h/24))+' يوم';}
+(function(){var seeds=[['تسجيل مستفيد: فاطمة علي الشهري (مريض)',3*1440],['طلب انضمام جديد: أ. ياسر الغامدي — مرشد تدبر',2*1440],['طلب انضمام جديد: أ. منيرة الحربي — مرشد فقد ومواساة',1440],['حجز جديد: جلسة دعم روحي — سعد ناصر القحطاني',180]];seeds.forEach(function(s){state.log.push({t:s[0],d:new Date(Date.now()-s[1]*60000)});});})();
+
+/* --- messages --- */
+function sendMsg(to,sub,body,from){state.messages.unshift({id:ref(),to:to,sub:sub,body:body,from:from||'إدارة الخدمة',date:new Date(),readBy:{}});}
+sendMsg({type:'beneficiaries',label:'كل المستفيدين (مرضى ومرافقين)'},'مرحباً بك في خدمة الدعم والمساندة','يسعدنا انضمامك. تجد في سجلك حجوزاتك ومواعيدك ومقاييسك، وتصلك هنا رسائل الإدارة. نسأل الله لك الشفاء والطمأنينة.');
+sendMsg({type:'providers',label:'كل مقدمي الخدمة'},'تذكير بتوثيق الجلسات','نذكّر الزملاء بتوثيق كل جلسة في يومها، وإرسال القياس البعدي قبل إنهاء الجلسات.');
+state.messages.forEach(function(m){m.date=new Date(Date.now()-86400000);});
+function msgFor(kind,who){
+  return state.messages.filter(function(m){var t=m.to;if(t.type==='all')return true;
+    if(kind==='provider')return t.type==='providers'||(t.type==='doctors'&&who.type==='طبيب')||(t.type==='guides'&&who.type==='مرشد')||(t.type==='person'&&t.key==='p:'+who.email);
+    var comp=who.role==='مرافق';return t.type==='beneficiaries'||(t.type==='patients'&&!comp)||(t.type==='companions'&&comp)||(t.type==='person'&&t.key==='u:'+who.name);});
+}
+function idOf(kind,who){return kind==='provider'?'p:'+who.email:'u:'+who.name;}
+function renderInbox(kind,who,box,badge){
+  var ms=msgFor(kind,who),me=idOf(kind,who),un=ms.filter(function(m){return !m.readBy[me];}).length;
+  badge.textContent=un?ar(un):'';
+  box.innerHTML=ms.length?ms.map(function(m){var r=m.readBy[me];return '<div class="h'+(r?'':' unread')+'"><div style="min-width:0"><b>'+esc(m.sub)+'</b><p>من '+esc(m.from)+' · '+ago(m.date)+'</p></div><button class="btn btn-ghost btn-sm" type="button" data-msg="'+m.id+'" data-kind="'+kind+'">اقرأ</button></div>';}).join(''):'<p class="empty">لا رسائل.</p>';
+  return un;
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-msg]');if(!b)return;
+  var m=state.messages.filter(function(x){return x.id===b.getAttribute('data-msg');})[0];if(!m)return;
+  var kind=b.getAttribute('data-kind'),who=kind==='provider'?state.provider:state.user;if(!who)return;
+  m.readBy[idOf(kind,who)]=true;
+  openDoc(m.sub,'<p class="small muted">من '+esc(m.from)+' · '+m.date.toLocaleDateString('ar-SA-u-ca-gregory-nu-arab',{day:'numeric',month:'long'})+'</p>'+m.body.split('\n').map(function(p){return '<p>'+esc(p)+'</p>';}).join(''));
+  if(kind==='provider')renderProvider();else renderRecord();
+});
+
+/* --- spiritual tiles (editable) --- */
+var TILES=[
+ {id:'spiritual-support',icon:'heart',t:'جلسات الدعم الروحي',d:'جلسة فردية مع مرشد روحي، تُبنى على نتيجة مقياس قصير.',m:'المقياس القبلي أو جلسة مباشرة'},
+ {id:'tadabbur',icon:'book',t:'جلسات التدبر',d:'لقاءات جماعية في تدبّر آيات الصبر والرجاء والطمأنينة.',m:'جلسات جماعية بمقاعد محدودة'},
+ {id:'ruqya',icon:'hand',t:'كيف ترقي نفسك',d:'خطوات الرقية الشرعية من القرآن والسنة، يقرؤها المريض أو مرافقه.',m:'محتوى للقراءة'},
+ {id:'zad',icon:'leaf',t:'زاد المريض',d:'مجموعة متنوعة من البرامج تلامس احتياج المريض وتزيد إيمانه.',m:'استثمار العمر · الباقيات الصالحات'},
+ {id:'loss',icon:'drop',t:'الفقد والمواساة',d:'جلسة مواساة لأهل المتوفى، وبرنامج مستمر للفقد على تلجرام.',m:'للأسرة والمرافقين'},
+ {id:'fiqh',icon:'ask',t:'الاستشارة الفقهية',d:'أحكام المريض في الطهارة والصلاة والصيام والتداوي، وما يخص المرافق.',m:'جلسة أو سؤال مكتوب'},
+ {id:'wills',icon:'scroll',t:'استشارة الوصايا (بالشراكة مع مركز واقف)',d:'كتابة الوصية على الوجه الشرعي، وتوثيق الديون والحقوق، والمسامحة.',m:'جلسة أو سؤال مكتوب'}
+];
+var tileSeq=1;
+function renderTiles(){renderServices();$('sp-tiles').innerHTML=TILES.map(function(t){return '<a class="tile" href="#'+t.id+'"><span class="ico">'+I[t.icon]+'</span><h3>'+esc(t.t)+'</h3><p>'+esc(t.d)+'</p><span class="meta">'+esc(t.m||'')+'</span></a>';}).join('');}
+renderTiles();
+function renderCustom(id){
+  var t=TILES.filter(function(x){return x.id===id;})[0];
+  $('spc-crumb').textContent=t.t;$('spc-title').textContent=t.t;$('spc-desc').textContent=t.d;
+  $('spc-body').innerHTML=(t.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('')+(t.book?'<button class="btn btn-spirit" type="button" data-custom-book="'+t.id+'" style="justify-self:start">احجز جلسة</button>':'')+(!(t.body||[]).length&&!t.book?'<p class="muted">يُضاف المحتوى لاحقاً.</p>':'');
+}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-custom-book]');if(!b)return;var t=TILES.filter(function(x){return x.id===b.getAttribute('data-custom-book');})[0];openBooking({title:'حجز جلسة — '+t.t,staff:DEPTS[0].staff,noType:true,dept:t.t,c:'var(--spirit)'});});
+
+/* --- admin login --- */
+function adminLogin(a){state.user=null;state.provider=null;state.admin=a||ADMIN;renderUser();switchAdTab('ov');location.hash='#admin';}
+$('al-demo').addEventListener('click',function(){adminLogin(ADMIN);});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-mgrdemo]');if(!b)return;adminLogin(MANAGERS.filter(function(m){return m.section===b.getAttribute('data-mgrdemo')&&m.status==='active';})[0]);});
+$('al-form').addEventListener('submit',function(e){e.preventDefault();
+  var em=$('al-email').value.trim().toLowerCase(),pw=$('al-pass').value;
+  if(em===ADMIN.email&&pw===ADMIN.pass){$('al-err').textContent='';adminLogin(ADMIN);return;}
+  var m=MANAGERS.filter(function(x){return x.email.toLowerCase()===em;})[0];
+  if(m&&m.pass===pw){if(m.status!=='active'){$('al-err').textContent='هذا الحساب موقوف. تواصل مع مدير النظام.';return;}$('al-err').textContent='';adminLogin(m);return;}
+  $('al-err').textContent='البريد أو كلمة المرور غير صحيحة.';
+});
+function switchAdTab(t){
+  document.querySelectorAll('#ad-tabs button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-ad-tab')===t);});
+  document.querySelectorAll('[data-adpane]').forEach(function(p){p.hidden=p.getAttribute('data-adpane')!==t;});
+}
+$('ad-tabs').addEventListener('click',function(e){var b=e.target.closest('[data-ad-tab]');if(b)switchAdTab(b.getAttribute('data-ad-tab'));});
+
+/* --- people for messaging --- */
+function people(){
+  var prov=PROVIDERS.filter(function(p){return p.status==='approved';}).map(function(p){return {key:'p:'+p.email,label:p.name+' — '+p.spec};});
+  var pats=[],comps=[],seen={};
+  PATIENTS.forEach(function(p){if(seen[p.name])return;seen[p.name]=1;(p.companion?comps:pats).push(p.name);});
+  USERS.forEach(function(u){if(seen[u.name])return;seen[u.name]=1;(u.role==='مرافق'?comps:pats).push(u.name);});
+  EXTRA_COMPANIONS.forEach(function(n){if(!seen[n]){seen[n]=1;comps.push(n);}});
+  return {prov:prov,pats:pats,comps:comps};
+}
+
+/* --- admin render --- */
+function renderAdminAll(){
+  var sc=scope();
+  $('ad-eyebrow').textContent=adminLabel();
+  $('ad-title').textContent=sc?'لوحة '+SEC_LABEL[sc]:'لوحة الإدارة';
+  $('ad-lead').textContent=sc?'صلاحياتك على '+SEC_LABEL[sc]+' فقط: مقدمو الخدمة فيه، وأقسامه، وإحصاءاته، ومراسلة فريقه والمستفيدين.':'صلاحيات كاملة. كل ما تغيّره هنا يظهر فوراً في الموقع وحسابات المستفيدين ومقدمي الخدمة.';
+  $('ad-mgrs-tab').hidden=!!sc;
+  $('ad-perms').textContent=!sc?'(تنويه: لديك صلاحية كاملة على المنصة، ومنها: إضافة المحتوى إلى المدونة وزاد المريض والأسئلة الشائعة، وإضافة قسم أو جلسة جديدة داخل الدعم الديني والروحي، وتعديل مسميات الأقسام وأوصافها، وإدارة حسابات مقدمي الخدمة ومدراء الأقسام، ومراسلة الجميع. وكل تعديل يظهر فوراً في الموقع.)'
+    :sc==='medical'?'(تنويه: صلاحيتك على القسم الطبي فقط: تعديل مسميات أقسامه وأوصافها، وإضافة أقسام فرعية فيه، وإضافة المحتوى إلى المدونة والأسئلة الشائعة، وإدارة حسابات أطبائه وأخصائييه، ومراسلة فريقه والمستفيدين.)'
+    :'(تنويه: صلاحيتك على قسم الدعم الديني والروحي فقط: إضافة قسم أو جلسة جديدة داخله، وتعديل مسميات أقسامه وأوصافها، وإضافة المحتوى إلى المدونة وزاد المريض والأسئلة الشائعة، وإدارة حسابات المرشدين، ومراسلة فريقه والمستفيدين.)';
+  $('ad-sp-wrap').hidden=sc==='medical';
+  $('nz-form').hidden=sc==='medical';
+  var on=document.querySelector('#ad-tabs button.on');if(on&&on.hidden)switchAdTab('ov');
+  renderOverview();renderProvList();renderAdDepts();renderAdContent();renderAdMsgs();renderMgrs();
+}
+function renderOverview(){
+  var ap=PROVIDERS.filter(function(p){return p.status==='approved'&&inScopeProv(p);});
+  var docs=ap.filter(function(p){return p.type==='طبيب';}).length,guides=ap.length-docs;
+  var pend=PROVIDERS.filter(function(p){return p.status==='pending'&&inScopeProv(p);}).length;
+  var pp=people();
+  var scales=state.tasks.filter(function(t){return t.kind==='scale'||t.kind==='closing';});
+  var subsN=Object.keys(subs).filter(function(k){return subs[k];}).length;
+  var tiles=[['الأطباء والأخصائيون',docs],['المرشدون',guides],['طلبات بانتظار الموافقة',pend],['المرضى',pp.pats.length],['المرافقون',pp.comps.length],['الحجوزات القادمة',state.bookings.filter(function(b){return b.status==='up';}).length+PATIENTS.filter(function(x){return x.next&&!x.closed;}).length],['الجلسات المنجزة',COMPLETED.length],['مقاييس مرسلة / منجزة',ar(scales.length)+' / '+ar(scales.filter(function(t){return t.status==='done';}).length)],['اشتراكات زاد المريض',subsN],['أقسام الدعم الروحي',TILES.length],['محتوى المدونة',POSTS.length],['رسائل مرسلة',state.messages.length]];
+  tiles=tiles.filter(function(t){return t[0]!=='الأطباء والأخصائيون';});
+  var sc=scope();
+  if(sc==='medical'){tiles=tiles.filter(function(t){return ['المرشدون','اشتراكات زاد المريض','أقسام الدعم الروحي'].indexOf(t[0])<0;});tiles.splice(2,0,['أقسام القسم الطبي',DEPTS.filter(function(d){return !d.featured;}).length]);}
+  if(sc==='spiritual')tiles=tiles.filter(function(t){return t[0]!=='الأطباء والأخصائيون';});
+  $('ov-kpis').innerHTML=tiles.map(function(t){return '<div class="kpi"><b>'+(typeof t[1]==='number'?ar(t[1]):t[1])+'</b><span>'+t[0]+'</span></div>';}).join('');
+  var specs=DOC_SPECS.map(function(s){return [s,'var(--accent)'];}).concat(GUIDE_SPECS.map(function(s){return [s,'var(--spirit)'];}));
+  if(scope()==='medical')specs=specs.slice(0,DOC_SPECS.length);else if(scope()==='spiritual')specs=specs.slice(DOC_SPECS.length);
+  var counts=specs.map(function(s){return ap.filter(function(p){return p.spec===s[0];}).length;}),mx=Math.max.apply(null,counts.concat([1]));
+  $('ov-bars').innerHTML='<div class="legend2"><span style="--k:var(--spirit)">المرشدون حسب التخصص</span></div>'+specs.map(function(s,i){return '<div class="bar-row"><span>'+s[0]+'</span><span class="tr"><i style="width:'+(counts[i]/mx*100)+'%;background:'+s[1]+'"></i></span><b>'+ar(counts[i])+'</b></div>';}).join('');
+  $('ov-act').innerHTML=state.log.slice(0,8).map(function(l){return '<div class="h"><div><b style="font-weight:500">'+esc(l.t)+'</b><p>'+ago(l.d)+'</p></div></div>';}).join('')||'<p class="empty">لا نشاط بعد.</p>';
+}
+function renderProvList(){
+  var c={pending:0,approved:0,rejected:0,suspended:0};PROVIDERS.forEach(function(p){if(inScopeProv(p))c[p.status]++;});
+  $('ad-pend-n').textContent=c.pending?ar(c.pending):'';
+  $('ad-kpis').innerHTML='<div class="kpi"><b>'+ar(c.pending)+'</b><span>بانتظار المراجعة</span></div><div class="kpi"><b>'+ar(c.approved)+'</b><span>حسابات مفعّلة</span></div><div class="kpi"><b>'+ar(c.suspended)+'</b><span>موقوفة</span></div><div class="kpi"><b>'+ar(c.rejected)+'</b><span>مرفوضة</span></div>';
+  var order={pending:0,approved:1,suspended:2,rejected:3};
+  $('ad-list').innerHTML=PROVIDERS.map(function(p,i){return {p:p,i:i};}).filter(function(o){return inScopeProv(o.p);}).sort(function(a,b){return order[a.p.status]-order[b.p.status];}).map(function(o){var p=o.p;
+    var st={pending:'<span class="status wait">بانتظار المراجعة</span>',approved:'<span class="status done">مفعّل</span>',suspended:'<span class="status cx" style="text-decoration:none">موقوف</span>',rejected:'<span class="status cx" style="text-decoration:none">مرفوض</span>'}[p.status];
+    var btns=p.status==='pending'?'<button class="btn btn-primary btn-sm" type="button" data-ad="approve" data-i="'+o.i+'">موافقة وتفعيل</button><button class="btn btn-ghost btn-sm" type="button" data-ad="reject" data-i="'+o.i+'">رفض</button>'
+      :p.status==='approved'?'<button class="btn btn-ghost btn-sm" type="button" data-ad="suspend" data-i="'+o.i+'">إيقاف الحساب</button>':'<button class="btn btn-ghost btn-sm" type="button" data-ad="approve" data-i="'+o.i+'">تفعيل</button>';
+    btns+='<button class="btn btn-ghost btn-sm" type="button" data-admsg="p:'+p.email+'">مراسلة</button>';
+    return '<div class="app"><div style="min-width:0"><h4>'+esc(p.name)+' <span class="typebadge'+(p.type==='مرشد'?' g':'')+'">'+(p.type==='مرشد'?'مرشد':'القسم الطبي')+'</span> '+st+'</h4><p>'+esc(p.spec)+' · '+esc(p.lic)+' · '+ar(p.years)+' سنوات خبرة · <span class="num">'+esc(p.email)+'</span></p></div><div class="acts">'+btns+'</div></div>';
+  }).join('');
+}
+function renderAdDepts(){
+  $('ad-depts').innerHTML=DEPTS.map(function(d,i){
+    if(!inScopeDept(d))return '';
+    return '<div class="dcard" style="--c:'+d.c+'"><div class="row"><label for="dn-'+i+'">مسمى القسم<input id="dn-'+i+'" value="'+esc(d.name)+'"></label><label for="dd-'+i+'">الوصف<input id="dd-'+i+'" value="'+esc(d.desc)+'"></label></div>'+
+      '<div><span class="small" style="font-weight:500">الأقسام الفرعية</span><div class="subs" style="margin-top:6px">'+d.items.map(function(it,j){return '<span>'+esc(it)+'<button type="button" data-delsub="'+i+'|'+j+'" aria-label="حذف '+esc(it)+'">×</button></span>';}).join('')+'</div></div>'+
+      '<div class="inl"><input id="ds-'+i+'" placeholder="أضف قسماً فرعياً داخل '+esc(d.name)+'" aria-label="قسم فرعي جديد"><button class="btn btn-ghost btn-sm" type="button" data-addsub="'+i+'">أضف</button><button class="btn btn-primary btn-sm" type="button" data-savedept="'+i+'">احفظ المسمى والوصف</button></div></div>';
+  }).join('');
+  $('ad-tiles').innerHTML=TILES.map(function(t,i){
+    return '<div class="dcard" style="--c:var(--spirit)"><div class="row"><label for="tt-'+i+'">اسم القسم<input id="tt-'+i+'" value="'+esc(t.t)+'"></label><label for="tm-'+i+'">العبارة المختصرة<input id="tm-'+i+'" value="'+esc(t.m||'')+'"></label></div><label for="td-'+i+'">الوصف<input id="td-'+i+'" value="'+esc(t.d)+'"></label><div class="inl"><button class="btn btn-primary btn-sm" type="button" data-savetile="'+i+'">احفظ</button>'+(t.custom?'<button class="btn btn-ghost btn-sm" type="button" data-deltile="'+i+'">حذف القسم</button><a class="btn btn-ghost btn-sm" href="#'+t.id+'">عرض</a>':'')+'</div></div>';
+  }).join('');
+}
+function flash(id,msg){var el=$(id);el.hidden=false;el.textContent=msg;}
+$('ad-depts').addEventListener('click',function(e){
+  var b;
+  if(b=e.target.closest('[data-savedept]')){var i=+b.getAttribute('data-savedept'),n=$('dn-'+i).value.trim();if(!n)return;var old=DEPTS[i].name;DEPTS[i].name=n;DEPTS[i].desc=$('dd-'+i).value.trim();renderDepts();logAct('تعديل قسم: '+old+(old!==n?' ← '+n:''));renderAdDepts();b=null;return;}
+  if(b=e.target.closest('[data-addsub]')){var k=+b.getAttribute('data-addsub'),v=$('ds-'+k).value.trim();if(!v)return;DEPTS[k].items.push(v);renderDepts();logAct('إضافة قسم فرعي: '+v+' في '+DEPTS[k].name);renderAdDepts();return;}
+  if(b=e.target.closest('[data-delsub]')){var q=b.getAttribute('data-delsub').split('|');DEPTS[+q[0]].items.splice(+q[1],1);renderDepts();renderAdDepts();}
+});
+$('ad-tiles').addEventListener('click',function(e){
+  var b;
+  if(b=e.target.closest('[data-savetile]')){var i=+b.getAttribute('data-savetile'),t=TILES[i],n=$('tt-'+i).value.trim();if(!n)return;t.t=n;t.d=$('td-'+i).value.trim();t.m=$('tm-'+i).value.trim();renderTiles();logAct('تعديل قسم في الدعم الروحي: '+n);renderAdDepts();return;}
+  if(b=e.target.closest('[data-deltile]')){var j=+b.getAttribute('data-deltile');logAct('حذف قسم: '+TILES[j].t);TILES.splice(j,1);renderTiles();renderAdDepts();}
+});
+$('nt-form').addEventListener('submit',function(e){
+  e.preventDefault();var t=$('nt-title').value.trim(),d=$('nt-desc').value.trim(),ok=true;
+  ok=setErr('nte-title',t?'':'اكتب اسم القسم')&&ok;ok=setErr('nte-desc',d?'':'اكتب وصفاً قصيراً')&&ok;if(!ok)return;
+  var id='spx'+(tileSeq++);
+  TILES.push({id:id,icon:'arch',t:t,d:d,m:$('nt-meta').value.trim(),custom:true,book:$('nt-book').checked,body:$('nt-body').value.split('\n').map(function(s){return s.trim();}).filter(Boolean)});
+  renderTiles();renderAdDepts();logAct('إضافة قسم في الدعم الروحي: '+t);
+  $('nt-form').reset();$('nt-book').checked=true;flash('nt-ok','أُضيف القسم «'+t+'»، ويظهر الآن في بوابة الدعم الروحي.');
+});
+
+/* --- content --- */
+function renderAdContent(){$('nb-d').innerHTML=DAYS.map(function(d,i){return '<option value="'+i+'">'+dayLabel(d)+'</option>';}).join('');}
+function syncNb(){var art=document.querySelector('input[name=nb-k]:checked').value==='مقال';$('nb-when').hidden=art;$('nb-body-w').hidden=!art;$('nb-len-l').textContent=art?'مدة القراءة':'المدة';$('nb-len').value=art?'٥ دقائق قراءة':'ساعة واحدة';}
+document.querySelectorAll('input[name=nb-k]').forEach(function(r){r.addEventListener('change',syncNb);});
+var CC=[C.accent,C.grape,C.spirit,C.coral,C.ok,C.sun];
+$('nb-form').addEventListener('submit',function(e){
+  e.preventDefault();var k=document.querySelector('input[name=nb-k]:checked').value,t=$('nb-t').value.trim(),by=$('nb-by').value.trim(),ok=true;
+  ok=setErr('nbe-t',t?'':'اكتب العنوان')&&ok;ok=setErr('nbe-by',by?'':'اكتب اسم المقدّم أو الكاتب')&&ok;if(!ok)return;
+  var p={k:k,t:t,by:by,c:CC[POSTS.length%CC.length],icon:k==='مقال'?'book':k==='برنامج'?'people':'mind'};
+  if(k==='مقال'){p.read=$('nb-len').value.trim();p.body=$('nb-body').value.split('\n').map(function(s){return s.trim();}).filter(Boolean).map(function(s){return ['',s];});}
+  else{p.d=+$('nb-d').value;p.time=$('nb-time').value.trim();p.len=$('nb-len').value.trim();p.seats=100;}
+  POSTS.unshift(p);renderBlog();logAct('نشر في المدونة: '+t);$('nb-form').reset();syncNb();flash('nb-ok','نُشر «'+t+'» في مدونة لطيف.');
+});
+$('nz-form').addEventListener('submit',function(e){
+  e.preventDefault();var t=$('nz-t').value.trim(),d=$('nz-d').value.trim(),ok=true;
+  ok=setErr('nze-t',t?'':'اكتب اسم المجموعة')&&ok;ok=setErr('nze-d',d?'':'اكتب الوصف')&&ok;if(!ok)return;
+  ($('nz-sec').value==='1'?ZAD1:ZAD2).push({t:t,d:d,f:$('nz-f').value,s:$('nz-s').value.trim()||'يُضاف المحتوى قريباً.'});
+  renderZad();logAct('إضافة مجموعة إلى زاد المريض: '+t);$('nz-form').reset();flash('nz-ok','أُضيفت المجموعة «'+t+'» إلى زاد المريض.');
+});
+$('nf-form').addEventListener('submit',function(e){
+  e.preventDefault();var q=$('nf-q').value.trim(),a=$('nf-a').value.trim(),ok=true;
+  ok=setErr('nfe-q',q?'':'اكتب السؤال')&&ok;ok=setErr('nfe-a',a?'':'اكتب الإجابة')&&ok;if(!ok)return;
+  FAQ.push([q,a]);$('faq-list').innerHTML=FAQ.map(function(f){return '<details><summary>'+esc(f[0])+'</summary><p>'+esc(f[1])+'</p></details>';}).join('');
+  logAct('إضافة سؤال شائع');$('nf-form').reset();flash('nf-ok','أُضيف السؤال إلى الأسئلة الشائعة.');
+});
+
+/* --- section managers (super admin only) --- */
+function renderMgrs(){
+  $('mg-list').innerHTML=MANAGERS.map(function(m,i){return '<div class="app"><div style="min-width:0"><h4>'+esc(m.name)+' <span class="typebadge'+(m.section==='spiritual'?' g':'')+'">'+SEC_LABEL[m.section]+'</span> '+(m.status==='active'?'<span class="status done">مفعّل</span>':'<span class="status cx" style="text-decoration:none">موقوف</span>')+'</h4><p class="num">'+esc(m.email)+'</p></div><div class="acts"><button class="btn btn-ghost btn-sm" type="button" data-mg="toggle" data-i="'+i+'">'+(m.status==='active'?'إيقاف':'تفعيل')+'</button><button class="btn btn-ghost btn-sm" type="button" data-mg="del" data-i="'+i+'">حذف</button></div></div>';}).join('')||'<p class="empty">لا مدراء أقسام.</p>';
+}
+$('mg-list').addEventListener('click',function(e){
+  var b=e.target.closest('[data-mg]');if(!b||scope())return;var i=+b.getAttribute('data-i'),m=MANAGERS[i];
+  if(b.getAttribute('data-mg')==='toggle'){m.status=m.status==='active'?'suspended':'active';logAct((m.status==='active'?'تفعيل':'إيقاف')+' مدير قسم: '+m.name);}
+  else{MANAGERS.splice(i,1);logAct('حذف مدير قسم: '+m.name);}
+  renderMgrs();
+});
+$('mg-form').addEventListener('submit',function(e){
+  e.preventDefault();if(scope())return;
+  var n=$('mg-name').value.trim(),em=$('mg-email').value.trim(),pw=$('mg-pass').value,ok=true;
+  ok=setErr('mge-name',n?'':'اكتب الاسم')&&ok;
+  ok=setErr('mge-email',/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)?(MANAGERS.some(function(x){return x.email.toLowerCase()===em.toLowerCase();})||em.toLowerCase()===ADMIN.email?'هذا البريد مستخدم':''):'اكتب بريداً صحيحاً')&&ok;
+  ok=setErr('mge-pass',strongPass(pw)?'':'٨ أحرف على الأقل، فيها حروف وأرقام')&&ok;if(!ok)return;
+  var sec=$('mg-sec').value;MANAGERS.push({name:n,email:em,pass:pw,section:sec,status:'active',role:'section'});
+  logAct('إضافة مدير '+SEC_LABEL[sec]+': '+n);$('mg-form').reset();renderMgrs();
+  flash('mg-ok','أُضيف '+n+' مديراً لـ'+SEC_LABEL[sec]+'. يدخل من صفحة دخول الإدارة ببريده وكلمة المرور.');
+});
+
+/* --- admin messages --- */
+function renderAdMsgs(){
+  var pp=people(),cur=$('ms-person').value,sc=scope();
+  pp.prov=pp.prov.filter(function(x){var p=PROVIDERS.filter(function(q){return 'p:'+q.email===x.key;})[0];return p&&inScopeProv(p);});
+  [].forEach.call($('ms-to').options,function(o){var hide=!!sc&&(o.value==='providers'||o.value==='all'||(sc==='medical'&&o.value==='guides')||(sc==='spiritual'&&o.value==='doctors'));o.hidden=hide;o.disabled=hide;});
+  if($('ms-to').selectedOptions[0].disabled)$('ms-to').value='person';
+  $('ms-person').innerHTML='<option value="">اختر المستلم</option><optgroup label="مقدمو الخدمة">'+pp.prov.map(function(p){return '<option value="'+p.key+'">'+esc(p.label)+'</option>';}).join('')+'</optgroup><optgroup label="المرضى">'+pp.pats.map(function(n){return '<option value="u:'+esc(n)+'">'+esc(n)+'</option>';}).join('')+'</optgroup><optgroup label="المرافقون">'+pp.comps.map(function(n){return '<option value="u:'+esc(n)+'">'+esc(n)+' (مرافق)</option>';}).join('')+'</optgroup>';
+  if(cur)$('ms-person').value=cur;
+  $('ms-person-w').hidden=$('ms-to').value!=='person';
+  $('ms-sent').innerHTML=state.messages.map(function(m){var n=Object.keys(m.readBy).length;return '<div class="h"><div style="min-width:0"><b>'+esc(m.sub)+'</b><p>إلى: '+esc(m.to.label)+' · '+ago(m.date)+' · قرأها '+ar(n)+'</p></div></div>';}).join('')||'<p class="empty">لم تُرسل رسائل بعد.</p>';
+}
+$('ms-to').addEventListener('change',function(){$('ms-person-w').hidden=this.value!=='person';});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-admsg]');if(!b)return;switchAdTab('msgs');$('ms-to').value='person';renderAdMsgs();$('ms-person').value=b.getAttribute('data-admsg');$('ms-sub').focus();});
+$('ms-form').addEventListener('submit',function(e){
+  e.preventDefault();var type=$('ms-to').value,sub=$('ms-sub').value.trim(),body=$('ms-body').value.trim(),ok=true,key=$('ms-person').value;
+  if(type==='person')ok=setErr('mse-person',key?'':'اختر المستلم')&&ok;else setErr('mse-person','');
+  ok=setErr('mse-sub',sub?'':'اكتب عنوان الرسالة')&&ok;ok=setErr('mse-body',body?'':'اكتب نص الرسالة')&&ok;if(!ok)return;
+  var label=type==='person'?$('ms-person').selectedOptions[0].textContent:$('ms-to').selectedOptions[0].textContent;
+  sendMsg({type:type,key:type==='person'?key:undefined,label:label},sub,body,adminFrom());logAct('رسالة إلى '+label+': '+sub);
+  $('ms-sub').value='';$('ms-body').value='';flash('ms-ok','أُرسلت الرسالة إلى '+label+'، وتظهر له في صفحته داخل النظام.');renderAdMsgs();
+});
+
+/* --- زاد المريض --- */
+document.querySelector('.zbig').addEventListener('click',function(e){var b=e.target.closest('[data-z]');if(!b)return;var z=b.getAttribute('data-z');
+  this.querySelectorAll('.zb').forEach(function(x){x.classList.toggle('on',x===b);});
+  document.querySelectorAll('[data-zp]').forEach(function(p){p.hidden=p.getAttribute('data-zp')!==z;});});
+var KH={'شهر':['حزبان كل يوم','٣٠ يوماً'],'شهرين':['حزب واحد كل يوم','٦٠ يوماً'],'3 أشهر':['نحو ثلثي حزب كل يوم (ربعان أو ثلاثة أرباع)','٩٠ يوماً']};
+var KH_ADD={'ختمة تلاوة':'','ختمة مع تفسير':' مع تفسير ميسّر للورد','ختمة مع غريب القرآن':' مع بيان غريب ألفاظ الورد'};
+function updKh(){
+  var t=document.querySelector('input[name=kh-t]:checked').value,d=document.querySelector('input[name=kh-d]:checked').value,k=KH[d];
+  $('kh-sum').textContent=t+' خلال '+(d==='3 أشهر'?'٣ أشهر':d);
+  $('kh-det').textContent='يصلك على واتساب '+k[0]+KH_ADD[t]+'، وتتم الختمة بإذن الله خلال '+k[1]+'.';
+  $('kh-go').href=waUrl(waText('أرغب في الاشتراك في '+t+' خلال '+(d==='3 أشهر'?'3 أشهر':d)));
+}
+document.querySelectorAll('input[name=kh-t],input[name=kh-d]').forEach(function(r){r.addEventListener('change',updKh);});
+
+/* =================== WHATSAPP-ONLY MODE =================== */
+/* الموقع للعرض فقط: لا تسجيل ولا حسابات، وكل الطلبات عبر واتساب */
+/* رقم واتساب الخدمة يأتي من config('services.whatsapp.number') عبر وسم meta في الصفحة */
+var WA_NUMBER=(document.querySelector('meta[name="wa-number"]')||{}).content||'';
+function waText(req){return 'السلام عليكم ورحمة الله\n'+req+'\n\nمقدم الطلب: (المريض / المرافق)\nالاسم:\nالمنطقة والمستشفى:';}
+function waUrl(msg){return 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);}
+function waOpen(title,req,raw){
+  var msg=raw?'السلام عليكم ورحمة الله\n'+req:waText(req);
+  openDoc(title,'<p class="muted">اضغط الزر ليفتح واتساب برسالة جاهزة، أكمل بياناتك ثم أرسلها.</p><p class="sample" style="white-space:pre-line">'+esc(msg)+'</p><a class="btn btn-wa" href="'+waUrl(msg)+'" target="_blank" rel="noopener" style="justify-self:start">افتح واتساب وأرسل الطلب</a><p class="small muted">رقم واتساب الخدمة: '+(WA_NUMBER?'<span class="num">+'+WA_NUMBER+'</span>':'يُضاف لاحقاً')+'</p>');
+}
+var X_HANDLE='';      /* معرّف حساب الجمعية في إكس دون @ */
+var TIKTOK_HANDLE=''; /* معرّف حساب الجمعية في تيك توك دون @ */
+function wireSocial(){
+  [['.soc-x',X_HANDLE,'https://x.com/'],['.soc-tt',TIKTOK_HANDLE,'https://www.tiktok.com/@']].forEach(function(c){
+    document.querySelectorAll(c[0]).forEach(function(a){
+      if(c[1]){a.href=c[2]+c[1];var l=a.querySelector('.soc-label');if(l){l.textContent='@'+c[1];l.classList.add('num');}}
+      else{a.removeAttribute('href');}
+    });
+  });
+}
+function wireWa(){wireSocial();document.querySelectorAll('[data-wa]').forEach(function(a){a.href=waUrl(waText(a.getAttribute('data-wa')));});document.querySelectorAll('.wa-num').forEach(function(x){x.textContent=WA_NUMBER?'+'+WA_NUMBER:'يُضاف لاحقاً';});}
+openBooking=function(opts){waOpen(opts.title||'طلب جلسة','أرغب في: '+(opts.title||'حجز جلسة'));};
+var _renderUser=renderUser;
+renderUser=function(){_renderUser();['portal-demo','lock-note'].forEach(function(id){var el=$(id);if(el)el.hidden=true;});};
+var BLOCKED=['register','record','provider','provider-auth','admin','admin-login'];
+window.addEventListener('hashchange',function(){var h=location.hash.slice(1);if(BLOCKED.indexOf(h)>-1)location.replace('#home');},true);
+GATED.length=0;
+function renderTypesDisplay(){
+  $('ssd-types').innerHTML=SS_TYPES.map(function(x){return '<div class="stype" style="cursor:default"><b>'+esc(x.t)+'</b><span class="d">'+esc(x.d)+'</span><a class="btn btn-wa btn-sm" data-wa="أرغب في طلب '+esc(x.t)+'" target="_blank" rel="noopener">اطلب هذه الجلسة</a></div>';}).join('');
+}
+renderTypesDisplay();
+wireWa();
+updKh();
+$('go-types').addEventListener('click',function(){var t=$('ss-types-d');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
+var BOT_NUMBER=''; /* رقم واتساب البوت الفقهي إن كان مختلفاً عن رقم الخدمة */
+$('bot-ask').href='https://wa.me/'+(BOT_NUMBER||WA_NUMBER)+'?text='+encodeURIComponent('سؤال فقهي:\n');
+if(BLOCKED.indexOf(location.hash.slice(1))>-1)location.replace('#home');
+renderUser();
+route();
