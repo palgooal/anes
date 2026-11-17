@@ -7,6 +7,7 @@
 | لوحة المرشد | `guide-dashboard.html` | `src/dashboard.css` | `dist/dashboard.css` |
 | صفحة المستفيد (المريض أو المرافق) | `patient-portal.html` | `src/dashboard.css` | `dist/dashboard.css` |
 | لوحة المستشار الفقهي | `fiqh-dashboard.html` | `src/dashboard.css` | `dist/dashboard.css` |
+| لوحة الإدارة | `admin-dashboard.html` | `src/dashboard.css` | `dist/dashboard.css` |
 
 افتح أي صفحة مباشرة في المتصفح، فملفات التنسيق مبنية وجاهزة.
 الألوان والخطوط والوضع الليلي مشتركة بين كل الصفحات في `src/theme.css`.
@@ -29,7 +30,7 @@
 ## هيكل الملفات
 - `src/theme.css`: الألوان والخطوط ونقاط الشاشات والوضع الليلي، مشتركة بين كل الصفحات.
 - `src/input.css`: تنسيق الموقع العام.
-- `src/dashboard.css`: تنسيق كل اللوحات (المرشد، المستفيد، المستشار الفقهي)، فهي من نفس القالب وتختلف فقط في المتغير `ROLE` داخل الصفحة. لونها الأساسي `--role`، وتستخدمه في الكلاسات `bg-role` و`text-role`.
+- `src/dashboard.css`: تنسيق كل اللوحات (المرشد، المستفيد، المستشار الفقهي، الإدارة)، فهي من نفس القالب وتختلف فقط في المتغير `ROLE` داخل الصفحة. لونها الأساسي `--role`، وتستخدمه في الكلاسات `bg-role` و`text-role`.
   - `@layer base`: تنسيق العناصر العامة والمتغيرات، ومنها الوضع الليلي.
   - `@layer components`: مكوّنات الموقع (`.btn` و`.card` و`.svc`...) مكتوبة بـ `@apply`، لأن JavaScript يولّد هذه الكلاسات.
 - `index.html`: الصفحة، وتستخدم كلاسات Tailwind مباشرة بدل `style="..."`.

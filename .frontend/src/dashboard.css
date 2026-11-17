@@ -1,5 +1,5 @@
 /*
- * Tailwind CSS v4: style source for the dashboard pages (guide, patient, fiqh)
+ * Tailwind CSS v4: style source for the dashboard pages (guide, patient, fiqh, admin)
  * Build:  npm run build   (output: dist/dashboard.css)
  *
  * Shares colours, fonts and dark mode with the public site (src/theme.css).
@@ -14,6 +14,7 @@
 @source "../guide-dashboard.html";
 @source "../patient-portal.html";
 @source "../fiqh-dashboard.html";
+@source "../admin-dashboard.html";
 
 /* ---------- Base ---------- */
 @layer base {
