@@ -22,16 +22,13 @@
         <input class="input" id="name" name="name" value="{{ old('name') }}" autocomplete="name" required @error('name') aria-invalid="true" @enderror>
         <span class="err" role="alert">@error('name'){{ $message }}@enderror</span>
       </label>
-      <div class="grid gap-4 sm:grid-cols-2">
+      <div class="grid gap-4">
         <label class="field" for="email">البريد الإلكتروني
           <input class="input" id="email" name="email" type="email" value="{{ old('email') }}" dir="ltr" autocomplete="email" required @error('email') aria-invalid="true" @enderror>
           <span class="err" role="alert">@error('email'){{ $message }}@enderror</span>
         </label>
-        <label class="field" for="phone">رقم الجوال
-          <input class="input" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr" inputmode="tel" placeholder="05XXXXXXXX" required @error('phone') aria-invalid="true" @enderror>
-          <span class="err" role="alert">@error('phone'){{ $message }}@enderror</span>
-        </label>
       </div>
+      <x-auth.phone-field label="رقم الجوال (يصله رمز الدخول على واتساب)" />
       <label class="field" for="role">الدور
         <select class="input" id="role" name="role" required>
           @foreach ($roles as $role)

@@ -6,6 +6,8 @@ use App\CodePurpose;
 use App\Models\OneTimeCode;
 use App\Models\User;
 use App\Notifications\LoginCodeNotification;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +23,8 @@ trait HandlesOneTimeCodes
 {
     private const PENDING_KEY = 'auth.pending';
 
+    private const SEND_FAILED = 'تعذّر إرسال الرمز على واتساب الآن. حاول بعد قليل، وإن تكرر ذلك تواصل معنا.';
+
     /**
      * Remember who is signing in, send them a code and go to the code screen.
      */
@@ -32,14 +36,51 @@ trait HandlesOneTimeCodes
             'remember' => $remember,
         ]);
 
-        $this->sendCode($user, $purpose);
+        if (! $this->sendCode($user, $purpose)) {
+            $request->session()->forget(self::PENDING_KEY);
+
+            return back()->withInput($request->except('password'))->withErrors(['send' => self::SEND_FAILED]);
+        }
 
         return redirect()->route($verifyRoute);
     }
 
-    protected function sendCode(User $user, CodePurpose $purpose): void
+    /**
+     * Issue and send a code. Returns false (and reports the error) when WhatsApp could not be reached.
+     */
+    protected function sendCode(User $user, CodePurpose $purpose): bool
     {
-        $user->notify(new LoginCodeNotification(OneTimeCode::issueFor($user, $purpose)));
+        try {
+            $user->notify(new LoginCodeNotification(OneTimeCode::issueFor($user, $purpose)));
+        } catch (RequestException|ConnectionException $exception) {
+            report($exception);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Ask for a new code on the code screen, at most once a minute.
+     */
+    protected function resendCode(Request $request, CodePurpose $purpose, string $loginRoute, string $verifyRoute): RedirectResponse
+    {
+        $user = $this->pendingUser($request, $purpose);
+
+        if (! $user) {
+            return redirect()->route($loginRoute);
+        }
+
+        if ($this->codeScreenData($user, $purpose)['resendIn'] > 0) {
+            return redirect()->route($verifyRoute);
+        }
+
+        if (! $this->sendCode($user, $purpose)) {
+            return redirect()->route($verifyRoute)->withErrors(['send' => self::SEND_FAILED]);
+        }
+
+        return redirect()->route($verifyRoute)->with('status', 'أرسلنا رمزاً جديداً.');
     }
 
     /**

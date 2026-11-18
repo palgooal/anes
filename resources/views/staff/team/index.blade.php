@@ -50,7 +50,7 @@
                 <h4 id="m{{ $member->id }}">{{ $member->name }} <span class="pill">{{ $member->role->label() }}</span>@if ($isMe) <span class="pill role">أنت</span>@endif</h4>
                 <span class="pill {{ $statusPill }} no-underline">{{ $statusLabel }}</span>
               </div>
-              <p><span class="num">{{ $member->email }}</span> · <span class="num">{{ $member->phone ?? '—' }}</span> · انضم {{ $member->created_at->locale('ar')->diffForHumans() }}</p>
+              <p><span class="num">{{ $member->email }}</span> · <span class="num">{{ $member->phone ? \App\PhoneNumber::format($member->phone) : '—' }}</span> · انضم {{ $member->created_at->locale('ar')->diffForHumans() }}</p>
               @if ($member->status === \App\AccountStatus::Pending && $member->qualifications)
                 <div class="quote mt-1.5"><b class="mb-1 block text-[.82rem] text-muted">المؤهلات والخبرة</b>{{ $member->qualifications }}</div>
               @endif
@@ -136,10 +136,22 @@
         <input id="email" name="email" type="email" dir="ltr" value="{{ old('email') }}" autocomplete="off" required @error('email') aria-invalid="true" @enderror>
         <span class="err">@error('email'){{ $message }}@enderror</span>
       </label>
-      <label for="phone">رقم الجوال
-        <input id="phone" name="phone" dir="ltr" inputmode="tel" placeholder="05XXXXXXXX" value="{{ old('phone') }}" autocomplete="off" required @error('phone') aria-invalid="true" @enderror>
+      <div class="grid gap-[5px]">
+        <label for="phone" class="text-[.88rem] font-medium">رقم الجوال (يصله رمز الدخول على واتساب)</label>
+        <div class="flex gap-2" dir="ltr">
+          @if (count($countries) > 1)
+            <select name="country" class="w-auto flex-none" aria-label="الدولة">
+              @foreach ($countries as $code)
+                <option value="{{ $code }}" @selected(old('country', $countries[0]) === $code)>{{ \App\PhoneNumber::COUNTRIES[$code]['flag'] }} +{{ $code }}</option>
+              @endforeach
+            </select>
+          @else
+            <input type="hidden" name="country" value="{{ $countries[0] }}">
+          @endif
+          <input id="phone" name="phone" class="min-w-0 flex-1" inputmode="tel" placeholder="05XXXXXXXX" value="{{ old('phone') }}" autocomplete="off" required @error('phone') aria-invalid="true" @enderror>
+        </div>
         <span class="err">@error('phone'){{ $message }}@enderror</span>
-      </label>
+      </div>
       <button class="btn btn-p justify-self-start" type="submit">أضف وأرسل الدعوة</button>
     </form>
   </div>

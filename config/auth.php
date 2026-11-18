@@ -125,6 +125,13 @@ return [
     |
     */
 
+    /*
+    | Countries whose mobile numbers may sign in (calling codes, the first is
+    | the default in the forms). The service runs in Saudi Arabia (966);
+    | add 970,972 to let the team test with Palestinian numbers.
+    */
+    'phone_countries' => explode(',', (string) env('AUTH_PHONE_COUNTRIES', '966')),
+
     'one_time_codes' => [
         'length' => 4,
         'expires_minutes' => 10,

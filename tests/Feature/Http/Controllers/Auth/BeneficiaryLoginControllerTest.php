@@ -7,6 +7,9 @@ use App\Models\OneTimeCode;
 use App\Models\User;
 use App\Notifications\LoginCodeNotification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -21,12 +24,69 @@ class BeneficiaryLoginControllerTest extends TestCase
             ->assertSee('أرسل رمز التحقق عبر واتساب');
     }
 
-    public function test_rejects_phone_that_is_not_a_saudi_mobile(): void
+    public function test_rejects_phone_that_is_not_a_mobile_number(): void
     {
         $this->from(route('login'))
-            ->post(route('login'), ['phone' => '12345'])
+            ->post(route('login'), ['phone' => '12345', 'country' => '966'])
             ->assertRedirect(route('login'))
-            ->assertSessionHasErrors(['phone' => 'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05.']);
+            ->assertSessionHasErrors(['phone' => 'رقم الجوال غير صحيح. اكتبه هكذا 05XXXXXXXX، وتأكد من اختيار الدولة.']);
+    }
+
+    public function test_rejects_country_that_is_not_enabled(): void
+    {
+        config(['auth.phone_countries' => ['966']]);
+        User::factory()->patient()->create(['phone' => '970599123456']);
+
+        $this->post(route('login'), ['phone' => '0599123456', 'country' => '970'])
+            ->assertViewIs('auth.beneficiary.unknown');
+        $this->post(route('login'), ['phone' => '+970599123456'])
+            ->assertSessionHasErrors('phone');
+    }
+
+    public function test_palestinian_number_signs_in_when_the_country_is_enabled(): void
+    {
+        config(['auth.phone_countries' => ['966', '970', '972']]);
+        Notification::fake();
+        $developer = User::factory()->patient()->create(['phone' => '970599123456']);
+
+        $this->post(route('login'), ['phone' => '0599123456', 'country' => '970'])
+            ->assertRedirect(route('login.verify'));
+        $this->get(route('login.verify'))->assertSee('+970 59 912 3456');
+
+        $this->post(route('login.verify'), ['code' => $this->sentCode($developer)])
+            ->assertRedirect(route('portal'));
+        $this->assertAuthenticatedAs($developer);
+    }
+
+    public function test_same_national_number_in_another_country_is_a_different_account(): void
+    {
+        config(['auth.phone_countries' => ['966', '970']]);
+        Notification::fake();
+        $saudi = User::factory()->patient()->create(['phone' => '966599123456']);
+
+        $this->post(route('login'), ['phone' => '0599123456', 'country' => '970'])
+            ->assertViewIs('auth.beneficiary.unknown');
+        $this->post(route('login'), ['phone' => '0599123456', 'country' => '966'])
+            ->assertRedirect(route('login.verify'));
+
+        Notification::assertSentTo($saudi, LoginCodeNotification::class);
+    }
+
+    public function test_whatsapp_failure_shows_a_message_instead_of_an_error_page(): void
+    {
+        config(['services.whatsapp.driver' => 'meta', 'services.whatsapp.phone_number_id' => '1122334455', 'services.whatsapp.api_version' => 'v23.0']);
+        Http::preventStrayRequests();
+        Http::fake(['graph.facebook.com/v23.0/1122334455/messages' => Http::response(['error' => ['message' => 'Template not found']], 400)]);
+        Exceptions::fake();
+        $patient = User::factory()->patient()->create();
+
+        $this->from(route('login'))
+            ->post(route('login'), ['phone' => '+'.$patient->phone])
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors(['send' => 'تعذّر إرسال الرمز على واتساب الآن. حاول بعد قليل، وإن تكرر ذلك تواصل معنا.']);
+
+        Exceptions::assertReported(RequestException::class);
+        $this->get(route('login.verify'))->assertRedirect(route('login'));
     }
 
     public function test_unregistered_number_shows_whatsapp_registration_without_sending_a_code(): void
@@ -64,14 +124,14 @@ class BeneficiaryLoginControllerTest extends TestCase
     public function test_registered_number_receives_code_and_goes_to_code_screen(): void
     {
         Notification::fake();
-        $patient = User::factory()->patient()->create(['phone' => '0551234567']);
+        $patient = User::factory()->patient()->create(['phone' => '966551234567']);
 
         // Arabic-Indic digits and an international prefix are normalised.
         $this->post(route('login'), ['phone' => '+966 ٥٥١٢٣٤٥٦٧'])
             ->assertRedirect(route('login.verify'));
 
         Notification::assertSentTo($patient, LoginCodeNotification::class, fn (LoginCodeNotification $n) => strlen($n->code) === 4);
-        $this->get(route('login.verify'))->assertOk()->assertSee('0551234567');
+        $this->get(route('login.verify'))->assertOk()->assertSee('+966 55 123 4567');
     }
 
     public function test_correct_code_signs_patient_in_and_opens_portal(): void

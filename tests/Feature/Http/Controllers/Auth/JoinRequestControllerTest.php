@@ -56,7 +56,7 @@ class JoinRequestControllerTest extends TestCase
         $applicant = User::firstWhere('email', 'new.guide@example.com');
         $this->assertSame(AccountStatus::Pending, $applicant->status);
         $this->assertSame(UserRole::Fiqh, $applicant->role);
-        $this->assertSame('0566666666', $applicant->phone);
+        $this->assertSame('966566666666', $applicant->phone);
         $this->assertNull($applicant->password);
     }
 

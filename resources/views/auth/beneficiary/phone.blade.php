@@ -6,11 +6,7 @@
       <h1 class="text-[1.75rem] font-bold sm:text-[2rem]">أهلاً بك</h1>
       <p class="text-muted">للمريض والمرافق: ادخل برقم جوالك المسجّل لدى الخدمة، دون كلمة مرور.</p>
     </div>
-    <label class="field" for="phone">
-      رقم الجوال
-      <input class="input text-[1.25rem] tracking-wider" id="phone" name="phone" value="{{ old('phone') }}" dir="ltr" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" maxlength="16" autofocus required @error('phone') aria-invalid="true" @enderror>
-      <span class="err" role="alert">@error('phone'){{ $message }}@enderror</span>
-    </label>
+    <x-auth.phone-field autofocus large />
     <button class="btn btn-primary w-full" type="submit">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6z"/></svg>
       أرسل رمز التحقق عبر واتساب

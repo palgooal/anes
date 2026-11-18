@@ -29,7 +29,11 @@ class WhatsAppChannel
         $config = config('services.whatsapp');
 
         if ($config['driver'] !== 'meta') {
-            Log::info('WhatsApp login code (log driver, not sent)', ['to' => $to, 'code' => $notification->code]);
+            // The plain code is only written to the log outside production.
+            Log::info('WhatsApp login code (log driver, not sent)', [
+                'to' => $to,
+                'code' => app()->isProduction() ? '****' : $notification->code,
+            ]);
 
             return;
         }

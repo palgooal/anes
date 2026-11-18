@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Models\User;
+use App\PhoneNumber;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -13,7 +13,9 @@ class PhoneLoginRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->merge(['phone' => User::normalizePhone($this->input('phone'))]);
+        $this->merge([
+            'phone' => PhoneNumber::normalize($this->input('phone'), $this->input('country')) ?? $this->input('phone'),
+        ]);
     }
 
     /**
@@ -24,7 +26,7 @@ class PhoneLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => ['required', 'regex:/^05\d{8}$/'],
+            'phone' => ['required', 'regex:'.PhoneNumber::validationPattern()],
         ];
     }
 
@@ -35,7 +37,7 @@ class PhoneLoginRequest extends FormRequest
     {
         return [
             'phone.required' => 'اكتب رقم جوالك.',
-            'phone.regex' => 'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05.',
+            'phone.regex' => 'رقم الجوال غير صحيح. اكتبه هكذا 05XXXXXXXX، وتأكد من اختيار الدولة.',
         ];
     }
 }

@@ -73,16 +73,6 @@ class BeneficiaryLoginController extends Controller
 
     public function resend(Request $request): RedirectResponse
     {
-        $user = $this->pendingUser($request, CodePurpose::Login);
-
-        if (! $user) {
-            return redirect()->route('login');
-        }
-
-        if ($this->codeScreenData($user, CodePurpose::Login)['resendIn'] === 0) {
-            $this->sendCode($user, CodePurpose::Login);
-        }
-
-        return redirect()->route('login.verify')->with('status', 'أرسلنا رمزاً جديداً.');
+        return $this->resendCode($request, CodePurpose::Login, 'login', 'login.verify');
     }
 }

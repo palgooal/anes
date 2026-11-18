@@ -20,12 +20,23 @@ class WhatsAppChannelTest extends TestCase
         Http::preventStrayRequests();
         Log::spy();
         config(['services.whatsapp.driver' => 'log']);
-        $patient = User::factory()->patient()->create(['phone' => '0551234567']);
+        $patient = User::factory()->patient()->create(['phone' => '966551234567']);
 
         $patient->notify(new LoginCodeNotification('4821'));
 
         Log::shouldHaveReceived('info')->withArgs(fn (string $message, array $context) => $context === ['to' => '966551234567', 'code' => '4821']);
         Http::assertNothingSent();
+    }
+
+    public function test_log_driver_never_writes_the_code_in_production(): void
+    {
+        Log::spy();
+        config(['services.whatsapp.driver' => 'log']);
+        $this->app->detectEnvironment(fn () => 'production');
+
+        User::factory()->patient()->create(['phone' => '970599123456'])->notify(new LoginCodeNotification('4821'));
+
+        Log::shouldHaveReceived('info')->withArgs(fn (string $message, array $context) => $context === ['to' => '970599123456', 'code' => '****']);
     }
 
     public function test_meta_driver_sends_authentication_template_to_the_international_number(): void
@@ -41,7 +52,7 @@ class WhatsAppChannelTest extends TestCase
         ]]);
         Http::preventStrayRequests();
         Http::fake(['graph.facebook.com/v23.0/1122334455/messages' => Http::response(['messages' => [['id' => 'wamid.1']]])]);
-        $patient = User::factory()->patient()->create(['phone' => '0551234567']);
+        $patient = User::factory()->patient()->create(['phone' => '966551234567']);
 
         $patient->notify(new LoginCodeNotification('4821'));
 

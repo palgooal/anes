@@ -54,7 +54,7 @@ class TeamControllerTest extends TestCase
     public function test_searches_by_name_email_or_phone(): void
     {
         $admin = User::factory()->admin()->create();
-        User::factory()->create(['name' => 'سالم الحربي', 'email' => 'salem@example.com', 'phone' => '0551112233']);
+        User::factory()->create(['name' => 'سالم الحربي', 'email' => 'salem@example.com', 'phone' => '966551112233']);
         User::factory()->create(['name' => 'خالد العتيبي']);
 
         $this->actingAs($admin)->get(route('staff.team', ['q' => 'الحربي']))

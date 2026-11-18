@@ -42,9 +42,11 @@
         </div>
       @endif
 
-      @error('throttle')
-        <div class="alert alert-err mb-6" role="alert">{{ $message }}</div>
-      @enderror
+      @foreach (['throttle', 'send'] as $key)
+        @error($key)
+          <div class="alert alert-err mb-6" role="alert">{{ $message }}</div>
+        @enderror
+      @endforeach
 
       <div class="step">
         {{ $slot }}

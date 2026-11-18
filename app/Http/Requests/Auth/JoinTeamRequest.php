@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Models\User;
+use App\PhoneNumber;
 use App\UserRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,7 +15,9 @@ class JoinTeamRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->merge(['phone' => User::normalizePhone($this->input('phone'))]);
+        $this->merge([
+            'phone' => PhoneNumber::normalize($this->input('phone'), $this->input('country')) ?? $this->input('phone'),
+        ]);
     }
 
     /**
@@ -28,7 +30,7 @@ class JoinTeamRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'min:3', 'max:120'],
             'email' => ['required', 'string', 'email', 'max:190', Rule::unique('users', 'email')],
-            'phone' => ['required', 'regex:/^05\d{8}$/', Rule::unique('users', 'phone')],
+            'phone' => ['required', 'regex:'.PhoneNumber::validationPattern(), Rule::unique('users', 'phone')],
             'role' => ['required', Rule::enum(UserRole::class)->only(UserRole::joinable())],
             'qualifications' => ['required', 'string', 'min:10', 'max:3000'],
         ];
@@ -46,7 +48,7 @@ class JoinTeamRequest extends FormRequest
             'email.email' => 'اكتب بريداً إلكترونياً صحيحاً.',
             'email.unique' => 'هذا البريد مسجّل لدينا. جرّب تسجيل الدخول أو استعادة كلمة المرور.',
             'phone.required' => 'اكتب رقم جوالك.',
-            'phone.regex' => 'اكتب رقم جوال من ١٠ أرقام يبدأ بـ 05.',
+            'phone.regex' => 'رقم الجوال غير صحيح. اكتبه هكذا 05XXXXXXXX، وتأكد من اختيار الدولة.',
             'phone.unique' => 'هذا الرقم مسجّل لدينا.',
             'role.required' => 'اختر الدور.',
             'role.enum' => 'اختر دوراً من القائمة.',

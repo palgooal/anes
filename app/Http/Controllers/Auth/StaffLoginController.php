@@ -92,17 +92,7 @@ class StaffLoginController extends Controller
 
     public function resend(Request $request): RedirectResponse
     {
-        $user = $this->pendingUser($request, CodePurpose::TwoFactor);
-
-        if (! $user) {
-            return redirect()->route('staff.login');
-        }
-
-        if ($this->codeScreenData($user, CodePurpose::TwoFactor)['resendIn'] === 0) {
-            $this->sendCode($user, CodePurpose::TwoFactor);
-        }
-
-        return redirect()->route('staff.verify')->with('status', 'أرسلنا رمزاً جديداً.');
+        return $this->resendCode($request, CodePurpose::TwoFactor, 'staff.login', 'staff.verify');
     }
 
     /**

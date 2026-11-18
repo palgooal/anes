@@ -11,6 +11,7 @@
 
 @source "../views/auth";
 @source "../views/components/auth-layout.blade.php";
+@source "../views/components/auth";
 @source "../js/auth.js";
 
 @layer base {

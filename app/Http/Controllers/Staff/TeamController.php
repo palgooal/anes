@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\StoreTeamMemberRequest;
 use App\Models\User;
 use App\Notifications\TeamInvitationNotification;
+use App\PhoneNumber;
 use App\UserRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class TeamController extends Controller
     {
         $status = AccountStatus::tryFrom($request->string('status')->toString());
         $search = trim($request->string('q')->toString());
-        $searchDigits = User::normalizePhone($search);
+        $searchDigits = ltrim(PhoneNumber::digits($search), '0');
 
         $members = User::staff()
             ->when($status, fn ($query) => $query->where('status', $status))
@@ -49,6 +50,7 @@ class TeamController extends Controller
             'status' => $status,
             'search' => $search,
             'roles' => array_values(array_filter(UserRole::cases(), fn (UserRole $role) => $role->isStaff())),
+            'countries' => PhoneNumber::allowedCountries(),
         ]);
     }
 

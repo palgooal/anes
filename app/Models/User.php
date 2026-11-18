@@ -83,35 +83,10 @@ class User extends Authenticatable
     }
 
     /**
-     * Phone number in international format for the WhatsApp channel (9665XXXXXXXX).
+     * The WhatsApp channel sends to the stored international number (9665XXXXXXXX).
      */
     public function routeNotificationForWhatsApp(): ?string
     {
-        return $this->phone ? '966'.substr($this->phone, 1) : null;
-    }
-
-    /**
-     * Normalise a Saudi mobile number to the stored local format (05XXXXXXXX).
-     * Accepts Arabic-Indic digits, spaces, dashes and +966 / 00966 / 966 prefixes.
-     */
-    public static function normalizePhone(?string $phone): string
-    {
-        $digits = strtr((string) $phone, [
-            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
-            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
-        ]);
-        $digits = preg_replace('/\D/', '', $digits) ?? '';
-
-        if (str_starts_with($digits, '00966')) {
-            $digits = substr($digits, 5);
-        } elseif (str_starts_with($digits, '966')) {
-            $digits = substr($digits, 3);
-        }
-
-        if (str_starts_with($digits, '5') && strlen($digits) === 9) {
-            $digits = '0'.$digits;
-        }
-
-        return $digits;
+        return $this->phone;
     }
 }
