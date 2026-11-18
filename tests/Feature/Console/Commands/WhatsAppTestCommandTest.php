@@ -19,7 +19,8 @@ class WhatsAppTestCommandTest extends TestCase
         $this->artisan('whatsapp:test', ['phone' => '0599123456', '--country' => '970'])->assertSuccessful();
 
         Notification::assertSentTo(new AnonymousNotifiable, LoginCodeNotification::class,
-            fn (LoginCodeNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['whatsapp'] === '970599123456');
+            fn (LoginCodeNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['whatsapp'] === '970599123456'
+                && preg_match('/^\d{6}$/', $notification->code) === 1);
     }
 
     public function test_rejects_an_invalid_number(): void

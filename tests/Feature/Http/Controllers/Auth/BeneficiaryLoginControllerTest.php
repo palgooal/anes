@@ -130,7 +130,7 @@ class BeneficiaryLoginControllerTest extends TestCase
         $this->post(route('login'), ['phone' => '+966 ٥٥١٢٣٤٥٦٧'])
             ->assertRedirect(route('login.verify'));
 
-        Notification::assertSentTo($patient, LoginCodeNotification::class, fn (LoginCodeNotification $n) => strlen($n->code) === 4);
+        Notification::assertSentTo($patient, LoginCodeNotification::class, fn (LoginCodeNotification $n) => preg_match('/^\d{6}$/', $n->code) === 1);
         $this->get(route('login.verify'))->assertOk()->assertSee('+966 55 123 4567');
     }
 
@@ -199,7 +199,8 @@ class BeneficiaryLoginControllerTest extends TestCase
         $this->post(route('login'), ['phone' => $patient->phone]);
         $code = $this->sentCode($patient);
 
-        $this->travel(11)->minutes();
+        $this->travel(5)->minutes();
+        $this->travel(1)->seconds();
 
         $this->post(route('login.verify'), ['code' => $code])
             ->assertSessionHasErrors(['code' => 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.']);
@@ -209,7 +210,7 @@ class BeneficiaryLoginControllerTest extends TestCase
     public function test_code_screen_without_a_pending_login_returns_to_phone_form(): void
     {
         $this->get(route('login.verify'))->assertRedirect(route('login'));
-        $this->post(route('login.verify'), ['code' => '1234'])->assertRedirect(route('login'));
+        $this->post(route('login.verify'), ['code' => '123456'])->assertRedirect(route('login'));
     }
 
     public function test_resend_waits_a_minute_before_sending_a_new_code(): void
@@ -240,6 +241,77 @@ class BeneficiaryLoginControllerTest extends TestCase
         $this->post(route('login.verify'), ['code' => $this->sentCode($patient)])->assertRedirect(route('portal'));
     }
 
+    public function test_code_is_still_accepted_just_before_five_minutes(): void
+    {
+        Notification::fake();
+        $patient = User::factory()->patient()->create();
+        $this->post(route('login'), ['phone' => $patient->phone]);
+        $code = $this->sentCode($patient);
+
+        $this->travel(4)->minutes();
+        $this->travel(59)->seconds();
+
+        $this->post(route('login.verify'), ['code' => $code])->assertRedirect(route('portal'));
+        $this->assertAuthenticatedAs($patient);
+    }
+
+    public function test_code_that_is_not_six_digits_is_rejected(): void
+    {
+        Notification::fake();
+        $patient = User::factory()->patient()->create();
+        $this->post(route('login'), ['phone' => $patient->phone]);
+        $code = $this->sentCode($patient);
+
+        foreach ([substr($code, 0, 4), substr($code, 0, 5), $code.'0', 'abcdef'] as $invalid) {
+            $this->from(route('login.verify'))
+                ->post(route('login.verify'), ['code' => $invalid])
+                ->assertSessionHasErrors(['code' => 'اكتب الرمز كاملاً.']);
+        }
+
+        $this->assertGuest();
+    }
+
+    public function test_issued_codes_are_six_digits_keep_leading_zeros_and_expire_in_five_minutes(): void
+    {
+        $patient = User::factory()->patient()->create();
+        $codes = [];
+
+        for ($i = 0; $i < 300; $i++) {
+            $codes[] = OneTimeCode::issueFor($patient, CodePurpose::Login);
+        }
+
+        foreach ($codes as $code) {
+            $this->assertMatchesRegularExpression('/^\d{6}$/', $code);
+        }
+        $this->assertNotEmpty(array_filter($codes, fn (string $code) => str_starts_with($code, '0')));
+
+        $latest = OneTimeCode::latestFor($patient, CodePurpose::Login);
+        $this->assertTrue($latest->matches(end($codes)));
+        $this->assertEqualsWithDelta(now()->addMinutes(5)->timestamp, $latest->expires_at->timestamp, 2);
+    }
+
+    public function test_code_starting_with_zero_is_accepted(): void
+    {
+        $patient = User::factory()->patient()->create();
+        OneTimeCode::factory()->for($patient)->create(['code' => '012345']);
+
+        $this->withSession(['auth.pending' => ['user_id' => $patient->id, 'purpose' => CodePurpose::Login->value, 'remember' => true]])
+            ->post(route('login.verify'), ['code' => str_split('012345')])
+            ->assertRedirect(route('portal'));
+        $this->assertAuthenticatedAs($patient);
+    }
+
+    public function test_verify_screen_shows_six_code_boxes(): void
+    {
+        Notification::fake();
+        $patient = User::factory()->patient()->create();
+        $this->post(route('login'), ['phone' => $patient->phone]);
+
+        $html = $this->get(route('login.verify'))->assertOk()->getContent();
+
+        $this->assertSame(6, substr_count($html, 'name="code[]"'));
+    }
+
     public function test_signed_in_user_is_sent_away_from_login(): void
     {
         $this->actingAs(User::factory()->patient()->create())
@@ -254,6 +326,6 @@ class BeneficiaryLoginControllerTest extends TestCase
 
     private function wrongCode(User $user): string
     {
-        return $this->sentCode($user) === '0000' ? '1111' : '0000';
+        return $this->sentCode($user) === '000000' ? '111111' : '000000';
     }
 }

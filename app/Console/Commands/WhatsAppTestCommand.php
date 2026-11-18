@@ -37,7 +37,8 @@ class WhatsAppTestCommand extends Command
             return self::FAILURE;
         }
 
-        $code = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+        $length = (int) config('auth.one_time_codes.length');
+        $code = str_pad((string) random_int(0, 10 ** $length - 1), $length, '0', STR_PAD_LEFT);
 
         try {
             Notification::route('whatsapp', $phone)->notify(new LoginCodeNotification($code));

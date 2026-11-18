@@ -133,8 +133,8 @@ return [
     'phone_countries' => explode(',', (string) env('AUTH_PHONE_COUNTRIES', '966')),
 
     'one_time_codes' => [
-        'length' => 4,
-        'expires_minutes' => 10,
+        'length' => 6,
+        'expires_minutes' => 5,
         'resend_after_seconds' => 60,
         'max_attempts' => 5,
         'lockout_seconds' => 900,

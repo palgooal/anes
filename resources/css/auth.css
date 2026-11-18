@@ -45,9 +45,10 @@
   .link { @apply cursor-pointer font-medium text-role underline-offset-4 hover:underline; }
 
   /* OTP boxes */
-  .otp { @apply flex justify-center gap-3; direction: ltr; }
+  /* Boxes shrink to share the row on narrow phones (6 boxes fit at 360px) and keep their size on wider screens. */
+  .otp { @apply flex justify-center gap-2 sm:gap-3; direction: ltr; }
   .otp input {
-    @apply size-14 rounded-2xl border-[1.5px] border-line bg-surface text-center font-display text-2xl font-bold text-ink caret-role transition-colors sm:size-16;
+    @apply aspect-square h-auto w-0 max-w-14 min-w-0 flex-1 rounded-2xl border-[1.5px] border-line bg-surface p-0 text-center font-display text-2xl font-bold text-ink caret-role transition-colors sm:max-w-16;
   }
   .otp input:focus { @apply border-role bg-bg outline-none; }
   .otp[data-state="error"] input { @apply border-danger; animation: shake .35s; }

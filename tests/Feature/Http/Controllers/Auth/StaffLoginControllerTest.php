@@ -88,7 +88,7 @@ class StaffLoginControllerTest extends TestCase
         Notification::fake();
         $guide = User::factory()->create();
         $this->post(route('staff.login'), ['email' => $guide->email, 'password' => 'password']);
-        $wrong = $this->sentCode($guide) === '0000' ? '1111' : '0000';
+        $wrong = $this->sentCode($guide) === '000000' ? '111111' : '000000';
 
         $this->post(route('staff.verify'), ['code' => $wrong])
             ->assertSessionHasErrors(['code' => 'الرمز غير صحيح. بقي لك ٤ محاولات.']);

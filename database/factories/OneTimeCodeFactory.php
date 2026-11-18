@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class OneTimeCodeFactory extends Factory
 {
     /**
-     * Define the model's default state. The plain code is "1234".
+     * Define the model's default state. The plain code is "123456".
      *
      * @return array<string, mixed>
      */
@@ -22,8 +22,8 @@ class OneTimeCodeFactory extends Factory
         return [
             'user_id' => User::factory()->patient(),
             'purpose' => CodePurpose::Login,
-            'code' => '1234',
-            'expires_at' => now()->addMinutes(10),
+            'code' => '123456',
+            'expires_at' => now()->addMinutes(5),
         ];
     }
 
