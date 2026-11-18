@@ -1,4 +1,4 @@
-<x-auth-layout title="دخول المستفيد">
+<x-auth-layout title="دخول المستفيد" document-title="دخول المستفيد | أنيس">
   <form method="POST" action="{{ route('login') }}" class="grid gap-6" novalidate data-busy>
     @csrf
     <div class="grid gap-2">
