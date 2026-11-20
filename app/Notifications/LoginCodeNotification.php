@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Notifications\Channels\WhatsAppChannel;
+use App\WhatsAppMessagePurpose;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -12,7 +13,14 @@ use Illuminate\Notifications\Notification;
  */
 class LoginCodeNotification extends Notification
 {
-    public function __construct(public string $code) {}
+    /**
+     * @param  ?int  $oneTimeCodeId  The stored code, for the message log (never the code itself).
+     */
+    public function __construct(
+        public string $code,
+        public ?int $oneTimeCodeId = null,
+        public WhatsAppMessagePurpose $purpose = WhatsAppMessagePurpose::Login,
+    ) {}
 
     /**
      * Get the notification's delivery channels.

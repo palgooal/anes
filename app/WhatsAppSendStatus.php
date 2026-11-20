@@ -4,6 +4,7 @@ namespace App;
 
 use App\Services\WhatsApp\WhatsAppUnavailableException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Throwable;
 
 /**
@@ -33,8 +34,16 @@ enum WhatsAppSendStatus: string
     {
         return match (true) {
             $exception instanceof WhatsAppUnavailableException => self::Blocked,
-            $exception instanceof RequestException => $exception->response->serverError() ? self::Uncertain : self::Rejected,
+            $exception instanceof RequestException => self::fromFailedResponse($exception->response),
             default => self::Uncertain,
         };
+    }
+
+    /**
+     * Classify an error answer from Meta: 5xx is uncertain, anything else is a refusal.
+     */
+    public static function fromFailedResponse(Response $response): self
+    {
+        return $response->serverError() ? self::Uncertain : self::Rejected;
     }
 }

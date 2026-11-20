@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Notifications\LoginCodeNotification;
 use App\PhoneNumber;
 use App\Services\WhatsApp\WhatsAppSettings;
+use App\WhatsAppMessagePurpose;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -48,7 +49,7 @@ class WhatsAppTestCommand extends Command
         $code = str_pad((string) random_int(0, 10 ** $length - 1), $length, '0', STR_PAD_LEFT);
 
         try {
-            Notification::route('whatsapp', $phone)->notify(new LoginCodeNotification($code));
+            Notification::route('whatsapp', $phone)->notify(new LoginCodeNotification($code, purpose: WhatsAppMessagePurpose::AdminTest));
         } catch (RequestException $exception) {
             $this->error('رفضت Meta الرسالة: '.($exception->response->json('error.message') ?? $exception->getMessage()));
 

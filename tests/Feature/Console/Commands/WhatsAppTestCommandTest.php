@@ -3,6 +3,7 @@
 namespace Tests\Feature\Console\Commands;
 
 use App\Notifications\LoginCodeNotification;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Http;
@@ -11,6 +12,8 @@ use Tests\TestCase;
 
 class WhatsAppTestCommandTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
     public function test_sends_a_code_to_the_given_number(): void
     {
         config(['auth.phone_countries' => ['966', '970']]);
