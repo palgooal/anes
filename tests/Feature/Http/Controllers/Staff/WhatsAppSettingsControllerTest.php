@@ -82,6 +82,10 @@ class WhatsAppSettingsControllerTest extends TestCase
             'environment' => ['put', 'staff.whatsapp.environment', ['environment' => 'production']],
             'secrets' => ['put', 'staff.whatsapp.secrets', ['environment' => 'production']],
             'webhook token' => ['put', 'staff.whatsapp.webhook-token', []],
+            'connection test' => ['post', 'staff.whatsapp.connection-test', ['environment' => 'production']],
+            'send test review' => ['post', 'staff.whatsapp.send-test.review', ['environment' => 'production']],
+            'send test' => ['post', 'staff.whatsapp.send-test', ['environment' => 'production']],
+            'send test verify' => ['post', 'staff.whatsapp.send-test.verify', []],
         ];
     }
 
@@ -109,7 +113,7 @@ class WhatsAppSettingsControllerTest extends TestCase
         foreach ($users as $user) {
             $this->actingAs($user)
                 ->withSession(['auth.password_confirmed_at' => time()])
-                ->{$method}(route($route, $parameters), ['confirm' => '1', 'access_token' => self::NEW_TOKEN])
+                ->{$method}(route($route, $parameters), ['confirm' => '1', 'access_token' => self::NEW_TOKEN, 'phone' => '+966551234567', 'code' => '123456'])
                 ->assertForbidden();
         }
 
@@ -132,7 +136,7 @@ class WhatsAppSettingsControllerTest extends TestCase
 
     public function test_manage_whatsapp_is_separate_from_manage_team(): void
     {
-        foreach (['staff.whatsapp', 'staff.whatsapp.take-over', 'staff.whatsapp.general', 'staff.whatsapp.environment', 'staff.whatsapp.secrets', 'staff.whatsapp.webhook-token'] as $name) {
+        foreach (['staff.whatsapp', 'staff.whatsapp.take-over', 'staff.whatsapp.general', 'staff.whatsapp.environment', 'staff.whatsapp.secrets', 'staff.whatsapp.webhook-token', 'staff.whatsapp.connection-test', 'staff.whatsapp.send-test.review', 'staff.whatsapp.send-test', 'staff.whatsapp.send-test.verify'] as $name) {
             $middleware = Route::getRoutes()->getByName($name)->gatherMiddleware();
 
             $this->assertContains('can:manage-whatsapp', $middleware, $name);

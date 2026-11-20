@@ -2,12 +2,14 @@
 
 namespace App\Services\WhatsApp;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use SensitiveParameter;
 use Throwable;
 
 /**
- * Calls to Meta's Graph API used by the settings panel.
+ * Read-only calls to Meta's Graph API used by the settings panel. None of them
+ * sends a message (AC-WA-21).
  *
  * Errors are rethrown as MetaGraphException with a fixed, secret-free message:
  * HTTP client errors can echo the request URL, and debug_token carries the
@@ -15,6 +17,12 @@ use Throwable;
  */
 class MetaGraphClient
 {
+    /** Phone number fields read by the connection test (PND-WA-04). */
+    public const PHONE_NUMBER_FIELDS = 'display_phone_number,verified_name,quality_rating,code_verification_status';
+
+    /** Template fields read by the connection test (PND-WA-04). */
+    public const TEMPLATE_FIELDS = 'name,language,status,category';
+
     /**
      * Inspect an access token with debug_token (REQ-WA-20). The token inspects itself.
      *
@@ -40,5 +48,81 @@ class MetaGraphClient
         }
 
         return TokenInspection::fromDebugToken($data);
+    }
+
+    /**
+     * The phone number registered under a Phone Number ID (REQ-WA-35).
+     *
+     * @return array{display_phone_number: ?string, verified_name: ?string, quality_rating: ?string, code_verification_status: ?string}
+     *
+     * @throws MetaGraphException
+     */
+    public function phoneNumber(string $apiVersion, #[SensitiveParameter] string $token, string $phoneNumberId): array
+    {
+        $data = $this->get($apiVersion, $token, $phoneNumberId, ['fields' => self::PHONE_NUMBER_FIELDS])->json();
+
+        return [
+            'display_phone_number' => $this->text($data['display_phone_number'] ?? null),
+            'verified_name' => $this->text($data['verified_name'] ?? null),
+            'quality_rating' => $this->text($data['quality_rating'] ?? null),
+            'code_verification_status' => $this->text($data['code_verification_status'] ?? null),
+        ];
+    }
+
+    /**
+     * Every language version of a template in a WhatsApp Business Account (REQ-WA-35).
+     *
+     * @return list<array{name: ?string, language: ?string, status: ?string, category: ?string}>
+     *
+     * @throws MetaGraphException
+     */
+    public function templates(string $apiVersion, #[SensitiveParameter] string $token, string $wabaId, string $name): array
+    {
+        $data = $this->get($apiVersion, $token, "{$wabaId}/message_templates", ['name' => $name, 'fields' => self::TEMPLATE_FIELDS])->json('data');
+
+        return collect(is_array($data) ? $data : [])
+            ->filter(fn ($template) => is_array($template))
+            ->map(fn (array $template) => [
+                'name' => $this->text($template['name'] ?? null),
+                'language' => $this->text($template['language'] ?? null),
+                'status' => $this->text($template['status'] ?? null),
+                'category' => $this->text($template['category'] ?? null),
+            ])
+            // Meta matches names loosely: keep the exact name only.
+            ->filter(fn (array $template) => $template['name'] === $name)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, string>  $query
+     *
+     * @throws MetaGraphException
+     */
+    private function get(string $apiVersion, #[SensitiveParameter] string $token, string $path, array $query): Response
+    {
+        try {
+            $response = Http::baseUrl("https://graph.facebook.com/{$apiVersion}")
+                ->withToken($token)
+                ->acceptJson()
+                ->connectTimeout(3)
+                ->timeout(10)
+                ->get($path, $query);
+        } catch (Throwable) {
+            throw new MetaGraphException('Meta could not be reached.');
+        }
+
+        if ($response->failed()) {
+            $code = $response->json('error.code');
+
+            throw new MetaGraphException('Meta refused the request (HTTP '.$response->status().(is_scalar($code) ? ', error '.(int) $code : '').').');
+        }
+
+        return $response;
+    }
+
+    private function text(mixed $value): ?string
+    {
+        return is_scalar($value) && (string) $value !== '' ? mb_substr((string) $value, 0, 120) : null;
     }
 }

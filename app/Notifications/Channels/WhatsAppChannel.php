@@ -3,11 +3,12 @@
 namespace App\Notifications\Channels;
 
 use App\Models\User;
-use App\Notifications\LoginCodeNotification;
+use App\Notifications\WhatsAppCodeNotification;
 use App\Services\WhatsApp\MessageLogger;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppSettings;
 use App\Services\WhatsApp\WhatsAppUnavailableException;
+use App\WhatsAppMessagePurpose;
 use App\WhatsAppSendStatus;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -21,7 +22,9 @@ use Throwable;
  * The "log" driver writes the message to the application log instead, so the
  * login screens work locally before the number is connected in Meta.
  *
- * Which settings apply is decided by WhatsAppSettings (database or .env).
+ * Which settings apply is decided by WhatsAppSettings (database or .env), except
+ * for an administrator's test, which carries the settings of the environment the
+ * administrator chose (REQ-WA-12).
  * Every attempt that reaches Meta, or is blocked, is recorded by MessageLogger;
  * the "log" driver sends nothing and records nothing.
  */
@@ -33,7 +36,7 @@ class WhatsAppChannel
      * @throws RequestException when Meta rejects the message.
      * @throws WhatsAppUnavailableException when sending is disabled or the settings are incomplete.
      */
-    public function send(object $notifiable, LoginCodeNotification $notification): void
+    public function send(object $notifiable, WhatsAppCodeNotification $notification): void
     {
         $to = $notifiable->routeNotificationFor('whatsapp', $notification);
 
@@ -41,7 +44,7 @@ class WhatsAppChannel
             return;
         }
 
-        $config = $this->settings->current();
+        $config = $notification->config() ?? $this->settings->current();
 
         $log = fn (WhatsAppSendStatus $status, ?Response $response = null, ?Throwable $exception = null, ?int $durationMs = null) => $this->logger->record(
             config: $config,
@@ -62,10 +65,13 @@ class WhatsAppChannel
         }
 
         if ($config->writesToLog()) {
-            // The plain code is only written to the log locally and in tests (REQ-WA-34).
+            // The plain code is only written to the log locally and in tests (REQ-WA-34),
+            // and an administrator's test code never is (AC-WA-22).
+            $showCode = app()->environment('local', 'testing') && $notification->purpose !== WhatsAppMessagePurpose::AdminTest;
+
             Log::info('WhatsApp login code (log driver, not sent)', [
                 'to' => $to,
-                'code' => app()->environment('local', 'testing') ? $notification->code : '****',
+                'code' => $showCode ? $notification->code : '****',
             ]);
 
             return;

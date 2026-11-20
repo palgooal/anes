@@ -73,8 +73,8 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
 
 /*
 | Administration: WhatsApp Cloud API settings (docs/ANIS-WHATSAPP-SETTINGS-001.md, REQ-WA-41).
-| Saving secrets and moving management to the panel require a password confirmed within the
-| last 15 minutes (REQ-WA-42). The timeout is set on these routes only; auth.password_timeout is unchanged.
+| Saving secrets, moving management to the panel and the send test require a password confirmed
+| within the last 15 minutes (REQ-WA-42). The timeout is set on these routes only; auth.password_timeout is unchanged.
 | The permission is checked before the role, so every non-administrator gets 403 (AC-WA-25).
 */
 Route::prefix('staff/settings/whatsapp')->middleware(['auth', 'can:manage-whatsapp', 'role:staff'])->group(function () {
@@ -82,9 +82,17 @@ Route::prefix('staff/settings/whatsapp')->middleware(['auth', 'can:manage-whatsa
     Route::put('/general', [WhatsAppSettingsController::class, 'updateGeneral'])->name('staff.whatsapp.general');
     Route::put('/environments/{environment}', [WhatsAppSettingsController::class, 'updateEnvironment'])->name('staff.whatsapp.environment');
 
+    // Connection test (REQ-WA-35): read-only, no password confirmation. Checking a received test code (REQ-WA-36).
+    Route::post('/environments/{environment}/connection-test', [WhatsAppSettingsController::class, 'testConnection'])->name('staff.whatsapp.connection-test');
+    Route::post('/send-test/verify', [WhatsAppSettingsController::class, 'verifySendTest'])->name('staff.whatsapp.send-test.verify');
+
     Route::middleware(RequirePassword::using(null, WhatsAppSettingsController::PASSWORD_CONFIRMATION_SECONDS))->group(function () {
         Route::post('/take-over', [WhatsAppSettingsController::class, 'takeOver'])->name('staff.whatsapp.take-over');
         Route::put('/environments/{environment}/secrets', [WhatsAppSettingsController::class, 'updateSecrets'])->name('staff.whatsapp.secrets');
         Route::put('/webhook-token', [WhatsAppSettingsController::class, 'updateWebhookToken'])->name('staff.whatsapp.webhook-token');
+
+        // Send test (REQ-WA-36, AC-WA-44): review the environment and number, then send.
+        Route::post('/environments/{environment}/send-test/review', [WhatsAppSettingsController::class, 'reviewSendTest'])->name('staff.whatsapp.send-test.review');
+        Route::post('/environments/{environment}/send-test', [WhatsAppSettingsController::class, 'sendTest'])->name('staff.whatsapp.send-test');
     });
 });

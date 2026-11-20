@@ -163,7 +163,7 @@ class MessageLogTest extends TestCase
 
     public function test_console_test_message_is_logged_as_admin_test_without_a_code_or_user(): void
     {
-        $this->artisan('whatsapp:test', ['phone' => '+'.self::RECIPIENT])->assertSuccessful();
+        $this->artisan('whatsapp:test', ['phone' => '+'.self::RECIPIENT, '--environment' => 'production', '--confirm-production' => true, '--no-interaction' => true])->assertSuccessful();
 
         $log = WhatsAppMessageLog::sole();
         $this->assertSame(WhatsAppMessagePurpose::AdminTest, $log->purpose);

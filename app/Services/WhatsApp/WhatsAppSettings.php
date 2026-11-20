@@ -44,9 +44,45 @@ class WhatsAppSettings
     }
 
     /**
+     * The saved settings of one environment, whatever the mode (REQ-WA-12).
+     *
+     * Only for an administrator's connection or send test (REQ-WA-35, REQ-WA-36,
+     * REQ-WA-39): it never changes the settings used for OTP codes. An incomplete
+     * environment is blocked, exactly as it would be for OTP codes.
+     */
+    public function forEnvironment(WhatsAppSetting $setting, WhatsAppEnvironment $environment): WhatsAppConfig
+    {
+        $apiVersion = $this->filled($setting->api_version) ?? self::DEFAULT_API_VERSION;
+        $template = $this->filled($setting->field($environment, 'template_name'));
+        $language = $this->filled($setting->field($environment, 'template_language')) ?? self::DEFAULT_TEMPLATE_LANGUAGE;
+        $complete = $this->missingRequiredFields($setting, $environment) === [];
+
+        return new WhatsAppConfig(
+            source: WhatsAppConfig::SOURCE_DATABASE,
+            driver: $complete ? WhatsAppConfig::DRIVER_META : WhatsAppConfig::DRIVER_BLOCKED,
+            mode: $setting->mode,
+            environment: $environment,
+            phoneNumberId: $complete ? $setting->field($environment, 'phone_number_id') : null,
+            accessToken: $complete ? $setting->field($environment, 'access_token') : null,
+            apiVersion: $apiVersion,
+            templateName: $template ?? '',
+            templateLanguage: $language,
+            blockedReason: $complete ? null : WhatsAppConfig::BLOCKED_INCOMPLETE,
+        );
+    }
+
+    /**
+     * The settings read from .env when there is no settings row (REQ-WA-02).
+     */
+    public function legacy(): WhatsAppConfig
+    {
+        return $this->fromEnv();
+    }
+
+    /**
      * The settings row, or null when there is none (or the table is not migrated yet).
      */
-    private function storedSetting(): ?WhatsAppSetting
+    public function storedSetting(): ?WhatsAppSetting
     {
         try {
             return WhatsAppSetting::query()->first();

@@ -5,8 +5,7 @@ namespace App;
 /**
  * Actions recorded in the WhatsApp settings audit trail (REQ-WA-44).
  *
- * Mode changes, production activation and connection or send tests are added
- * with the phases that introduce them (PH-WA-5, PH-WA-6).
+ * Mode changes and production activation are added with PH-WA-6.
  */
 enum WhatsAppAuditAction: string
 {
@@ -24,4 +23,13 @@ enum WhatsAppAuditAction: string
 
     /** Secrets were re-encrypted with the current application key. */
     case SecretsReencrypted = 'secrets_reencrypted';
+
+    /** A connection test ran on one environment: token, phone number and template (REQ-WA-35). */
+    case ConnectionTested = 'connection_tested';
+
+    /** A test message was sent, from the panel or whatsapp:test, whatever Meta answered (REQ-WA-38, REQ-WA-39). */
+    case SendTestAttempted = 'send_test_attempted';
+
+    /** A received test code was checked (REQ-WA-36). Meta accepting the request is not delivery. */
+    case SendTestVerification = 'send_test_verification';
 }

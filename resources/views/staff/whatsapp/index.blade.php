@@ -17,6 +17,17 @@
         'access_token' => 'Access Token',
         'template_name' => 'اسم القالب',
     ];
+    $checkLabels = [
+        'token' => 'Access Token',
+        'phone_number' => 'رقم الهاتف',
+        'template' => 'القالب',
+    ];
+    $checkPills = [
+        'passed' => ['ok', 'ناجح'],
+        'failed' => ['new', 'فشل'],
+        'skipped' => ['', 'لم يُفحص'],
+    ];
+    $connectionTest = session('connection_test');
     $date = fn (?string $iso): string => $iso ? \Illuminate\Support\Carbon::parse($iso)->locale('ar')->translatedFormat('j F Y، H:i') : '—';
 @endphp
 
@@ -88,6 +99,28 @@
       <p class="small muted">إن تُرك الحقل فارغاً تُستخدم النسخة {{ \App\Services\WhatsApp\WhatsAppSettings::DEFAULT_API_VERSION }}.</p>
       <button class="btn btn-p justify-self-start" type="submit">حفظ</button>
     </form>
+
+    {{-- ============ SEND TEST: CODE CHECK (REQ-WA-36, AC-WA-23, AC-WA-43) ============ --}}
+    @php $verifyBag = $errors->getBag('verify_send_test'); @endphp
+    @if ($pendingTest || $verifyBag->any())
+      <form method="POST" action="{{ route('staff.whatsapp.send-test.verify') }}" class="card grid gap-3" novalidate autocomplete="off" aria-labelledby="verify-title" data-send-test-verify>
+        @csrf
+        <h2 id="verify-title" class="text-[1.15rem]">تأكيد استلام رمز الاختبار</h2>
+        @if ($pendingTest)
+          <p class="small muted">
+            أُرسل رمز اختبار عبر {{ $envLabels[$pendingTest['context']['environment']] ?? '' }} إلى <span class="num" dir="ltr">••••{{ $pendingTest['context']['last4'] }}</span>.
+            قبول Meta للطلب لا يعني وصول الرسالة. اكتب الرمز الذي وصلك خلال
+            <span class="num">{{ max(1, (int) ceil(($pendingTest['expires_at'] - now()->getTimestamp()) / 60)) }}</span> دقيقة على الأكثر.
+            المحاولات المتبقية: <span class="num">{{ $pendingTest['attempts_left'] }}</span>.
+          </p>
+        @endif
+        <label for="send-test-code">الرمز الذي وصلك
+          <input id="send-test-code" name="code" value="" inputmode="numeric" dir="ltr" autocomplete="one-time-code" @if ($verifyBag->has('code')) aria-invalid="true" @endif>
+          <span class="err">{{ $verifyBag->first('code') }}</span>
+        </label>
+        <button class="btn btn-p justify-self-start" type="submit">تأكيد الاستلام</button>
+      </form>
+    @endif
 
     {{-- ============ ENVIRONMENTS ============ --}}
     <div class="two items-start">
@@ -170,6 +203,43 @@
 
             <button class="btn btn-g justify-self-start" type="submit">حفظ الأسرار</button>
           </form>
+
+          {{-- ============ TESTS (REQ-WA-35, REQ-WA-36) ============ --}}
+          @php $sendBag = $errors->getBag('send_test_'.$env); @endphp
+          <div class="grid gap-3 pt-4" style="border-top: 1px dashed var(--line)" data-tests="{{ $env }}">
+            <h3 class="text-[1rem]">اختبار {{ $envLabels[$env] }}</h3>
+            <p class="small muted">يعمل الاختبار بإعدادات هذه البيئة المحفوظة، ولا يغيّر وضع الإرسال الحالي ولا يفعّل الإنتاج.</p>
+
+            <form method="POST" action="{{ route('staff.whatsapp.connection-test', $env) }}" class="grid gap-2">
+              @csrf
+              <button class="btn btn-g justify-self-start" type="submit">اختبار الاتصال</button>
+              <span class="small muted">يفحص الرمز والرقم والقالب لدى Meta، ولا يرسل أي رسالة.</span>
+            </form>
+
+            @if (($connectionTest['environment'] ?? null) === $env)
+              <ul class="grid list-none gap-2 p-0" data-connection-results>
+                @foreach ($connectionTest['checks'] as $name => $check)
+                  <li class="info">
+                    <span class="pill {{ $checkPills[$check['status']][0] }}">{{ $checkPills[$check['status']][1] }}</span>
+                    <b>{{ $checkLabels[$name] ?? $name }}:</b> {{ $check['message'] }}
+                    @if ($check['details'])
+                      <span class="block num" dir="ltr">{{ collect($check['details'])->map(fn ($detail, $key) => $key.': '.$detail)->join(' · ') }}</span>
+                    @endif
+                  </li>
+                @endforeach
+              </ul>
+            @endif
+
+            <form method="POST" action="{{ route('staff.whatsapp.send-test.review', $env) }}" class="grid gap-3" novalidate autocomplete="off">
+              @csrf
+              <label for="{{ $env }}-send-test-phone">رقم يصله اختبار الإرسال
+                <input id="{{ $env }}-send-test-phone" name="phone" value="" inputmode="tel" dir="ltr" @if ($sendBag->has('phone')) aria-invalid="true" @endif>
+                <span class="small muted font-normal">يُرسل رمز اختبار حقيقي برمز لا يظهر في أي مكان. ستراجع البيئة والرقم وتؤكد كلمة المرور قبل الإرسال. الحد {{ \App\Services\WhatsApp\WhatsAppSendTester::MAX_SENDS_PER_HOUR }} اختبارات في الساعة.</span>
+                <span class="err">{{ $sendBag->first('phone') }}</span>
+              </label>
+              <button class="btn btn-g justify-self-start" type="submit">مراجعة الإرسال</button>
+            </form>
+          </div>
         </section>
       @endforeach
     </div>

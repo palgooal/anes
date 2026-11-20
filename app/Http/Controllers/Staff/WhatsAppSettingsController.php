@@ -8,15 +8,23 @@ use App\Http\Requests\Staff\WhatsApp\UpdateWhatsAppEnvironmentRequest;
 use App\Http\Requests\Staff\WhatsApp\UpdateWhatsAppGeneralRequest;
 use App\Http\Requests\Staff\WhatsApp\UpdateWhatsAppSecretsRequest;
 use App\Http\Requests\Staff\WhatsApp\UpdateWhatsAppWebhookTokenRequest;
+use App\Http\Requests\Staff\WhatsApp\VerifyWhatsAppSendTestRequest;
+use App\Http\Requests\Staff\WhatsApp\WhatsAppSendTestRequest;
 use App\Models\User;
 use App\Models\WhatsAppSetting;
+use App\PhoneNumber;
+use App\Services\WhatsApp\AdminTestCodes;
 use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppConfig;
+use App\Services\WhatsApp\WhatsAppConnectionTester;
+use App\Services\WhatsApp\WhatsAppSendTester;
 use App\Services\WhatsApp\WhatsAppSettings;
 use App\Services\WhatsApp\WhatsAppSettingsManager;
 use App\WhatsAppEnvironment;
+use App\WhatsAppSendStatus;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -40,6 +48,8 @@ class WhatsAppSettingsController extends Controller
     public function __construct(
         private WhatsAppSettings $settings,
         private WhatsAppSettingsManager $manager,
+        private WhatsAppConnectionTester $connectionTester,
+        private WhatsAppSendTester $sendTester,
     ) {}
 
     public function show(): View
@@ -66,6 +76,7 @@ class WhatsAppSettingsController extends Controller
             'editors' => User::query()->whereKey($editorIds)->pluck('name', 'id'),
             'envDriver' => config('services.whatsapp.driver') === 'meta' ? 'meta' : 'log',
             'takeOverAllowed' => WhatsAppSettingsManager::takeOverAllowed(),
+            'pendingTest' => $this->sendTester->pending(WhatsAppSendTester::panelKey(auth()->user())),
         ]);
     }
 
@@ -148,6 +159,128 @@ class WhatsAppSettingsController extends Controller
         ], $request->user(), $request);
 
         return to_route('staff.whatsapp')->with('status', $saved > 0 ? 'حُفظ رمز التحقق الجديد.' : 'لم يتغير شيء: الحقل الفارغ يُبقي القيمة المحفوظة.');
+    }
+
+    /**
+     * REQ-WA-35: connection test on the chosen environment. Sends nothing, changes
+     * nothing, needs no password confirmation.
+     */
+    public function testConnection(Request $request, WhatsAppEnvironment $environment): RedirectResponse
+    {
+        $setting = $this->managedSetting();
+
+        if (! $setting) {
+            return $this->notManagedYet();
+        }
+
+        $checks = $this->connectionTester->run($setting, $environment, $request->user(), $request);
+
+        return to_route('staff.whatsapp')->with('connection_test', ['environment' => $environment->value, 'checks' => $checks]);
+    }
+
+    /**
+     * REQ-WA-36, AC-WA-44: show the environment and the full number for review
+     * before anything is sent. Nothing is stored or sent here.
+     */
+    public function reviewSendTest(WhatsAppSendTestRequest $request, WhatsAppEnvironment $environment): View|RedirectResponse
+    {
+        $setting = $this->managedSetting();
+
+        if (! $setting) {
+            return $this->notManagedYet();
+        }
+
+        if ($refusal = $this->sendTestRefusal($setting, $environment, $request)) {
+            return $refusal;
+        }
+
+        return view('staff.whatsapp.send-test-review', [
+            'environment' => $environment,
+            'phone' => $request->validated('phone'),
+            'formatted' => PhoneNumber::format($request->validated('phone')),
+            'sendsLeft' => $this->sendTester->remaining(WhatsAppSendTester::panelKey($request->user())),
+        ]);
+    }
+
+    /**
+     * REQ-WA-36, REQ-WA-38: send the test code after the review. Refusals before the
+     * send are not counted.
+     */
+    public function sendTest(WhatsAppSendTestRequest $request, WhatsAppEnvironment $environment): RedirectResponse
+    {
+        $setting = $this->managedSetting();
+
+        if (! $setting) {
+            return $this->notManagedYet();
+        }
+
+        if ($refusal = $this->sendTestRefusal($setting, $environment, $request)) {
+            return $refusal;
+        }
+
+        $phone = $request->validated('phone');
+        $result = $this->sendTester->send(
+            config: $this->settings->forEnvironment($setting, $environment),
+            phone: $phone,
+            key: WhatsAppSendTester::panelKey($request->user()),
+            origin: WhatsAppSendTester::PANEL,
+            quota: null,
+            by: $request->user(),
+            request: $request,
+        );
+
+        $to = '••••'.substr($phone, -4);
+
+        return match ($result['status']) {
+            WhatsAppSendStatus::Accepted => to_route('staff.whatsapp')->with('status', 'قبلت Meta طلب الإرسال إلى '.$to.' عبر '.$this->label($environment).'. هذا لا يعني وصول الرسالة: اكتب الرمز الذي وصلك خلال 5 دقائق لتأكيد الاستلام.'),
+            WhatsAppSendStatus::Rejected => $this->sendTestError($environment, 'رفضت Meta طلب الإرسال'.($result['error_code'] ? ' (رمز الخطأ '.$result['error_code'].')' : '').'. لم يُرسل رمز الاختبار.'),
+            WhatsAppSendStatus::Uncertain => $this->sendTestError($environment, 'لم تتأكد نتيجة الطلب (انتهت المهلة أو انقطع الاتصال أو حدث خطأ لدى Meta). أُلغي رمز الاختبار، ولا يُعتمد هذا الاختبار.'),
+            WhatsAppSendStatus::Blocked => $this->sendTestError($environment, 'الإرسال غير ممكن بإعدادات هذه البيئة.'),
+        };
+    }
+
+    /**
+     * REQ-WA-36, AC-WA-23, AC-WA-43: only the code that actually arrived confirms the test.
+     */
+    public function verifySendTest(VerifyWhatsAppSendTestRequest $request): RedirectResponse
+    {
+        $result = $this->sendTester->verify(WhatsAppSendTester::panelKey($request->user()), $request->validated('code'), $request->user(), $request);
+
+        return match ($result['outcome']) {
+            AdminTestCodes::VERIFIED => to_route('staff.whatsapp')->with('status', 'تأكد استلام رمز الاختبار على ••••'.($result['context']['last4'] ?? '').': الرسالة وصلت والرمز ظهر صحيحاً.'),
+            AdminTestCodes::WRONG => to_route('staff.whatsapp')->withErrors(['code' => 'الرمز غير صحيح. المحاولات المتبقية: '.$result['attempts_left'].'.'], 'verify_send_test'),
+            AdminTestCodes::EXHAUSTED => to_route('staff.whatsapp')->withErrors(['code' => 'استُنفدت محاولات التحقق وأُلغي رمز الاختبار. أرسل اختباراً جديداً.'], 'verify_send_test'),
+            default => to_route('staff.whatsapp')->withErrors(['code' => 'لا يوجد رمز اختبار صالح: انتهت مدته أو لم يُرسل. أرسل اختباراً جديداً.'], 'verify_send_test'),
+        };
+    }
+
+    /**
+     * Reasons to refuse a send test before anything is sent (not counted in the limit).
+     */
+    private function sendTestRefusal(WhatsAppSetting $setting, WhatsAppEnvironment $environment, Request $request): ?RedirectResponse
+    {
+        $config = $this->settings->forEnvironment($setting, $environment);
+
+        if (! $config->sendsToMeta()) {
+            $missing = collect($this->settings->missingRequiredFields($setting, $environment))
+                ->map(fn (string $field) => ['phone_number_id' => 'Phone Number ID', 'access_token' => 'Access Token', 'template_name' => 'اسم القالب'][$field] ?? $field)
+                ->join('، ');
+
+            return $this->sendTestError($environment, 'إعدادات '.$this->label($environment).' ناقصة: '.$missing.'.');
+        }
+
+        $wait = $this->sendTester->secondsUntilAllowed(WhatsAppSendTester::panelKey($request->user()));
+
+        if ($wait > 0) {
+            return $this->sendTestError($environment, 'بلغت حد '.WhatsAppSendTester::MAX_SENDS_PER_HOUR.' اختبارات إرسال في الساعة. حاول بعد '.(int) ceil($wait / 60).' دقيقة.');
+        }
+
+        return null;
+    }
+
+    private function sendTestError(WhatsAppEnvironment $environment, string $message): RedirectResponse
+    {
+        return to_route('staff.whatsapp')->withErrors(['phone' => $message], 'send_test_'.$environment->value);
     }
 
     private function managedSetting(): ?WhatsAppSetting
