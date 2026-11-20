@@ -22,7 +22,11 @@ enum WhatsAppAuditAction: string
     /** Secrets were re-encrypted with the current application key. */
     case SecretsReencrypted = 'secrets_reencrypted';
 
-    /** The mode was switched from the panel (REQ-WA-13, REQ-WA-44): only the mode changed. */
+    /**
+     * The mode was switched (REQ-WA-13, REQ-WA-44): only the mode changed. From the
+     * panel by an administrator, or from the server by whatsapp:mode (REQ-WA-69),
+     * then without a user and with "via" set to "server".
+     */
     case ModeChanged = 'mode_changed';
 
     /** A mode switch was refused before anything was written, with the reason (REQ-WA-44). */
@@ -48,6 +52,13 @@ enum WhatsAppAuditAction: string
      * activation transaction was rolled back.
      */
     case ActivationRefused = 'activation_refused';
+
+    /**
+     * .env was restored as the OTP source from the server by whatsapp:restore-env
+     * (REQ-WA-70, REQ-WA-44): the row is being prepared again, its mode and secrets
+     * unchanged. Recorded without a user, with the .env driver and "via" set to "server".
+     */
+    case EnvRestored = 'env_restored';
 
     /** A connection test ran on one environment: token, phone number and template (REQ-WA-35). */
     case ConnectionTested = 'connection_tested';

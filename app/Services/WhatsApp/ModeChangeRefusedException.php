@@ -34,6 +34,12 @@ class ModeChangeRefusedException extends RuntimeException
     /** The requested mode is already the current one. */
     public const UNCHANGED = 'unchanged';
 
+    /**
+     * Test in the production application environment without the operator's
+     * acknowledgement of its impact on sign-in (REQ-WA-69). Server command only.
+     */
+    public const ACKNOWLEDGEMENT_REQUIRED = 'acknowledgement_required';
+
     public function __construct(public readonly string $reason, public readonly ?WhatsAppMode $current = null)
     {
         parent::__construct('The WhatsApp mode change was refused: '.$reason.'.');

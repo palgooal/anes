@@ -12,6 +12,7 @@ use DomainException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 use SensitiveParameter;
 
 /**
@@ -148,6 +149,157 @@ class WhatsAppSettingsManager
 
             throw $exception;
         }
+    }
+
+    // --- Server commands (REQ-WA-69, REQ-WA-70, PH-WA-6.8) --------------------------------------
+
+    /** Modes the server command may switch to (REQ-WA-69): never log, never production. */
+    public const SERVER_MODES = [WhatsAppMode::Disabled, WhatsAppMode::Test];
+
+    /** The .env drivers a restore accepts (REQ-WA-70). Anything else is refused. */
+    public const ENV_DRIVERS = ['meta', 'log'];
+
+    /** The .env settings a "meta" driver needs before a restore (REQ-WA-70), by variable name. */
+    public const ENV_REQUIRED = ['phone_number_id' => 'WHATSAPP_PHONE_NUMBER_ID', 'access_token' => 'WHATSAPP_ACCESS_TOKEN'];
+
+    /**
+     * Why the server command cannot switch to a mode right now, or null when it can
+     * (REQ-WA-69, AC-WA-51). Reads only.
+     *
+     * @param  bool  $acknowledged  The operator acknowledged the impact on sign-in (needed for test in production).
+     */
+    public function serverModeProblem(?WhatsAppSetting $setting, WhatsAppMode $to, ?WhatsAppMode $expected, bool $acknowledged): ?string
+    {
+        return match (true) {
+            $to === WhatsAppMode::Production => ModeChangeRefusedException::PRODUCTION,
+            ! in_array($to, self::SERVER_MODES, true) => ModeChangeRefusedException::LOG_NOT_ALLOWED,
+            default => $this->modeProblem($setting, $to, $expected)
+                ?? ($to === WhatsAppMode::Test && app()->isProduction() && ! $acknowledged ? ModeChangeRefusedException::ACKNOWLEDGEMENT_REQUIRED : null),
+        };
+    }
+
+    /**
+     * Switch the mode from the server (REQ-WA-69): in a short transaction, with the row
+     * locked and every condition checked again, only the mode changes, audited without
+     * a user or a request (REQ-WA-44). A refusal writes nothing at all, not even an
+     * audit entry (AC-WA-51).
+     *
+     * @param  WhatsAppMode  $expected  The mode shown to the operator, to detect a change since then.
+     *
+     * @throws ModeChangeRefusedException
+     */
+    public function switchModeFromServer(WhatsAppMode $to, WhatsAppMode $expected, bool $acknowledged): WhatsAppSetting
+    {
+        return DB::transaction(function () use ($to, $expected, $acknowledged) {
+            $setting = WhatsAppSetting::query()->lockForUpdate()->first();
+
+            if ($problem = $this->serverModeProblem($setting, $to, $expected, $acknowledged)) {
+                throw new ModeChangeRefusedException($problem, $setting?->mode);
+            }
+
+            $old = $setting->mode;
+            $setting->mode = $to;
+
+            // A saving listener can stop the write without an exception: nothing may be claimed then.
+            if (! $setting->save()) {
+                throw new RuntimeException('The WhatsApp mode was not saved.');
+            }
+
+            WhatsAppSettingsAudit::record(WhatsAppAuditAction::ModeChanged, null, $to->environment(), changes: [
+                'mode' => ['old' => $old->value, 'new' => $to->value],
+                'via' => 'server',
+            ], request: null);
+
+            return $setting;
+        });
+    }
+
+    /**
+     * Why .env cannot be restored as the OTP source right now, or null when it can
+     * (REQ-WA-70, AC-WA-52). A preliminary check of the settings in force, read locally:
+     * nothing is sent to Meta, so it never proves that a code will arrive.
+     */
+    public function restoreProblem(?WhatsAppSetting $setting): ?string
+    {
+        $driver = config('services.whatsapp.driver');
+
+        return match (true) {
+            $setting === null => EnvRestoreRefusedException::NOT_MANAGED,
+            ! $setting->isDatabaseSource() => EnvRestoreRefusedException::PREPARING,
+            ! in_array($driver, self::ENV_DRIVERS, true) => EnvRestoreRefusedException::DRIVER_NOT_ALLOWED,
+            $driver === 'log' && ! app()->environment('local', 'testing') => EnvRestoreRefusedException::LOG_NOT_ALLOWED,
+            $driver === 'meta' && $this->missingEnvSettings() !== [] => EnvRestoreRefusedException::ENV_INCOMPLETE,
+            default => null,
+        };
+    }
+
+    /**
+     * The .env variables a "meta" driver still lacks (names only, never values).
+     *
+     * @return list<string>
+     */
+    public function missingEnvSettings(): array
+    {
+        return array_values(array_filter(
+            self::ENV_REQUIRED,
+            fn (string $variable, string $key) => ! $this->isFilled(config('services.whatsapp.'.$key)),
+            ARRAY_FILTER_USE_BOTH,
+        ));
+    }
+
+    /**
+     * Warnings about the .env settings that do not stop a restore (decision 4, PH-WA-6.8):
+     * the document requires only the driver, Phone Number ID and access token.
+     *
+     * @return list<string>
+     */
+    public function restoreWarnings(): array
+    {
+        if (config('services.whatsapp.driver') === 'meta' && ! $this->isFilled(config('services.whatsapp.login_template'))) {
+            return ['اسم قالب الدخول في إعدادات .env فارغ، وسيرفض Meta الإرسال به. اختبر .env بأمر whatsapp:test --legacy-env قبل الاستعادة.'];
+        }
+
+        return [];
+    }
+
+    /**
+     * Make .env the OTP source again (REQ-WA-70): in a short transaction, with the row
+     * locked and every condition checked again, only the source state goes back to
+     * "being prepared". The row, its secrets and its mode stay as they are, and the
+     * change is audited without a user or a request (REQ-WA-44). A refusal writes
+     * nothing at all (AC-WA-52). Going back is done by activation from the panel only.
+     *
+     * @throws EnvRestoreRefusedException
+     */
+    public function restoreEnv(): WhatsAppSetting
+    {
+        return DB::transaction(function () {
+            $setting = WhatsAppSetting::query()->lockForUpdate()->first();
+
+            if ($problem = $this->restoreProblem($setting)) {
+                throw new EnvRestoreRefusedException($problem, $problem === EnvRestoreRefusedException::ENV_INCOMPLETE ? $this->missingEnvSettings() : []);
+            }
+
+            $setting->database_source_activated_at = null;
+
+            if (! $setting->save()) {
+                throw new RuntimeException('The OTP source was not restored.');
+            }
+
+            WhatsAppSettingsAudit::record(WhatsAppAuditAction::EnvRestored, null, null, changes: [
+                'source' => ['old' => WhatsAppActivation::ACTIVE, 'new' => WhatsAppActivation::PREPARING],
+                'mode' => $setting->mode->value,
+                'env_driver' => config('services.whatsapp.driver'),
+                'via' => 'server',
+            ], request: null);
+
+            return $setting;
+        });
+    }
+
+    private function isFilled(mixed $value): bool
+    {
+        return is_string($value) && trim($value) !== '';
     }
 
     /**
