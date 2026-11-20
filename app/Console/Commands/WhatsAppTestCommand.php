@@ -16,9 +16,13 @@ use Illuminate\Console\Command;
 /**
  * Send an administrator's test code from the server (REQ-WA-39, AC-WA-45).
  *
- * - With a settings row the operator names the environment; its saved settings
- *   are used whatever the mode (REQ-WA-12). Without one, .env is read as before,
- *   and no Meta environment is assumed for it.
+ * - Which settings are tested (REQ-WA-39, PH-WA-6.2):
+ *   --legacy-env: .env, in any state of the settings row (never with --environment);
+ *   --environment: that environment's saved settings, whatever the mode (REQ-WA-12);
+ *   neither: .env when there is no row or the row is being prepared; once the
+ *   database is the OTP source, one of the two options is required.
+ *   No Meta environment is assumed for .env, and testing never changes the OTP
+ *   source, the mode or any saved field.
  * - --confirm-production is required for production and, as a precaution, for .env.
  * - 5 sends an hour per quota (test, production, legacy-env), separate from the
  *   panel's limit. Refusals before the send do not count and log no message.
@@ -28,7 +32,8 @@ use Illuminate\Console\Command;
 #[Signature('whatsapp:test
     {phone : The mobile number, e.g. 0599123456 or +970599123456}
     {--country= : Calling code used for a national number (966, 970 or 972)}
-    {--environment= : test or production (required once the settings are managed from the panel)}
+    {--environment= : test or production: test the saved settings of that environment}
+    {--legacy-env : Test the .env settings, even once the database is the OTP source}
     {--confirm-production : Required to send through production, and through .env settings}')]
 #[Description('Send a WhatsApp test code (not a login code) to check the Meta connection')]
 class WhatsAppTestCommand extends Command
@@ -48,25 +53,18 @@ class WhatsAppTestCommand extends Command
             return self::FAILURE;
         }
 
-        $setting = $settings->storedSetting();
+        $chosen = $this->chooseSettings($settings);
 
-        if ($setting) {
-            $environment = WhatsAppEnvironment::tryFrom((string) $this->option('environment'));
+        if (is_string($chosen)) {
+            $this->error($chosen);
 
-            if (! $environment) {
-                $this->error('الإعدادات تُدار من اللوحة: حدّد البيئة بـ --environment=test أو --environment=production.');
-
-                return self::FAILURE;
-            }
-
-            $config = $settings->forEnvironment($setting, $environment);
-            $quota = $environment->value;
-        } else {
-            $config = $settings->legacy();
-            $quota = self::LEGACY_QUOTA;
+            return self::FAILURE;
         }
 
-        $this->line('To: '.PhoneNumber::format($phone).' · '.$config->describe().' · Quota: '.$quota);
+        [$config, $quota] = $chosen;
+
+        // The full number is never printed (AC-WA-22): the operator typed it.
+        $this->line('To: ••••'.substr($phone, -4).' · '.$config->describe().' · Quota: '.$quota);
 
         if ($refusal = $this->refusal($config, $quota)) {
             $this->error($refusal);
@@ -104,6 +102,49 @@ class WhatsAppTestCommand extends Command
         }
 
         return $this->confirmReceipt($tester, $key);
+    }
+
+    /**
+     * The settings to test and their quota, or the reason to stop. Reading only:
+     * the OTP source, the mode and the saved fields are never changed here.
+     *
+     * @return array{0: WhatsAppConfig, 1: string}|string
+     */
+    private function chooseSettings(WhatsAppSettings $settings): array|string
+    {
+        $option = $this->option('environment');
+        $legacy = (bool) $this->option('legacy-env');
+
+        if ($legacy && $option !== null) {
+            return 'لا يجتمع --legacy-env مع --environment: اختر أحدهما. لم يُرسل شيء.';
+        }
+
+        if ($legacy) {
+            return [$settings->legacy(), self::LEGACY_QUOTA];
+        }
+
+        $setting = $settings->storedSetting();
+
+        if ($option !== null) {
+            $environment = WhatsAppEnvironment::tryFrom((string) $option);
+
+            if (! $environment) {
+                return 'قيمة --environment غير معروفة: استخدم test أو production. لم يُرسل شيء.';
+            }
+
+            if (! $setting) {
+                return 'لا توجد إعدادات محفوظة في اللوحة لاختبار بيئة '.$environment->value.'. لاختبار .env شغّل الأمر دون --environment. لم يُرسل شيء.';
+            }
+
+            return [$settings->forEnvironment($setting, $environment), $environment->value];
+        }
+
+        if ($setting?->isDatabaseSource()) {
+            return 'مصدر رموز الدخول هو إعدادات اللوحة: حدّد البيئة بـ --environment=test أو --environment=production، أو اختبر .env بـ --legacy-env. لم يُرسل شيء.';
+        }
+
+        // No row, or a row still being prepared: .env is the OTP source and is what is tested.
+        return [$settings->legacy(), self::LEGACY_QUOTA];
     }
 
     /**
