@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Notifications\LoginCodeNotification;
 use App\PhoneNumber;
+use App\Services\WhatsApp\WhatsAppSettings;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -18,7 +19,7 @@ class WhatsAppTestCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(WhatsAppSettings $settings): int
     {
         $phone = PhoneNumber::normalize($this->argument('phone'), $this->option('country'));
 
@@ -28,10 +29,16 @@ class WhatsAppTestCommand extends Command
             return self::FAILURE;
         }
 
-        $config = config('services.whatsapp');
-        $this->line('Driver: '.$config['driver'].' · To: '.PhoneNumber::format($phone).' · Template: '.$config['login_template'].' ('.$config['template_language'].')');
+        $config = $settings->current();
+        $this->line('Driver: '.$config->driver.' · To: '.PhoneNumber::format($phone).' · '.$config->describe());
 
-        if ($config['driver'] === 'meta' && (! $config['phone_number_id'] || ! $config['access_token'])) {
+        if ($config->isBlocked()) {
+            $this->error('الإرسال متوقف في إعدادات WhatsApp المحفوظة ('.$config->blockedReason.'). لم يُرسل شيء.');
+
+            return self::FAILURE;
+        }
+
+        if ($config->sendsToMeta() && (! $config->phoneNumberId || ! $config->hasAccessToken())) {
             $this->error('WHATSAPP_PHONE_NUMBER_ID و WHATSAPP_ACCESS_TOKEN مطلوبان عند WHATSAPP_DRIVER=meta.');
 
             return self::FAILURE;
@@ -52,9 +59,9 @@ class WhatsAppTestCommand extends Command
             return self::FAILURE;
         }
 
-        $this->info($config['driver'] === 'meta'
+        $this->info($config->sendsToMeta()
             ? "أُرسل الرمز {$code}. إن لم يصل خلال دقيقة فراجع حالة الرسالة في WhatsApp Manager."
-            : "WHATSAPP_DRIVER={$config['driver']}: لم يُرسل شيء، وكُتب الرمز {$code} في storage/logs/laravel.log.");
+            : "WHATSAPP_DRIVER={$config->driver}: لم يُرسل شيء، وكُتب الرمز {$code} في storage/logs/laravel.log.");
 
         return self::SUCCESS;
     }

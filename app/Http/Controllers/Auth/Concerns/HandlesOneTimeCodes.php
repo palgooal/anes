@@ -6,6 +6,7 @@ use App\CodePurpose;
 use App\Models\OneTimeCode;
 use App\Models\User;
 use App\Notifications\LoginCodeNotification;
+use App\Services\WhatsApp\WhatsAppUnavailableException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
@@ -52,7 +53,7 @@ trait HandlesOneTimeCodes
     {
         try {
             $user->notify(new LoginCodeNotification(OneTimeCode::issueFor($user, $purpose)));
-        } catch (RequestException|ConnectionException $exception) {
+        } catch (RequestException|ConnectionException|WhatsAppUnavailableException $exception) {
             report($exception);
 
             return false;
