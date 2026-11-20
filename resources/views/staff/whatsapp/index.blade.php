@@ -121,7 +121,28 @@
       @else
         <p class="small muted" data-mode-switch-unavailable>تبديل الوضع غير متاح: السجل قيد التحضير، ومصدر رموز الدخول الفعّال ما زال ملف <bdi class="num" dir="ltr">.env</bdi></p>
       @endif
-      <p class="small muted">التفعيل غير متاح بعد في هذه اللوحة.</p>
+
+      {{-- REQ-WA-66: activation, reviewed with its impact before it runs. Production needs the readiness checks. --}}
+      @php $activationBag = $errors->getBag('activation'); @endphp
+      @if ($activationBag->any())
+        <p class="note" role="alert" data-activation-error>{{ $activationBag->first() }}</p>
+      @endif
+      @if ($activationTargets !== [])
+        <form method="POST" action="{{ route('staff.whatsapp.activation.review') }}" class="grid gap-3 pt-3" style="border-top: 1px dashed var(--line)" data-activation>
+          @csrf
+          <label for="activation-mode">التفعيل
+            <select id="activation-mode" name="mode">
+              @foreach ($activationTargets as $option)
+                <option value="{{ $option->value }}">{{ $option->label() }}</option>
+              @endforeach
+            </select>
+          </label>
+          <span class="small muted">يجعل إعدادات هذه اللوحة مصدر رموز الدخول. التفعيل إلى الإنتاج يُجري شروط الجاهزية الستة عند تنفيذه، ويطلب نصًّا مرجعيًّا للإقرار. ستُعرض عليك آثاره قبل تنفيذه، ويُطلب تأكيد كلمة المرور.</span>
+          <button class="btn btn-g justify-self-start" type="submit">مراجعة التفعيل</button>
+        </form>
+      @elseif ($setting->isDatabaseSource())
+        <p class="small muted" data-activation-done>الإنتاج مفعّل مصدرًا لرموز الدخول.</p>
+      @endif
     </section>
 
     {{-- ============ GENERAL ============ --}}

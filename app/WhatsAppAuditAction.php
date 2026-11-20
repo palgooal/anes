@@ -4,8 +4,6 @@ namespace App;
 
 /**
  * Actions recorded in the WhatsApp settings audit trail (REQ-WA-44).
- *
- * Production activation is added with a later PH-WA-6 step.
  */
 enum WhatsAppAuditAction: string
 {
@@ -36,6 +34,20 @@ enum WhatsAppAuditAction: string
      * frozen while production mode is in force.
      */
     case SettingsChangeRefused = 'settings_change_refused';
+
+    /**
+     * The OTP source was activated (REQ-WA-66, REQ-WA-26): the source state and the
+     * mode, with the readiness result, the settings fingerprint and the reference
+     * text of the acknowledgement for production. Written in the activation transaction.
+     */
+    case Activated = 'activated';
+
+    /**
+     * An activation was refused and nothing changed (AC-WA-47, REQ-WA-67): the reason
+     * and the condition statuses only, never the reference text. Written after the
+     * activation transaction was rolled back.
+     */
+    case ActivationRefused = 'activation_refused';
 
     /** A connection test ran on one environment: token, phone number and template (REQ-WA-35). */
     case ConnectionTested = 'connection_tested';

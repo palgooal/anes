@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Staff\WhatsApp\ActivateWhatsAppRequest;
+use App\Http\Requests\Staff\WhatsApp\ReviewActivationRequest;
 use App\Http\Requests\Staff\WhatsApp\ReviewWhatsAppModeRequest;
 use App\Http\Requests\Staff\WhatsApp\SwitchWhatsAppModeRequest;
 use App\Http\Requests\Staff\WhatsApp\TakeOverWhatsAppSettingsRequest;
@@ -15,11 +17,14 @@ use App\Http\Requests\Staff\WhatsApp\WhatsAppSendTestRequest;
 use App\Models\User;
 use App\Models\WhatsAppSetting;
 use App\PhoneNumber;
+use App\Services\WhatsApp\ActivationOutcomeUnknownException;
+use App\Services\WhatsApp\ActivationRefusedException;
 use App\Services\WhatsApp\AdminTestCodes;
 use App\Services\WhatsApp\ModeChangeRefusedException;
 use App\Services\WhatsApp\ProductionIdentifiersFrozenException;
 use App\Services\WhatsApp\SettingsFingerprint;
 use App\Services\WhatsApp\TakeOverNotAllowedException;
+use App\Services\WhatsApp\WhatsAppActivation;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppConnectionTester;
 use App\Services\WhatsApp\WhatsAppReadiness;
@@ -59,6 +64,7 @@ class WhatsAppSettingsController extends Controller
         private WhatsAppSendTester $sendTester,
         private SettingsFingerprint $fingerprint,
         private WhatsAppReadiness $readiness,
+        private WhatsAppActivation $activation,
     ) {}
 
     public function show(): View
@@ -88,6 +94,7 @@ class WhatsAppSettingsController extends Controller
             'envDriver' => config('services.whatsapp.driver') === 'meta' ? 'meta' : 'log',
             'takeOverAllowed' => WhatsAppSettingsManager::takeOverAllowed(),
             'frozenProduction' => $this->manager->frozenFields($setting, WhatsAppEnvironment::Production),
+            'activationTargets' => $this->activation->offeredTargets($setting),
             'pendingTest' => $this->sendTester->pending(WhatsAppSendTester::panelKey(auth()->user())),
         ]);
     }
@@ -377,6 +384,84 @@ class WhatsAppSettingsController extends Controller
         };
 
         return to_route('staff.whatsapp')->withErrors(['mode' => $message], 'mode');
+    }
+
+    /**
+     * REQ-WA-66: review an activation. Nothing is checked at Meta here (D4): the
+     * readiness checks run with the activation itself.
+     */
+    public function reviewActivation(ReviewActivationRequest $request): View|RedirectResponse
+    {
+        $setting = $this->managedSetting();
+        $to = $request->mode();
+
+        if ($problem = $this->activation->targetProblem($setting, $to)) {
+            return $this->activationError($problem, $setting);
+        }
+
+        return view('staff.whatsapp.activation-review', [
+            'setting' => $setting,
+            'state' => WhatsAppActivation::state($setting),
+            'to' => $to,
+        ]);
+    }
+
+    /**
+     * REQ-WA-66, REQ-WA-67: activate. A refusal changes nothing and shows why; the
+     * readiness result of this attempt is shown, never stored.
+     */
+    public function activate(ActivateWhatsAppRequest $request): View|RedirectResponse
+    {
+        try {
+            $this->activation->activate($request->mode(), $request->expectedMode(), $request->validated('expected_state'), $request->reference(), $request->user(), $request);
+        } catch (ActivationRefusedException $exception) {
+            if ($exception->checks === null) {
+                return $this->activationError($exception->reason, $this->managedSetting(), $exception->recorded);
+            }
+
+            return view('staff.whatsapp.activation-refused', [
+                'to' => $request->mode(),
+                'message' => $this->activationMessage($exception->reason, $this->managedSetting()),
+                'checks' => $exception->checks,
+                'recorded' => $exception->recorded,
+            ]);
+        } catch (ActivationOutcomeUnknownException) {
+            return to_route('staff.whatsapp')->withErrors(['activation' => 'تعذّر تأكيد نتيجة التفعيل: فشل حفظ المعاملة ولم يمكن قراءة الحالة بعده. لا يُعدّ التفعيل ناجحًا ولا مرفوضًا. راجع مصدر رموز الدخول في هذه الصفحة قبل أي محاولة جديدة.'], 'activation');
+        }
+
+        return to_route('staff.whatsapp')->with('status', 'تم التفعيل: صارت إعدادات هذه اللوحة مصدر رموز الدخول، بوضع «'.$request->mode()->label().'».');
+    }
+
+    private function activationError(string $reason, ?WhatsAppSetting $setting, ?bool $recorded = null): RedirectResponse
+    {
+        return to_route('staff.whatsapp')->withErrors(['activation' => $this->activationMessage($reason, $setting).$this->recordedNote($recorded)], 'activation');
+    }
+
+    private function recordedNote(?bool $recorded): string
+    {
+        return $recorded === false ? ' تعذّر أيضًا تسجيل هذه المحاولة في سجل التدقيق.' : '';
+    }
+
+    private function activationMessage(string $reason, ?WhatsAppSetting $setting): string
+    {
+        return match ($reason) {
+            ActivationRefusedException::NOT_MANAGED => 'انقل إدارة الإعدادات إلى اللوحة أولاً.',
+            ActivationRefusedException::STALE => 'تغيّر الوضع أو حالة المصدر منذ عرض المراجعة، فلم يُفعَّل شيء. راجع الحالة الحالية وأعد المحاولة.',
+            ActivationRefusedException::NOT_ALLOWED => app()->isProduction()
+                ? 'في بيئة التطبيق الحالية لا يُفعَّل إلا الإنتاج.'
+                : 'لا يمكن تفعيل هذا الوضع في بيئة التطبيق الحالية.',
+            ActivationRefusedException::UNCHANGED => 'مصدر رموز الدخول مفعّل بهذا الوضع أصلًا، فلم يتغير شيء.',
+            ActivationRefusedException::ALREADY_ACTIVE => 'المصدر مفعّل: انتقل إلى هذا الوضع من «تبديل الوضع». التفعيل بعد ذلك للإنتاج فقط.',
+            ActivationRefusedException::TEST_INCOMPLETE => 'إعدادات بيئة الاختبار ناقصة ('.collect($setting ? $this->settings->missingRequiredFields($setting, WhatsAppEnvironment::Test) : [])
+                ->map(fn (string $field) => ['phone_number_id' => 'Phone Number ID', 'access_token' => 'Access Token', 'template_name' => 'اسم القالب'][$field] ?? $field)
+                ->join('، ').')، فلا يمكن تفعيلها.',
+            ActivationRefusedException::REFERENCE_INVALID => 'النص المرجعي للإقرار غير مقبول، فلم يُفعَّل شيء.',
+            ActivationRefusedException::READINESS_FAILED => 'لم تُستوفَ شروط الجاهزية في هذه المحاولة، فلم يُفعَّل شيء.',
+            ActivationRefusedException::SNAPSHOT_CHANGED => 'تغيّرت الإعدادات المحفوظة أثناء الفحوص، فلم يُفعَّل شيء. أعد المحاولة لتُفحص القيم الحالية.',
+            ActivationRefusedException::EVIDENCE_LOST => 'لم يعد اختبار الإرسال المؤكَّد صالحًا عند التفعيل، فلم يُفعَّل شيء. أجرِ اختبار إرسال جديدًا من اللوحة.',
+            ActivationRefusedException::DATABASE_ERROR => 'تعذّر التفعيل بسبب خطأ في قاعدة البيانات، ولم يتغير شيء.',
+            default => 'تعذّر التفعيل، ولم يتغير شيء.',
+        };
     }
 
     private function managedSetting(): ?WhatsAppSetting

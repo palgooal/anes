@@ -143,8 +143,12 @@ class WhatsAppModeSwitchTest extends TestCase
         $this->assertSame($before, $setting->fresh()->getAttributes());
         $this->assertRefusalAudited('production_not_allowed', 'disabled', 'production');
 
-        $this->actingAs(User::factory()->admin()->create())->get(route('staff.whatsapp'))
-            ->assertDontSee('<option value="production">', false);
+        // The mode switch never offers production; the activation form (PH-WA-6.7) may.
+        $page = $this->actingAs(User::factory()->admin()->create())->get(route('staff.whatsapp'))->getContent();
+        $modeForm = substr($page, strpos($page, 'data-mode-switch>'));
+        $modeForm = substr($modeForm, 0, strpos($modeForm, '</form>'));
+        $this->assertStringContainsString('<option value="test">', $modeForm);
+        $this->assertStringNotContainsString('<option value="production">', $modeForm);
     }
 
     /**
