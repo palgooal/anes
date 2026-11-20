@@ -43,9 +43,11 @@ class WhatsAppSettingsManager
     }
 
     /**
-     * Create the settings row: from now on the database, not .env, is the source (REQ-WA-05).
-     * The row starts empty, in "log" mode locally and in tests, "disabled" elsewhere
-     * (the "disabled" branch is unreachable until PH-WA-6 lifts REQ-WA-64).
+     * Create the settings row, being prepared (REQ-WA-05, REQ-WA-65): OTP codes keep
+     * using .env until an explicit activation, so creating or editing the row never
+     * changes sending. The row starts empty, with "log" mode stored locally and in
+     * tests, "disabled" elsewhere; the stored mode has no effect while preparing.
+     * Outside local and testing this stays refused until PH-WA-6 lifts REQ-WA-64.
      *
      * @throws TakeOverNotAllowedException outside "local" and "testing" (REQ-WA-64), before anything is written.
      * @throws DomainException when the settings row already exists.
@@ -62,10 +64,11 @@ class WhatsAppSettingsManager
             }
 
             $mode = app()->environment('local', 'testing') ? WhatsAppMode::Log : WhatsAppMode::Disabled;
+            // database_source_activated_at stays NULL: the row is being prepared.
             $setting = WhatsAppSetting::create(['mode' => $mode]);
 
             WhatsAppSettingsAudit::record(WhatsAppAuditAction::TakeOver, $by, changes: [
-                'source' => ['old' => WhatsAppConfig::SOURCE_ENV, 'new' => WhatsAppConfig::SOURCE_DATABASE],
+                'state' => ['old' => null, 'new' => 'preparing'],
                 'mode' => ['old' => null, 'new' => $mode->value],
             ], request: $request);
 

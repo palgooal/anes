@@ -43,7 +43,7 @@ class WhatsAppSettingsController extends Controller
     public const PASSWORD_CONFIRMATION_SECONDS = 900;
 
     /** Shown when management cannot move to the panel in this environment (REQ-WA-64). */
-    public const TAKE_OVER_NOT_ALLOWED = 'نقل إدارة واتساب إلى اللوحة غير متاح في هذه البيئة حاليًا، لأن الإرسال سيتوقف ولا توجد بعد وسيلة لتفعيله من اللوحة. سيُتاح مع مرحلة تفعيل الإنتاج، وحتى ذلك الحين يستمر الإرسال من ملف .env.';
+    public const TAKE_OVER_NOT_ALLOWED = 'نقل إدارة واتساب إلى اللوحة غير متاح في هذه البيئة حاليًا، حتى تكتمل في هذه المرحلة وسائل التفعيل والاستعادة. وحتى ذلك الحين يستمر الإرسال من ملف .env.';
 
     public function __construct(
         private WhatsAppSettings $settings,
@@ -57,10 +57,12 @@ class WhatsAppSettingsController extends Controller
         $setting = WhatsAppSetting::query()->first();
         $config = $this->settings->current();
 
-        // REQ-WA-63: sending is stopped because the active environment is missing required fields.
+        // REQ-WA-63, REQ-WA-04: sending is stopped because the active environment is missing
+        // required fields. Only once the database is the OTP source: a row being prepared
+        // stops nothing, since codes are still sent with .env.
         $incomplete = null;
 
-        if ($setting && $config->blockedReason === WhatsAppConfig::BLOCKED_INCOMPLETE && $config->environment) {
+        if ($setting?->isDatabaseSource() && $config->blockedReason === WhatsAppConfig::BLOCKED_INCOMPLETE && $config->environment) {
             $incomplete = [
                 'environment' => $config->environment,
                 'fields' => $this->settings->missingRequiredFields($setting, $config->environment),
@@ -93,7 +95,7 @@ class WhatsAppSettingsController extends Controller
             return to_route('staff.whatsapp')->withErrors(['whatsapp' => 'إعدادات واتساب تُدار من اللوحة بالفعل.']);
         }
 
-        return to_route('staff.whatsapp')->with('status', 'أصبحت إعدادات واتساب تُدار من هذه اللوحة، ولم تعد تُقرأ من ملف .env.');
+        return to_route('staff.whatsapp')->with('status', 'نُقلت إدارة إعدادات واتساب إلى هذه اللوحة، والسجل الآن قيد التحضير. ما زالت رموز الدخول تُرسل بإعدادات ملف .env حتى تفعيل صريح.');
     }
 
     public function updateGeneral(UpdateWhatsAppGeneralRequest $request): RedirectResponse

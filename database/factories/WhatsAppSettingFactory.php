@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class WhatsAppSettingFactory extends Factory
 {
     /**
-     * Both environments complete, sending disabled.
+     * Both environments complete, sending disabled, and the database already the
+     * OTP source, as every row was before PH-WA-6. Use preparing() for a row that
+     * is still being prepared (REQ-WA-65).
      *
      * @return array<string, mixed>
      */
@@ -22,6 +24,7 @@ class WhatsAppSettingFactory extends Factory
     {
         return [
             'mode' => WhatsAppMode::Disabled,
+            'database_source_activated_at' => now(),
             'api_version' => 'v23.0',
             'test_phone_number_id' => '100000000000001',
             'test_waba_id' => '200000000000001',
@@ -41,5 +44,13 @@ class WhatsAppSettingFactory extends Factory
     public function mode(WhatsAppMode $mode): static
     {
         return $this->state(fn (array $attributes) => ['mode' => $mode]);
+    }
+
+    /**
+     * Being prepared: OTP codes are still sent with .env (REQ-WA-65).
+     */
+    public function preparing(): static
+    {
+        return $this->state(fn (array $attributes) => ['database_source_activated_at' => null]);
     }
 }

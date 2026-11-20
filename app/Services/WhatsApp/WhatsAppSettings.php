@@ -40,7 +40,9 @@ class WhatsAppSettings
     {
         $setting = $this->storedSetting();
 
-        return $setting ? $this->fromDatabase($setting) : $this->fromEnv();
+        // REQ-WA-02, REQ-WA-65: a row that is still being prepared changes nothing,
+        // so OTP codes keep using .env until an explicit activation.
+        return $setting?->isDatabaseSource() ? $this->fromDatabase($setting) : $this->fromEnv();
     }
 
     /**

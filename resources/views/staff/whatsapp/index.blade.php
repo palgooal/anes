@@ -51,19 +51,19 @@
       <h2 id="takeover-title" class="text-[1.15rem]">الإعدادات تُقرأ حالياً من ملف <span class="num">.env</span></h2>
       <p class="small muted">
         مشغّل الإرسال الحالي في <span class="num">.env</span> هو <span class="num">{{ $envDriver }}</span>.
-        لإدارة الإعدادات من هذه اللوحة انقل الإدارة إليها. بعد النقل لا يُقرأ أي إعداد واتساب من <span class="num">.env</span>.
+        لإدارة الإعدادات من هذه اللوحة انقل الإدارة إليها. النقل يُنشئ سجلًا قيد التحضير، وتبقى رموز الدخول تُرسل بإعدادات <span class="num">.env</span> حتى تفعيل صريح.
       </p>
       @if ($takeOverAllowed)
       <div class="info">
-        تبدأ الإعدادات فارغة، ويكون الوضع
-        <b>{{ $modeLabels[WhatsAppMode::Log->value] }}</b>.
-        أي إرسال يعمل الآن من <span class="num">.env</span> سيتوقف حتى تُستكمل الإعدادات ويُفعَّل الإرسال.
+        تبدأ الإعدادات فارغة، ويُحفظ الوضع
+        <b>{{ $modeLabels[WhatsAppMode::Log->value] }}</b>، ولا أثر له قبل التفعيل.
+        لا يتغير الإرسال بالنقل: يستمر من <span class="num">.env</span> طوال التحضير.
       </div>
       <form method="POST" action="{{ route('staff.whatsapp.take-over') }}" class="grid gap-3" data-confirm="نقل إدارة إعدادات واتساب إلى اللوحة؟">
         @csrf
         <label class="flex cursor-pointer items-center gap-2.5 font-normal">
           <input type="checkbox" name="confirm" value="1" class="size-[18px] w-auto accent-role" required>
-          أفهم أن الإعدادات ستُدار من اللوحة وأن الإرسال من <span class="num">.env</span> سيتوقف.
+          أفهم أن الإعدادات ستُدار من اللوحة قيد التحضير، وأن الإرسال يبقى من <span class="num">.env</span> حتى التفعيل.
         </label>
         <span class="err">@error('confirm'){{ $message }}@enderror</span>
         <button class="btn btn-p justify-self-start" type="submit">نقل الإدارة إلى اللوحة</button>
@@ -72,8 +72,8 @@
       {{-- REQ-WA-64: refused outside local and testing until PH-WA-6. --}}
       <div class="note" data-take-over-unavailable>
         <b>نقل الإدارة غير متاح في هذه البيئة حاليًا.</b>
-        بعد النقل يبدأ الإرسال متوقفًا، ولا توجد بعد في اللوحة وسيلة لتفعيله، فتتوقف كل رموز الدخول، بما فيها رموز الفريق.
-        سيُتاح النقل مع مرحلة تفعيل الإنتاج، وحتى ذلك الحين يستمر الإرسال من ملف <span class="num">.env</span>.
+        سيُتاح بعد اكتمال وسائل التفعيل والاستعادة في هذه المرحلة.
+        وحتى ذلك الحين يستمر الإرسال من ملف <span class="num">.env</span>.
       </div>
       @endif
     </section>
@@ -82,10 +82,22 @@
     <section class="card grid gap-2" aria-labelledby="status-title">
       <div class="sec-h">
         <h2 id="status-title">الحالة</h2>
-        <span class="pill role">تُدار من اللوحة</span>
+        @if ($setting->isDatabaseSource())
+          <span class="pill ok" data-source="database">مفعّل</span>
+        @else
+          <span class="pill wait" data-source="env">قيد التحضير</span>
+        @endif
       </div>
-      <p>الوضع الحالي: <b>{{ $modeLabels[$setting->mode->value] }}</b></p>
-      <p class="small muted">تبديل الوضع وتفعيل الإنتاج غير متاحين بعد في هذه اللوحة.</p>
+      {{-- REQ-WA-65: the effective OTP source and the row state. --}}
+      @if ($setting->isDatabaseSource())
+        <p>مصدر رموز الدخول: <b>إعدادات هذه اللوحة</b> منذ <span class="num" dir="ltr">{{ $setting->database_source_activated_at->format('Y-m-d') }}</span>.</p>
+        <p>الوضع الحالي: <b>{{ $modeLabels[$setting->mode->value] }}</b></p>
+      @else
+        <p>مصدر رموز الدخول: <b>ملف <bdi class="num" dir="ltr">.env</bdi></b></p>
+        <p>السجل قيد التحضير، فلا تؤثر هذه الإعدادات في الإرسال حتى تفعيل صريح.</p>
+        <p class="small muted">الوضع المحفوظ: {{ $modeLabels[$setting->mode->value] }}، ولا أثر له قبل التفعيل.</p>
+      @endif
+      <p class="small muted">تبديل الوضع والتفعيل غير متاحين بعد في هذه اللوحة.</p>
     </section>
 
     {{-- ============ GENERAL ============ --}}

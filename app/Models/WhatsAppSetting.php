@@ -17,6 +17,11 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Read it through App\Services\WhatsApp\WhatsAppSettings, never directly.
  * Secrets are encrypted at rest and never serialised (REQ-WA-17).
+ *
+ * database_source_activated_at is the OTP source state (REQ-WA-65): NULL while
+ * the row is being prepared (OTP codes still use .env), a value once the
+ * database is the source. It is deliberately not fillable: only an explicit
+ * activation or restore may change it, never a settings form.
  */
 #[Table('whatsapp_settings')]
 #[Fillable([
@@ -50,6 +55,7 @@ class WhatsAppSetting extends Model
     {
         return [
             'mode' => WhatsAppMode::class,
+            'database_source_activated_at' => 'datetime',
             'singleton' => 'boolean',
             'secret_metadata' => 'array',
             'test_token_expires_at' => 'datetime',
@@ -60,6 +66,14 @@ class WhatsAppSetting extends Model
             'production_token_checked_at' => 'datetime',
             ...array_fill_keys(self::SECRETS, 'encrypted'),
         ];
+    }
+
+    /**
+     * Whether OTP codes are sent with these settings (REQ-WA-65), or still with .env.
+     */
+    public function isDatabaseSource(): bool
+    {
+        return $this->database_source_activated_at !== null;
     }
 
     protected static function booted(): void
