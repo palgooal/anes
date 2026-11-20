@@ -97,7 +97,31 @@
         <p>السجل قيد التحضير، فلا تؤثر هذه الإعدادات في الإرسال حتى تفعيل صريح.</p>
         <p class="small muted">الوضع المحفوظ: {{ $modeLabels[$setting->mode->value] }}، ولا أثر له قبل التفعيل.</p>
       @endif
-      <p class="small muted">تبديل الوضع والتفعيل غير متاحين بعد في هذه اللوحة.</p>
+      @php $modeBag = $errors->getBag('mode'); @endphp
+      @if ($modeBag->any())
+        <p class="note" role="alert">{{ $modeBag->first() }}</p>
+      @endif
+
+      {{-- REQ-WA-13, REQ-WA-65: switching the mode only once the database is the OTP source. --}}
+      @if ($setting->isDatabaseSource())
+        <form method="POST" action="{{ route('staff.whatsapp.mode.review') }}" class="grid gap-3 pt-3" style="border-top: 1px dashed var(--line)" data-mode-switch>
+          @csrf
+          <label for="mode">تبديل الوضع
+            <select id="mode" name="mode">
+              @foreach (\App\Services\WhatsApp\WhatsAppSettingsManager::SWITCHABLE_MODES as $option)
+                @if ($option !== $setting->mode && ($option !== WhatsAppMode::Log || app()->environment('local', 'testing')))
+                  <option value="{{ $option->value }}">{{ $option->label() }}</option>
+                @endif
+              @endforeach
+            </select>
+          </label>
+          <span class="small muted">ستُعرض عليك قبل التبديل آثاره على رموز الدخول، ويُطلب تأكيد كلمة المرور. التفعيل إلى الإنتاج لا يتم من هنا.</span>
+          <button class="btn btn-g justify-self-start" type="submit">مراجعة التبديل</button>
+        </form>
+      @else
+        <p class="small muted" data-mode-switch-unavailable>تبديل الوضع غير متاح: السجل قيد التحضير، ومصدر رموز الدخول الفعّال ما زال ملف <bdi class="num" dir="ltr">.env</bdi></p>
+      @endif
+      <p class="small muted">التفعيل غير متاح بعد في هذه اللوحة.</p>
     </section>
 
     {{-- ============ GENERAL ============ --}}

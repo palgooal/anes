@@ -29,7 +29,7 @@ class WhatsAppSettingsManager
     /** Secret fields of each environment. */
     public const ENVIRONMENT_SECRETS = ['access_token', 'app_secret'];
 
-    public function __construct(private MetaGraphClient $meta) {}
+    public function __construct(private MetaGraphClient $meta, private WhatsAppSettings $settings) {}
 
     /**
      * Whether management may move to the panel in this application environment.
@@ -81,6 +81,81 @@ class WhatsAppSettingsManager
      *
      * @param  array{api_version?: ?string}  $values
      */
+    /** Modes the panel may switch to (REQ-WA-13). Production is reached by activation only (REQ-WA-14). */
+    public const SWITCHABLE_MODES = [WhatsAppMode::Disabled, WhatsAppMode::Test, WhatsAppMode::Log];
+
+    /**
+     * Why switching to a mode is not possible right now, or null when it is
+     * (REQ-WA-11, REQ-WA-13, REQ-WA-14, REQ-WA-65). Reads only.
+     *
+     * @param  ?WhatsAppMode  $expected  The mode the administrator reviewed, to detect a change since then.
+     */
+    public function modeProblem(?WhatsAppSetting $setting, WhatsAppMode $to, ?WhatsAppMode $expected = null): ?string
+    {
+        return match (true) {
+            $setting === null => ModeChangeRefusedException::NOT_MANAGED,
+            ! $setting->isDatabaseSource() => ModeChangeRefusedException::PREPARING,
+            $expected !== null && $expected !== $setting->mode => ModeChangeRefusedException::STALE,
+            $to === WhatsAppMode::Production => ModeChangeRefusedException::PRODUCTION,
+            $to === WhatsAppMode::Log && ! app()->environment('local', 'testing') => ModeChangeRefusedException::LOG_NOT_ALLOWED,
+            $to === $setting->mode => ModeChangeRefusedException::UNCHANGED,
+            $to === WhatsAppMode::Test && $this->settings->missingRequiredFields($setting, WhatsAppEnvironment::Test) !== [] => ModeChangeRefusedException::TEST_INCOMPLETE,
+            default => null,
+        };
+    }
+
+    /**
+     * Switch the mode from the panel (REQ-WA-09, REQ-WA-13): in a short transaction,
+     * with the row locked and every condition checked again, only the mode changes.
+     * The OTP source state, the settings and the secrets are never touched.
+     * A refusal writes nothing to the settings and is audited with its reason.
+     *
+     * @throws ModeChangeRefusedException
+     */
+    public function switchMode(WhatsAppMode $to, WhatsAppMode $expected, User $by, Request $request): WhatsAppSetting
+    {
+        try {
+            return DB::transaction(function () use ($to, $expected, $by, $request) {
+                $setting = WhatsAppSetting::query()->lockForUpdate()->first();
+
+                if ($problem = $this->modeProblem($setting, $to, $expected)) {
+                    throw new ModeChangeRefusedException($problem, $setting?->mode);
+                }
+
+                $old = $setting->mode;
+                $setting->mode = $to;
+                $setting->save();
+
+                WhatsAppSettingsAudit::record(WhatsAppAuditAction::ModeChanged, $by, $to->environment(), changes: [
+                    'mode' => ['old' => $old->value, 'new' => $to->value],
+                ], request: $request);
+
+                return $setting;
+            });
+        } catch (ModeChangeRefusedException $exception) {
+            WhatsAppSettingsAudit::record(WhatsAppAuditAction::ModeChangeRefused, $by, $to->environment(), changes: [
+                'mode' => ['current' => $exception->current?->value, 'requested' => $to->value],
+                'reason' => $exception->reason,
+            ], request: $request);
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Record an attempt to switch to production through the switch route, which the
+     * request validation refuses before anything is read for writing (REQ-WA-14).
+     * Only the normalised requested mode and the current one are kept: never the
+     * request content, passwords, CSRF tokens or secrets.
+     */
+    public function recordProductionAttempt(User $by, Request $request): void
+    {
+        WhatsAppSettingsAudit::record(WhatsAppAuditAction::ModeChangeRefused, $by, WhatsAppMode::Production->environment(), changes: [
+            'mode' => ['current' => WhatsAppSetting::query()->first(['mode'])?->mode?->value, 'requested' => WhatsAppMode::Production->value],
+            'reason' => ModeChangeRefusedException::PRODUCTION,
+        ], request: $request);
+    }
+
     public function updateGeneral(WhatsAppSetting $setting, array $values, User $by, Request $request): bool
     {
         return $this->updateFields($setting, ['api_version' => $values['api_version'] ?? null], null, $by, $request);

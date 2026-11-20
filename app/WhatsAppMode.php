@@ -21,6 +21,19 @@ enum WhatsAppMode: string
     case Production = 'production';
 
     /**
+     * How the mode is shown to administrators.
+     */
+    public function label(): string
+    {
+        return match ($this) {
+            self::Disabled => 'متوقف: لا يُرسل شيء',
+            self::Log => 'تسجيل فقط (للتطوير): لا يُرسل شيء',
+            self::Test => 'الإرسال عبر بيئة الاختبار',
+            self::Production => 'الإرسال عبر بيئة الإنتاج',
+        };
+    }
+
+    /**
      * The settings environment this mode sends through, if any.
      */
     public function environment(): ?WhatsAppEnvironment

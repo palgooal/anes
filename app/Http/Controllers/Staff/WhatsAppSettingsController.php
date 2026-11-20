@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Staff\WhatsApp\ReviewWhatsAppModeRequest;
+use App\Http\Requests\Staff\WhatsApp\SwitchWhatsAppModeRequest;
 use App\Http\Requests\Staff\WhatsApp\TakeOverWhatsAppSettingsRequest;
 use App\Http\Requests\Staff\WhatsApp\UpdateWhatsAppEnvironmentRequest;
 use App\Http\Requests\Staff\WhatsApp\UpdateWhatsAppGeneralRequest;
@@ -14,6 +16,7 @@ use App\Models\User;
 use App\Models\WhatsAppSetting;
 use App\PhoneNumber;
 use App\Services\WhatsApp\AdminTestCodes;
+use App\Services\WhatsApp\ModeChangeRefusedException;
 use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppConnectionTester;
@@ -21,6 +24,7 @@ use App\Services\WhatsApp\WhatsAppSendTester;
 use App\Services\WhatsApp\WhatsAppSettings;
 use App\Services\WhatsApp\WhatsAppSettingsManager;
 use App\WhatsAppEnvironment;
+use App\WhatsAppMode;
 use App\WhatsAppSendStatus;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
@@ -283,6 +287,59 @@ class WhatsAppSettingsController extends Controller
     private function sendTestError(WhatsAppEnvironment $environment, string $message): RedirectResponse
     {
         return to_route('staff.whatsapp')->withErrors(['phone' => $message], 'send_test_'.$environment->value);
+    }
+
+    /**
+     * REQ-WA-13, REQ-WA-16, REQ-WA-71: show the current and requested mode and what
+     * the switch does to login codes, before anything changes. Nothing is written.
+     */
+    public function reviewMode(ReviewWhatsAppModeRequest $request): View|RedirectResponse
+    {
+        $setting = $this->managedSetting();
+        $to = $request->mode();
+
+        if ($problem = $this->manager->modeProblem($setting, $to)) {
+            return $this->modeError($problem, $setting);
+        }
+
+        return view('staff.whatsapp.mode-review', [
+            'current' => $setting->mode,
+            'to' => $to,
+            'testRecipientsWarning' => $to === WhatsAppMode::Test && app()->isProduction(),
+        ]);
+    }
+
+    /**
+     * REQ-WA-09, REQ-WA-13: switch the mode once the impact was acknowledged. Only the
+     * mode changes; a refusal writes nothing and is audited (REQ-WA-44).
+     */
+    public function switchMode(SwitchWhatsAppModeRequest $request): RedirectResponse
+    {
+        try {
+            $setting = $this->manager->switchMode($request->mode(), $request->expectedMode(), $request->user(), $request);
+        } catch (ModeChangeRefusedException $exception) {
+            return $this->modeError($exception->reason, $this->managedSetting());
+        }
+
+        return to_route('staff.whatsapp')->with('status', 'تغيّر وضع الإرسال إلى: '.$setting->mode->label().'.');
+    }
+
+    private function modeError(string $reason, ?WhatsAppSetting $setting): RedirectResponse
+    {
+        $message = match ($reason) {
+            ModeChangeRefusedException::NOT_MANAGED => 'انقل إدارة الإعدادات إلى اللوحة أولاً.',
+            ModeChangeRefusedException::PREPARING => 'تبديل الوضع غير متاح: السجل قيد التحضير، ومصدر رموز الدخول الفعّال ما زال ملف .env.',
+            ModeChangeRefusedException::STALE => 'تغيّر الوضع أو حالة المصدر منذ عرض المراجعة، فلم يُغيَّر شيء. راجع الحالة الحالية وأعد المحاولة.',
+            ModeChangeRefusedException::PRODUCTION => 'التفعيل إلى الإنتاج لا يتم من هنا، بل بإجراء التفعيل بعد فحوص الجاهزية.',
+            ModeChangeRefusedException::LOG_NOT_ALLOWED => 'وضع «تسجيل فقط» متاح في بيئة التطوير والاختبار فقط.',
+            ModeChangeRefusedException::UNCHANGED => 'هذا هو الوضع الحالي، فلم يُغيَّر شيء.',
+            ModeChangeRefusedException::TEST_INCOMPLETE => 'إعدادات بيئة الاختبار ناقصة ('.collect($setting ? $this->settings->missingRequiredFields($setting, WhatsAppEnvironment::Test) : [])
+                ->map(fn (string $field) => ['phone_number_id' => 'Phone Number ID', 'access_token' => 'Access Token', 'template_name' => 'اسم القالب'][$field] ?? $field)
+                ->join('، ').')، فلا يمكن التبديل إليها.',
+            default => 'تعذّر تبديل الوضع.',
+        };
+
+        return to_route('staff.whatsapp')->withErrors(['mode' => $message], 'mode');
     }
 
     private function managedSetting(): ?WhatsAppSetting

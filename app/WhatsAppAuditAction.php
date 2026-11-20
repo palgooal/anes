@@ -5,7 +5,7 @@ namespace App;
 /**
  * Actions recorded in the WhatsApp settings audit trail (REQ-WA-44).
  *
- * Mode changes and production activation are added with PH-WA-6.
+ * Production activation is added with a later PH-WA-6 step.
  */
 enum WhatsAppAuditAction: string
 {
@@ -23,6 +23,12 @@ enum WhatsAppAuditAction: string
 
     /** Secrets were re-encrypted with the current application key. */
     case SecretsReencrypted = 'secrets_reencrypted';
+
+    /** The mode was switched from the panel (REQ-WA-13, REQ-WA-44): only the mode changed. */
+    case ModeChanged = 'mode_changed';
+
+    /** A mode switch was refused before anything was written, with the reason (REQ-WA-44). */
+    case ModeChangeRefused = 'mode_change_refused';
 
     /** A connection test ran on one environment: token, phone number and template (REQ-WA-35). */
     case ConnectionTested = 'connection_tested';

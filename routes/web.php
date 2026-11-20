@@ -73,7 +73,7 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
 
 /*
 | Administration: WhatsApp Cloud API settings (docs/ANIS-WHATSAPP-SETTINGS-001.md, REQ-WA-41).
-| Saving secrets, moving management to the panel and the send test require a password confirmed
+| Saving secrets, moving management to the panel, switching the mode and the send test require a password confirmed
 | within the last 15 minutes (REQ-WA-42). The timeout is set on these routes only; auth.password_timeout is unchanged.
 | The permission is checked before the role, so every non-administrator gets 403 (AC-WA-25).
 */
@@ -90,6 +90,10 @@ Route::prefix('staff/settings/whatsapp')->middleware(['auth', 'can:manage-whatsa
         Route::post('/take-over', [WhatsAppSettingsController::class, 'takeOver'])->name('staff.whatsapp.take-over');
         Route::put('/environments/{environment}/secrets', [WhatsAppSettingsController::class, 'updateSecrets'])->name('staff.whatsapp.secrets');
         Route::put('/webhook-token', [WhatsAppSettingsController::class, 'updateWebhookToken'])->name('staff.whatsapp.webhook-token');
+
+        // Mode switch (REQ-WA-13, REQ-WA-71): review the impact, then switch with acknowledgements.
+        Route::post('/mode/review', [WhatsAppSettingsController::class, 'reviewMode'])->name('staff.whatsapp.mode.review');
+        Route::put('/mode', [WhatsAppSettingsController::class, 'switchMode'])->name('staff.whatsapp.mode');
 
         // Send test (REQ-WA-36, AC-WA-44): review the environment and number, then send.
         Route::post('/environments/{environment}/send-test/review', [WhatsAppSettingsController::class, 'reviewSendTest'])->name('staff.whatsapp.send-test.review');
