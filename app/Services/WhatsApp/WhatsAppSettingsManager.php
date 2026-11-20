@@ -26,6 +26,14 @@ class WhatsAppSettingsManager
     /** Non-secret fields of each environment that the panel may change. */
     public const ENVIRONMENT_FIELDS = ['phone_number_id', 'waba_id', 'display_number', 'template_name', 'template_language'];
 
+    /**
+     * Production identifiers frozen while production mode is in force with the database
+     * source active (REQ-WA-15, AC-WA-10): Phone Number ID, WABA ID, the template and its
+     * language. Only these: the access token can still be rotated after debug_token
+     * accepts the new one (REQ-WA-20).
+     */
+    public const FROZEN_PRODUCTION_FIELDS = ['phone_number_id', 'waba_id', 'template_name', 'template_language'];
+
     /** Secret fields of each environment. */
     public const ENVIRONMENT_SECRETS = ['access_token', 'app_secret'];
 
@@ -162,9 +170,27 @@ class WhatsAppSettingsManager
     }
 
     /**
+     * The fields of an environment that cannot change right now (REQ-WA-15): the
+     * production identifiers while production mode is in force with the database
+     * source active, nothing otherwise. Reads only.
+     *
+     * @return list<string>
+     */
+    public function frozenFields(?WhatsAppSetting $setting, ?WhatsAppEnvironment $environment): array
+    {
+        return $environment === WhatsAppEnvironment::Production
+            && $setting?->isDatabaseSource()
+            && $setting->mode === WhatsAppMode::Production
+                ? self::FROZEN_PRODUCTION_FIELDS
+                : [];
+    }
+
+    /**
      * Change the non-secret fields of one environment. Returns false when nothing changed.
      *
      * @param  array<string, ?string>  $values
+     *
+     * @throws ProductionIdentifiersFrozenException when a frozen production identifier would change (REQ-WA-15); nothing is written.
      */
     public function updateEnvironment(WhatsAppSetting $setting, WhatsAppEnvironment $environment, array $values, User $by, Request $request): bool
     {
@@ -268,31 +294,62 @@ class WhatsAppSettingsManager
     }
 
     /**
+     * Save the changed columns in a short transaction, with the row locked and read
+     * again, so the frozen fields (REQ-WA-15) are checked against the mode and source
+     * state at the moment of writing: a mode switch cannot slip in between. A refusal
+     * writes nothing, not even the fields that were allowed, and is audited with the
+     * field names only.
+     *
      * @param  array<string, ?string>  $columns
+     *
+     * @throws ProductionIdentifiersFrozenException
      */
     private function updateFields(WhatsAppSetting $setting, array $columns, ?WhatsAppEnvironment $environment, User $by, Request $request): bool
     {
-        $changes = [];
+        try {
+            return DB::transaction(function () use ($setting, $columns, $environment, $by, $request) {
+                $locked = WhatsAppSetting::query()->whereKey($setting->getKey())->lockForUpdate()->firstOrFail();
+                $changes = [];
 
-        foreach ($columns as $column => $value) {
-            $value = $value === '' ? null : $value;
-            $old = $setting->getAttribute($column);
+                foreach ($columns as $column => $value) {
+                    $value = $value === '' ? null : $value;
+                    $old = $locked->getAttribute($column);
 
-            if ($old !== $value) {
-                $changes[$column] = ['old' => $old, 'new' => $value];
-                $setting->setAttribute($column, $value);
-            }
+                    if ($old !== $value) {
+                        $changes[$column] = ['old' => $old, 'new' => $value];
+                    }
+                }
+
+                if ($changes === []) {
+                    return false;
+                }
+
+                $frozen = array_values(array_filter(
+                    $this->frozenFields($locked, $environment),
+                    fn (string $field) => array_key_exists($environment->column($field), $changes),
+                ));
+
+                if ($frozen !== []) {
+                    throw new ProductionIdentifiersFrozenException($frozen);
+                }
+
+                foreach ($changes as $column => $change) {
+                    $locked->setAttribute($column, $change['new']);
+                }
+
+                $locked->save();
+                WhatsAppSettingsAudit::record(WhatsAppAuditAction::SettingsUpdated, $by, $environment, $changes, $request);
+                $setting->setRawAttributes($locked->getAttributes(), true);
+
+                return true;
+            });
+        } catch (ProductionIdentifiersFrozenException $exception) {
+            WhatsAppSettingsAudit::record(WhatsAppAuditAction::SettingsChangeRefused, $by, $environment, [
+                'reason' => ProductionIdentifiersFrozenException::REASON,
+                'fields' => $exception->fields,
+            ], $request);
+
+            throw $exception;
         }
-
-        if ($changes === []) {
-            return false;
-        }
-
-        DB::transaction(function () use ($setting, $environment, $changes, $by, $request) {
-            $setting->save();
-            WhatsAppSettingsAudit::record(WhatsAppAuditAction::SettingsUpdated, $by, $environment, $changes, $request);
-        });
-
-        return true;
     }
 }

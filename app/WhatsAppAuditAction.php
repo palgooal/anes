@@ -30,6 +30,13 @@ enum WhatsAppAuditAction: string
     /** A mode switch was refused before anything was written, with the reason (REQ-WA-44). */
     case ModeChangeRefused = 'mode_change_refused';
 
+    /**
+     * A change to the settings was refused before anything was written, with the reason
+     * and the field names only (REQ-WA-15, REQ-WA-44): the production identifiers are
+     * frozen while production mode is in force.
+     */
+    case SettingsChangeRefused = 'settings_change_refused';
+
     /** A connection test ran on one environment: token, phone number and template (REQ-WA-35). */
     case ConnectionTested = 'connection_tested';
 

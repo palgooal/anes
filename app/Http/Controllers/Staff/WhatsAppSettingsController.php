@@ -17,6 +17,7 @@ use App\Models\WhatsAppSetting;
 use App\PhoneNumber;
 use App\Services\WhatsApp\AdminTestCodes;
 use App\Services\WhatsApp\ModeChangeRefusedException;
+use App\Services\WhatsApp\ProductionIdentifiersFrozenException;
 use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppConnectionTester;
@@ -82,6 +83,7 @@ class WhatsAppSettingsController extends Controller
             'editors' => User::query()->whereKey($editorIds)->pluck('name', 'id'),
             'envDriver' => config('services.whatsapp.driver') === 'meta' ? 'meta' : 'log',
             'takeOverAllowed' => WhatsAppSettingsManager::takeOverAllowed(),
+            'frozenProduction' => $this->manager->frozenFields($setting, WhatsAppEnvironment::Production),
             'pendingTest' => $this->sendTester->pending(WhatsAppSendTester::panelKey(auth()->user())),
         ]);
     }
@@ -125,6 +127,14 @@ class WhatsAppSettingsController extends Controller
 
         try {
             $changed = $this->manager->updateEnvironment($setting, $environment, $request->validated(), $request->user(), $request);
+        } catch (ProductionIdentifiersFrozenException $exception) {
+            $message = 'لا يتغير هذا الحقل ما دام وضع الإنتاج نافذًا.';
+
+            return to_route('staff.whatsapp')->withInput()->withErrors(
+                ['frozen' => 'لم يُحفظ شيء: معرّفات الإنتاج لا تتغير ما دام وضع الإنتاج نافذًا. تدوير Access Token متاح.']
+                    + array_fill_keys($exception->fields, $message),
+                $environment->value,
+            );
         } catch (DomainException) {
             return to_route('staff.whatsapp')->withInput()->withErrors(['phone_number_id' => 'هذا المعرّف مستخدم في البيئة الأخرى.'], $environment->value);
         }

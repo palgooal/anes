@@ -165,7 +165,9 @@
             $env = $environment->value;
             $bag = $errors->getBag($env);
             $secretsBag = $errors->getBag('secrets_'.$env);
-            $value = fn (string $field) => $bag->any() ? old($field) : $setting->field($environment, $field);
+            $frozen = $environment === WhatsAppEnvironment::Production ? $frozenProduction : [];
+            // A frozen field always shows the stored value, never what was sent (REQ-WA-15).
+            $value = fn (string $field) => $bag->any() && ! in_array($field, $frozen, true) ? old($field) : $setting->field($environment, $field);
             $token = $setting->secretInfo($environment->column('access_token'));
             $appSecret = $setting->secretInfo($environment->column('app_secret'));
             $expiresAt = $setting->field($environment, 'token_expires_at');
@@ -182,6 +184,14 @@
 
           <form method="POST" action="{{ route('staff.whatsapp.environment', $env) }}" class="grid gap-3" novalidate>
             @csrf @method('PUT')
+            @if ($frozen !== [])
+              <p class="note" id="{{ $env }}-frozen" data-frozen-identifiers>
+                معرّفات الإنتاج (Phone Number ID وWABA ID واسم القالب ولغته) لا تتغير ما دام وضع الإنتاج نافذًا. تدوير Access Token متاح أدناه.
+              </p>
+            @endif
+            @if ($bag->has('frozen'))
+              <p class="note" role="alert">{{ $bag->first('frozen') }}</p>
+            @endif
             @foreach ([
                 'phone_number_id' => ['Phone Number ID', 'من WhatsApp Manager › الأرقام'],
                 'waba_id' => ['WhatsApp Business Account ID', null],
@@ -190,7 +200,7 @@
                 'template_language' => ['لغة القالب', 'مثل ar'],
             ] as $field => [$label, $hint])
               <label for="{{ $env }}-{{ $field }}">{{ $label }}
-                <input id="{{ $env }}-{{ $field }}" name="{{ $field }}" dir="ltr" value="{{ $value($field) }}" autocomplete="off" @if ($bag->has($field)) aria-invalid="true" @endif>
+                <input id="{{ $env }}-{{ $field }}" name="{{ $field }}" dir="ltr" value="{{ $value($field) }}" autocomplete="off" @if ($bag->has($field)) aria-invalid="true" @endif @if (in_array($field, $frozen, true)) readonly class="opacity-60" aria-describedby="{{ $env }}-frozen" @endif>
                 @if ($hint)<span class="small muted font-normal">{{ $hint }}</span>@endif
                 <span class="err">{{ $bag->first($field) }}</span>
               </label>
