@@ -3,6 +3,7 @@
 namespace App\Services\WhatsApp;
 
 use App\Models\WhatsAppSetting;
+use App\WhatsAppEnvironment;
 use App\WhatsAppMode;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
@@ -122,10 +123,8 @@ class WhatsAppSettings
         $template = $this->filled($setting->field($environment, 'template_name'));
         $language = $this->filled($setting->field($environment, 'template_language')) ?? self::DEFAULT_TEMPLATE_LANGUAGE;
 
-        foreach (self::REQUIRED_FIELDS as $field) {
-            if ($this->filled($setting->field($environment, $field)) === null) {
-                return $blocked(WhatsAppConfig::BLOCKED_INCOMPLETE, $template, $language);
-            }
+        if ($this->missingRequiredFields($setting, $environment) !== []) {
+            return $blocked(WhatsAppConfig::BLOCKED_INCOMPLETE, $template, $language);
         }
 
         return new WhatsAppConfig(
@@ -139,6 +138,19 @@ class WhatsAppSettings
             templateName: $template,
             templateLanguage: $language,
         );
+    }
+
+    /**
+     * Required fields still empty in an environment (names only, never values).
+     *
+     * @return list<string>
+     */
+    public function missingRequiredFields(WhatsAppSetting $setting, WhatsAppEnvironment $environment): array
+    {
+        return array_values(array_filter(
+            self::REQUIRED_FIELDS,
+            fn (string $field) => $this->filled($setting->field($environment, $field)) === null,
+        ));
     }
 
     private function filled(mixed $value): ?string

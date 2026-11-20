@@ -15,6 +15,11 @@
         ['key' => 'svc', 'label' => 'الخدمات والمحتوى', 'url' => route('staff.dashboard', ['tab' => 'svc'])],
         ['key' => 'msgs', 'label' => 'الرسائل', 'url' => route('staff.dashboard', ['tab' => 'msgs'])],
     ];
+
+    // REQ-WA-43: only for whoever holds the WhatsApp settings permission.
+    if ($user->can('manage-whatsapp')) {
+        $tabs[] = ['key' => 'whatsapp', 'label' => 'إعدادات واتساب', 'url' => route('staff.whatsapp')];
+    }
 @endphp
 
 <!doctype html>

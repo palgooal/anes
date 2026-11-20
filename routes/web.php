@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\BeneficiaryLoginController;
+use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\Auth\JoinRequestController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -8,6 +9,8 @@ use App\Http\Controllers\Auth\StaffLoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Staff\TeamController;
 use App\Http\Controllers\Staff\TeamMemberStatusController;
+use App\Http\Controllers\Staff\WhatsAppSettingsController;
+use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -58,4 +61,30 @@ Route::prefix('staff')->middleware(['auth', 'role:staff', 'can:manage-team'])->g
     Route::post('/team', [TeamController::class, 'store'])->name('staff.team.store');
     Route::delete('/team/{member}', [TeamController::class, 'destroy'])->name('staff.team.destroy');
     Route::patch('/team/{member}/status', [TeamMemberStatusController::class, 'update'])->name('staff.team.status');
+});
+
+/*
+| Re-enter the password before a sensitive action (Laravel "password.confirm" middleware).
+*/
+Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
+    Route::get('/confirm-password', [ConfirmPasswordController::class, 'create'])->name('password.confirm');
+    Route::post('/confirm-password', [ConfirmPasswordController::class, 'store'])->middleware('throttle:6,1');
+});
+
+/*
+| Administration: WhatsApp Cloud API settings (docs/ANIS-WHATSAPP-SETTINGS-001.md, REQ-WA-41).
+| Saving secrets and moving management to the panel require a password confirmed within the
+| last 15 minutes (REQ-WA-42). The timeout is set on these routes only; auth.password_timeout is unchanged.
+| The permission is checked before the role, so every non-administrator gets 403 (AC-WA-25).
+*/
+Route::prefix('staff/settings/whatsapp')->middleware(['auth', 'can:manage-whatsapp', 'role:staff'])->group(function () {
+    Route::get('/', [WhatsAppSettingsController::class, 'show'])->name('staff.whatsapp');
+    Route::put('/general', [WhatsAppSettingsController::class, 'updateGeneral'])->name('staff.whatsapp.general');
+    Route::put('/environments/{environment}', [WhatsAppSettingsController::class, 'updateEnvironment'])->name('staff.whatsapp.environment');
+
+    Route::middleware(RequirePassword::using(null, WhatsAppSettingsController::PASSWORD_CONFIRMATION_SECONDS))->group(function () {
+        Route::post('/take-over', [WhatsAppSettingsController::class, 'takeOver'])->name('staff.whatsapp.take-over');
+        Route::put('/environments/{environment}/secrets', [WhatsAppSettingsController::class, 'updateSecrets'])->name('staff.whatsapp.secrets');
+        Route::put('/webhook-token', [WhatsAppSettingsController::class, 'updateWebhookToken'])->name('staff.whatsapp.webhook-token');
+    });
 });

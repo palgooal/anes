@@ -25,7 +25,9 @@ use Illuminate\Database\Eloquent\Model;
     'test_template_name', 'test_template_language', 'test_app_secret',
     'production_phone_number_id', 'production_waba_id', 'production_display_number', 'production_access_token',
     'production_template_name', 'production_template_language', 'production_app_secret',
-    'webhook_verify_token',
+    'webhook_verify_token', 'secret_metadata',
+    'test_token_expires_at', 'test_token_never_expires', 'test_token_expiry_source', 'test_token_checked_at',
+    'production_token_expires_at', 'production_token_never_expires', 'production_token_expiry_source', 'production_token_checked_at',
 ])]
 #[Hidden(self::SECRETS)]
 class WhatsAppSetting extends Model
@@ -49,6 +51,13 @@ class WhatsAppSetting extends Model
         return [
             'mode' => WhatsAppMode::class,
             'singleton' => 'boolean',
+            'secret_metadata' => 'array',
+            'test_token_expires_at' => 'datetime',
+            'test_token_never_expires' => 'boolean',
+            'test_token_checked_at' => 'datetime',
+            'production_token_expires_at' => 'datetime',
+            'production_token_never_expires' => 'boolean',
+            'production_token_checked_at' => 'datetime',
             ...array_fill_keys(self::SECRETS, 'encrypted'),
         ];
     }
@@ -77,5 +86,45 @@ class WhatsAppSetting extends Model
     public function field(WhatsAppEnvironment $environment, string $field): mixed
     {
         return $this->getAttribute($environment->column($field));
+    }
+
+    /**
+     * What may be shown about a secret instead of its value (REQ-WA-18):
+     * whether it is saved, its last 4 characters, when and by whom it was last set.
+     *
+     * @return array{saved: bool, last4: ?string, updated_at: ?string, updated_by: ?int}
+     */
+    public function secretInfo(string $column): array
+    {
+        $value = $this->getAttribute($column);
+        $meta = $this->secret_metadata[$column] ?? [];
+
+        return [
+            'saved' => is_string($value) && $value !== '',
+            'last4' => $meta['last4'] ?? null,
+            'updated_at' => $meta['updated_at'] ?? null,
+            'updated_by' => $meta['updated_by'] ?? null,
+        ];
+    }
+
+    /**
+     * Store a secret (encrypted by its cast) and the metadata shown in its place.
+     */
+    public function setSecret(string $column, string $value, ?User $by): void
+    {
+        $this->setAttribute($column, $value);
+
+        $metadata = $this->secret_metadata ?? [];
+        $metadata[$column] = [
+            'last4' => self::lastFour($value),
+            'updated_at' => now()->toIso8601String(),
+            'updated_by' => $by?->getKey(),
+        ];
+        $this->secret_metadata = $metadata;
+    }
+
+    public static function lastFour(string $value): string
+    {
+        return mb_substr($value, -4);
     }
 }

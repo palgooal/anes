@@ -65,6 +65,9 @@ class AppServiceProvider extends ServiceProvider
         /** Approving, adding and suspending team members is reserved for administrators. */
         Gate::define('manage-team', fn (User $user): bool => $user->role === UserRole::Admin);
 
+        /** WhatsApp Cloud API settings: a separate permission, held by administrators for now (REQ-WA-40). */
+        Gate::define('manage-whatsapp', fn (User $user): bool => $user->role === UserRole::Admin);
+
         View::share('waNumber', config('services.whatsapp.number'));
     }
 }

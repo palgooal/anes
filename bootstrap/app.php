@@ -25,4 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // WhatsApp secrets are never flashed back into the session after a validation error (REQ-WA-19).
+        $exceptions->dontFlash(['access_token', 'app_secret', 'webhook_verify_token']);
     })->create();
