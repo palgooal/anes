@@ -23,6 +23,9 @@ class MetaGraphClient
     /** Template fields read by the connection test (PND-WA-04). */
     public const TEMPLATE_FIELDS = 'name,language,status,category';
 
+    /** Template fields read by the readiness checks, components included (REQ-WA-24, PND-WA-04). */
+    public const TEMPLATE_FIELDS_WITH_COMPONENTS = 'name,language,status,category,components';
+
     /**
      * Inspect an access token with debug_token (REQ-WA-20). The token inspects itself.
      *
@@ -71,14 +74,17 @@ class MetaGraphClient
 
     /**
      * Every language version of a template in a WhatsApp Business Account (REQ-WA-35).
+     * With $withComponents, each version also carries its components as Meta returned
+     * them, or null when Meta returned none (REQ-WA-24).
      *
-     * @return list<array{name: ?string, language: ?string, status: ?string, category: ?string}>
+     * @return list<array{name: ?string, language: ?string, status: ?string, category: ?string, components?: ?list<array<string, mixed>>}>
      *
      * @throws MetaGraphException
      */
-    public function templates(string $apiVersion, #[SensitiveParameter] string $token, string $wabaId, string $name): array
+    public function templates(string $apiVersion, #[SensitiveParameter] string $token, string $wabaId, string $name, bool $withComponents = false): array
     {
-        $data = $this->get($apiVersion, $token, "{$wabaId}/message_templates", ['name' => $name, 'fields' => self::TEMPLATE_FIELDS])->json('data');
+        $fields = $withComponents ? self::TEMPLATE_FIELDS_WITH_COMPONENTS : self::TEMPLATE_FIELDS;
+        $data = $this->get($apiVersion, $token, "{$wabaId}/message_templates", ['name' => $name, 'fields' => $fields])->json('data');
 
         return collect(is_array($data) ? $data : [])
             ->filter(fn ($template) => is_array($template))
@@ -87,7 +93,7 @@ class MetaGraphClient
                 'language' => $this->text($template['language'] ?? null),
                 'status' => $this->text($template['status'] ?? null),
                 'category' => $this->text($template['category'] ?? null),
-            ])
+            ] + ($withComponents ? ['components' => $this->components($template['components'] ?? null)] : []))
             // Meta matches names loosely: keep the exact name only.
             ->filter(fn (array $template) => $template['name'] === $name)
             ->values()
@@ -119,6 +125,18 @@ class MetaGraphClient
         }
 
         return $response;
+    }
+
+    /**
+     * @return ?list<array<string, mixed>>
+     */
+    private function components(mixed $components): ?array
+    {
+        if (! is_array($components) || ! array_is_list($components)) {
+            return null;
+        }
+
+        return array_values(array_filter($components, 'is_array'));
     }
 
     private function text(mixed $value): ?string

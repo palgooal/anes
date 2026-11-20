@@ -18,9 +18,11 @@ use App\PhoneNumber;
 use App\Services\WhatsApp\AdminTestCodes;
 use App\Services\WhatsApp\ModeChangeRefusedException;
 use App\Services\WhatsApp\ProductionIdentifiersFrozenException;
+use App\Services\WhatsApp\SettingsFingerprint;
 use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppConnectionTester;
+use App\Services\WhatsApp\WhatsAppReadiness;
 use App\Services\WhatsApp\WhatsAppSendTester;
 use App\Services\WhatsApp\WhatsAppSettings;
 use App\Services\WhatsApp\WhatsAppSettingsManager;
@@ -55,6 +57,8 @@ class WhatsAppSettingsController extends Controller
         private WhatsAppSettingsManager $manager,
         private WhatsAppConnectionTester $connectionTester,
         private WhatsAppSendTester $sendTester,
+        private SettingsFingerprint $fingerprint,
+        private WhatsAppReadiness $readiness,
     ) {}
 
     public function show(): View
@@ -219,6 +223,27 @@ class WhatsAppSettingsController extends Controller
     }
 
     /**
+     * REQ-WA-24: run the six readiness checks of the production environment on request.
+     * Opening the panel never runs them. The result is shown once and never stored,
+     * and nothing changes: not the mode, not the OTP source, not a field. No production
+     * activation is offered here.
+     */
+    public function readiness(): View|RedirectResponse
+    {
+        $setting = $this->managedSetting();
+
+        if (! $setting) {
+            return $this->notManagedYet();
+        }
+
+        return view('staff.whatsapp.readiness', [
+            'setting' => $setting,
+            'result' => $this->readiness->check($setting),
+            'checkedAt' => now(),
+        ]);
+    }
+
+    /**
      * REQ-WA-36, REQ-WA-38: send the test code after the review. Refusals before the
      * send are not counted.
      */
@@ -243,6 +268,8 @@ class WhatsAppSettingsController extends Controller
             quota: null,
             by: $request->user(),
             request: $request,
+            // REQ-WA-68: a production test is tied to the settings that sent it.
+            fingerprint: $environment === WhatsAppEnvironment::Production ? $this->fingerprint->production($setting) : null,
         );
 
         $to = '••••'.substr($phone, -4);

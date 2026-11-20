@@ -262,6 +262,15 @@
               <span class="small muted">يفحص الرمز والرقم والقالب لدى Meta، ولا يرسل أي رسالة.</span>
             </form>
 
+            @if ($environment === WhatsAppEnvironment::Production)
+              {{-- REQ-WA-24: run on request only, never on opening the page. --}}
+              <form method="POST" action="{{ route('staff.whatsapp.readiness') }}" class="grid gap-2" data-readiness-form>
+                @csrf
+                <button class="btn btn-g justify-self-start" type="submit">فحص جاهزية الإنتاج</button>
+                <span class="small muted">يفحص شروط الجاهزية الستة دون إرسال أي رسالة، ولا يغيّر الوضع ولا مصدر رموز الدخول، ولا يفعّل الإنتاج.</span>
+              </form>
+            @endif
+
             @if (($connectionTest['environment'] ?? null) === $env)
               <ul class="grid list-none gap-2 p-0" data-connection-results>
                 @foreach ($connectionTest['checks'] as $name => $check)

@@ -70,9 +70,13 @@ class WhatsAppSendTester
      * Send a test code. The caller has already checked the limit and that the
      * settings can send to Meta; both are checked again here.
      *
+     * $fingerprint is the fingerprint of the production settings used for this send
+     * (REQ-WA-68). It is kept with the code and in both audit entries, so the
+     * confirmation stays tied to the settings that actually sent the code.
+     *
      * @return array{status: WhatsAppSendStatus, error_code: ?string}
      */
-    public function send(WhatsAppConfig $config, string $phone, string $key, string $origin, ?string $quota, ?User $by, ?Request $request): array
+    public function send(WhatsAppConfig $config, string $phone, string $key, string $origin, ?string $quota, ?User $by, ?Request $request, ?string $fingerprint = null): array
     {
         if (! $config->sendsToMeta()) {
             throw new LogicException('A test code is only sent through Meta.');
@@ -91,6 +95,7 @@ class WhatsAppSendTester
             'last4' => $last4,
             'origin' => $origin,
             'quota' => $quota,
+            'fingerprint' => $fingerprint,
         ]);
 
         $errorCode = null;
@@ -119,6 +124,7 @@ class WhatsAppSendTester
             'recipient_last4' => $last4,
             'send_status' => $status->value,
             'error_code' => $errorCode,
+            'fingerprint' => $fingerprint,
         ], fn ($value) => $value !== null), request: $request);
 
         return ['status' => $status, 'error_code' => $errorCode];
@@ -143,6 +149,7 @@ class WhatsAppSendTester
                     'quota' => $result['context']['quota'] ?? null,
                     'recipient_last4' => $result['context']['last4'] ?? null,
                     'outcome' => $result['outcome'],
+                    'fingerprint' => $result['context']['fingerprint'] ?? null,
                 ], fn ($value) => $value !== null),
                 request: $request,
             );

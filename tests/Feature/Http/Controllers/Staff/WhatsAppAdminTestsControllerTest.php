@@ -8,6 +8,7 @@ use App\Models\WhatsAppMessageLog;
 use App\Models\WhatsAppSetting;
 use App\Models\WhatsAppSettingsAudit;
 use App\Services\WhatsApp\AdminTestCodes;
+use App\Services\WhatsApp\SettingsFingerprint;
 use App\Services\WhatsApp\WhatsAppSendTester;
 use App\WhatsAppAuditAction;
 use App\WhatsAppEnvironment;
@@ -267,7 +268,11 @@ class WhatsAppAdminTestsControllerTest extends TestCase
 
         $audit = WhatsAppSettingsAudit::sole();
         $this->assertSame(WhatsAppAuditAction::SendTestAttempted, $audit->action);
-        $this->assertSame(['origin' => 'panel', 'source' => 'database', 'recipient_last4' => '4567', 'send_status' => 'accepted'], $audit->changes);
+        // REQ-WA-68 (PH-WA-6.5): a production test carries the fingerprint of the settings that sent it.
+        $this->assertSame([
+            'origin' => 'panel', 'source' => 'database', 'recipient_last4' => '4567', 'send_status' => 'accepted',
+            'fingerprint' => app(SettingsFingerprint::class)->production($setting),
+        ], $audit->changes);
         $this->assertSame($admin->id, $audit->user_id);
     }
 

@@ -84,6 +84,8 @@ Route::prefix('staff/settings/whatsapp')->middleware(['auth', 'can:manage-whatsa
 
     // Connection test (REQ-WA-35): read-only, no password confirmation. Checking a received test code (REQ-WA-36).
     Route::post('/environments/{environment}/connection-test', [WhatsAppSettingsController::class, 'testConnection'])->name('staff.whatsapp.connection-test');
+    // REQ-WA-24: readiness checks on request only; like the connection test, no password confirmation.
+    Route::post('/readiness', [WhatsAppSettingsController::class, 'readiness'])->name('staff.whatsapp.readiness');
     Route::post('/send-test/verify', [WhatsAppSettingsController::class, 'verifySendTest'])->name('staff.whatsapp.send-test.verify');
 
     Route::middleware(RequirePassword::using(null, WhatsAppSettingsController::PASSWORD_CONFIRMATION_SECONDS))->group(function () {
