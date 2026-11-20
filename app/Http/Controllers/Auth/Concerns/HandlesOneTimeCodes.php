@@ -7,6 +7,7 @@ use App\Models\OneTimeCode;
 use App\Models\User;
 use App\Notifications\LoginCodeNotification;
 use App\Services\WhatsApp\WhatsAppUnavailableException;
+use App\WhatsAppSendStatus;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
+use Throwable;
 
 /**
  * Shared steps of the WhatsApp code flows: who is waiting for a code (kept in
@@ -48,12 +50,26 @@ trait HandlesOneTimeCodes
 
     /**
      * Issue and send a code. Returns false (and reports the error) when WhatsApp could not be reached.
+     *
+     * Fail-safe (REQ-WA-27, REQ-WA-28): unless Meta accepted the request, the code is
+     * invalidated at once, even if the message might still arrive later. Unexpected
+     * errors invalidate the code too, then keep propagating as before.
      */
     protected function sendCode(User $user, CodePurpose $purpose): bool
     {
+        [$oneTimeCode, $plain] = OneTimeCode::issue($user, $purpose);
+
         try {
-            $user->notify(new LoginCodeNotification(OneTimeCode::issueFor($user, $purpose)));
-        } catch (RequestException|ConnectionException|WhatsAppUnavailableException $exception) {
+            $user->notify(new LoginCodeNotification($plain));
+        } catch (Throwable $exception) {
+            $oneTimeCode->invalidate(WhatsAppSendStatus::fromException($exception));
+
+            if (! $exception instanceof RequestException
+                && ! $exception instanceof ConnectionException
+                && ! $exception instanceof WhatsAppUnavailableException) {
+                throw $exception;
+            }
+
             report($exception);
 
             return false;
@@ -149,7 +165,8 @@ trait HandlesOneTimeCodes
         }
 
         $left = RateLimiter::remaining($throttleKey, (int) config('auth.one_time_codes.max_attempts'));
-        $message = $oneTimeCode?->isExpired()
+        $failedSend = ! $oneTimeCode && OneTimeCode::latestIssuedFor($user, $purpose)?->isInvalidated();
+        $message = $failedSend || $oneTimeCode?->isExpired()
             ? 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.'
             : 'الرمز غير صحيح. بقي لك '.self::arabicCount($left).'.';
 
@@ -179,7 +196,7 @@ trait HandlesOneTimeCodes
     {
         return [
             'phone' => (string) $user->phone,
-            'resendIn' => OneTimeCode::latestFor($user, $purpose)?->secondsUntilResend() ?? 0,
+            'resendIn' => OneTimeCode::latestIssuedFor($user, $purpose)?->secondsUntilResend() ?? 0,
         ];
     }
 

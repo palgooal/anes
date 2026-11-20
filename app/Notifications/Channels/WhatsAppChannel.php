@@ -40,10 +40,10 @@ class WhatsAppChannel
         }
 
         if ($config->writesToLog()) {
-            // The plain code is only written to the log outside production.
+            // The plain code is only written to the log locally and in tests (REQ-WA-34).
             Log::info('WhatsApp login code (log driver, not sent)', [
                 'to' => $to,
-                'code' => app()->isProduction() ? '****' : $notification->code,
+                'code' => app()->environment('local', 'testing') ? $notification->code : '****',
             ]);
 
             return;
