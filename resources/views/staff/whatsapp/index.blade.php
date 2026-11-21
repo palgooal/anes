@@ -53,10 +53,9 @@
         مشغّل الإرسال الحالي في <span class="num">.env</span> هو <span class="num">{{ $envDriver }}</span>.
         لإدارة الإعدادات من هذه اللوحة انقل الإدارة إليها. النقل يُنشئ سجلًا قيد التحضير، وتبقى رموز الدخول تُرسل بإعدادات <span class="num">.env</span> حتى تفعيل صريح.
       </p>
-      @if ($takeOverAllowed)
       <div class="info">
         تبدأ الإعدادات فارغة، ويُحفظ الوضع
-        <b>{{ $modeLabels[WhatsAppMode::Log->value] }}</b>، ولا أثر له قبل التفعيل.
+        <b data-initial-mode="{{ $initialMode->value }}">{{ $modeLabels[$initialMode->value] }}</b>، ولا أثر له قبل التفعيل.
         لا يتغير الإرسال بالنقل: يستمر من <span class="num">.env</span> طوال التحضير.
       </div>
       <form method="POST" action="{{ route('staff.whatsapp.take-over') }}" class="grid gap-3" data-confirm="نقل إدارة إعدادات واتساب إلى اللوحة؟">
@@ -68,14 +67,6 @@
         <span class="err">@error('confirm'){{ $message }}@enderror</span>
         <button class="btn btn-p justify-self-start" type="submit">نقل الإدارة إلى اللوحة</button>
       </form>
-      @else
-      {{-- REQ-WA-64: refused outside local and testing until PH-WA-6. --}}
-      <div class="note" data-take-over-unavailable>
-        <b>نقل الإدارة غير متاح في هذه البيئة حاليًا.</b>
-        سيُتاح بعد اكتمال وسائل التفعيل والاستعادة في هذه المرحلة.
-        وحتى ذلك الحين يستمر الإرسال من ملف <span class="num">.env</span>.
-      </div>
-      @endif
     </section>
   @else
     {{-- ============ STATUS ============ --}}

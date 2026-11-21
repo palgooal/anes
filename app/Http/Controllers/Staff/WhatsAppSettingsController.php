@@ -23,7 +23,6 @@ use App\Services\WhatsApp\AdminTestCodes;
 use App\Services\WhatsApp\ModeChangeRefusedException;
 use App\Services\WhatsApp\ProductionIdentifiersFrozenException;
 use App\Services\WhatsApp\SettingsFingerprint;
-use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppActivation;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppConnectionTester;
@@ -53,9 +52,6 @@ class WhatsAppSettingsController extends Controller
      * (REQ-WA-42). Applied to their routes only; auth.password_timeout is unchanged.
      */
     public const PASSWORD_CONFIRMATION_SECONDS = 900;
-
-    /** Shown when management cannot move to the panel in this environment (REQ-WA-64). */
-    public const TAKE_OVER_NOT_ALLOWED = 'نقل إدارة واتساب إلى اللوحة غير متاح في هذه البيئة حاليًا، حتى تكتمل في هذه المرحلة وسائل التفعيل والاستعادة. وحتى ذلك الحين يستمر الإرسال من ملف .env.';
 
     public function __construct(
         private WhatsAppSettings $settings,
@@ -92,7 +88,7 @@ class WhatsAppSettingsController extends Controller
             'incomplete' => $incomplete,
             'editors' => User::query()->whereKey($editorIds)->pluck('name', 'id'),
             'envDriver' => config('services.whatsapp.driver') === 'meta' ? 'meta' : 'log',
-            'takeOverAllowed' => WhatsAppSettingsManager::takeOverAllowed(),
+            'initialMode' => WhatsAppSettingsManager::initialMode(),
             'frozenProduction' => $this->manager->frozenFields($setting, WhatsAppEnvironment::Production),
             'activationTargets' => $this->activation->offeredTargets($setting),
             'pendingTest' => $this->sendTester->pending(WhatsAppSendTester::panelKey(auth()->user())),
@@ -106,8 +102,6 @@ class WhatsAppSettingsController extends Controller
     {
         try {
             $this->manager->takeOver($request->user(), $request);
-        } catch (TakeOverNotAllowedException) {
-            return to_route('staff.whatsapp')->withErrors(['whatsapp' => self::TAKE_OVER_NOT_ALLOWED]);
         } catch (DomainException) {
             return to_route('staff.whatsapp')->withErrors(['whatsapp' => 'إعدادات واتساب تُدار من اللوحة بالفعل.']);
         }

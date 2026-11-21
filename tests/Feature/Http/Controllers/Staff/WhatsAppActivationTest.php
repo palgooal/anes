@@ -823,12 +823,57 @@ class WhatsAppActivationTest extends TestCase
         return ['production' => ['production'], 'staging' => ['staging']];
     }
 
+    /**
+     * REQ-WA-64 is lifted (PH-WA-6.9): a take-over on a server only creates a row being
+     * prepared, and only a full activation moves the source (AC-WA-03, AC-WA-49).
+     */
     #[DataProvider('serverEnvironments')]
-    public function test_req_wa_64_still_blocks_the_take_over(string $environment): void
+    public function test_after_a_take_over_on_a_server_only_a_full_activation_moves_the_source(string $environment): void
     {
         $this->app->detectEnvironment(fn () => $environment);
+        $admin = User::factory()->admin()->create();
+        $setting = app(WhatsAppSettingsManager::class)->takeOver($admin, request());
 
-        $this->assertFalse(WhatsAppSettingsManager::takeOverAllowed());
+        $this->assertSame(WhatsAppMode::Disabled, $setting->mode);
+        $this->assertFalse($setting->isDatabaseSource());
+
+        // An empty row fails the checks: nothing moves.
+        $this->assertActivationRefused(WhatsAppMode::Production, $admin, ActivationRefusedException::READINESS_FAILED);
+        $this->assertSame(WhatsAppConfig::SOURCE_ENV, app(WhatsAppSettings::class)->current()->source);
+
+        $setting->forceFill(collect(WhatsAppSetting::factory()->raw())->except(['mode', 'database_source_activated_at'])->all())->save();
+        $this->evidenceFor($setting->fresh());
+
+        if ($environment === 'production') {
+            // AC-WA-49: in the production application environment, production only.
+            $this->assertActivationRefused(WhatsAppMode::Test, $admin, ActivationRefusedException::NOT_ALLOWED);
+            $this->assertActivationRefused(WhatsAppMode::Disabled, $admin, ActivationRefusedException::NOT_ALLOWED);
+        }
+
+        // No reference text: refused, even with every other condition met.
+        $this->assertActivationRefused(WhatsAppMode::Production, $admin, ActivationRefusedException::REFERENCE_INVALID, reference: null);
+        $this->assertSame(WhatsAppConfig::SOURCE_ENV, app(WhatsAppSettings::class)->current()->source);
+        $this->assertSame(0, WhatsAppSettingsAudit::where('action', WhatsAppAuditAction::Activated)->count());
+
+        $this->metaCalls = [];
+        app(WhatsAppActivation::class)->activate(WhatsAppMode::Production, WhatsAppMode::Disabled, 'preparing', self::REFERENCE, $admin, request());
+
+        $this->assertCount(3, $this->metaCalls);
+        $this->assertTrue($setting->fresh()->isDatabaseSource());
+        $this->assertSame(WhatsAppMode::Production, $setting->fresh()->mode);
+        $this->assertSame(['old' => 'preparing', 'new' => 'active'], WhatsAppSettingsAudit::where('action', WhatsAppAuditAction::Activated)->sole()->changes['source']);
+    }
+
+    private function assertActivationRefused(WhatsAppMode $to, User $admin, string $reason, ?string $reference = self::REFERENCE): void
+    {
+        try {
+            app(WhatsAppActivation::class)->activate($to, WhatsAppMode::Disabled, 'preparing', $reference, $admin, request());
+            $this->fail('The activation to '.$to->value.' went through.');
+        } catch (ActivationRefusedException $exception) {
+            $this->assertSame($reason, $exception->reason);
+        }
+
+        $this->assertFalse(WhatsAppSetting::sole()->isDatabaseSource());
     }
 
     // --- Helpers ----------------------------------------------------------------------------------

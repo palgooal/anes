@@ -14,6 +14,7 @@ use App\UserRole;
 use App\WhatsAppAuditAction;
 use App\WhatsAppEnvironment;
 use App\WhatsAppMode;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
@@ -606,11 +607,25 @@ class WhatsAppReadinessTest extends TestCase
         $this->assertSame(0, WhatsAppSetting::count());
     }
 
-    public function test_req_wa_64_still_holds(): void
+    /**
+     * REQ-WA-64 is lifted (PH-WA-6.9): the checks on a row taken over in production
+     * change neither the source nor the mode (AC-WA-46).
+     */
+    public function test_the_checks_after_a_take_over_in_production_change_nothing(): void
     {
         $this->app->detectEnvironment(fn () => 'production');
+        $admin = User::factory()->admin()->create();
+        $setting = app(WhatsAppSettingsManager::class)->takeOver($admin, request());
 
-        $this->assertFalse(WhatsAppSettingsManager::takeOverAllowed());
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])
+            ->withoutMiddleware(PreventRequestForgery::class)
+            ->post(route('staff.whatsapp.readiness'))
+            ->assertOk()
+            ->assertSee('data-status="failed"', false);
+
+        $this->assertFalse($setting->fresh()->isDatabaseSource());
+        $this->assertSame(WhatsAppMode::Disabled, $setting->fresh()->mode);
+        $this->assertSame(0, WhatsAppSettingsAudit::where('action', WhatsAppAuditAction::Activated)->count());
     }
 
     // --- Helpers ------------------------------------------------------------------------------------

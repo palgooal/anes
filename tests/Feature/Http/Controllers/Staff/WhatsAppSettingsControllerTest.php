@@ -2,11 +2,9 @@
 
 namespace Tests\Feature\Http\Controllers\Staff;
 
-use App\Http\Controllers\Staff\WhatsAppSettingsController;
 use App\Models\User;
 use App\Models\WhatsAppSetting;
 use App\Models\WhatsAppSettingsAudit;
-use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppSettingsManager;
 use App\UserRole;
 use App\WhatsAppAuditAction;
@@ -213,75 +211,59 @@ class WhatsAppSettingsControllerTest extends TestCase
         $this->assertSame(1, WhatsAppSettingsAudit::count());
     }
 
-    // --- AC-WA-42: no take-over outside local and testing until PH-WA-6 -------------
+    // --- AC-WA-03, AC-WA-46: the take-over in every environment (REQ-WA-64 lifted, PH-WA-6.9) ---
 
     /**
-     * @return array<string, array{string}>
+     * @return array<string, array{string, WhatsAppMode}>
      */
-    public static function blockedEnvironments(): array
+    public static function environments(): array
     {
-        return ['production' => ['production'], 'staging' => ['staging']];
+        return [
+            'testing' => ['testing', WhatsAppMode::Log],
+            'local' => ['local', WhatsAppMode::Log],
+            'production' => ['production', WhatsAppMode::Disabled],
+            'staging' => ['staging', WhatsAppMode::Disabled],
+        ];
     }
 
-    #[DataProvider('blockedEnvironments')]
-    public function test_a_direct_take_over_request_is_refused_outside_local_and_testing(string $environment): void
+    #[DataProvider('environments')]
+    public function test_the_take_over_creates_a_row_being_prepared_with_the_initial_mode(string $environment, WhatsAppMode $mode): void
     {
         $this->app->detectEnvironment(fn () => $environment);
         $this->withoutMiddleware(PreventRequestForgery::class);
+
+        $this->assertSame($mode, WhatsAppSettingsManager::initialMode());
 
         $this->asConfirmedAdmin()
             ->from(route('staff.whatsapp'))
             ->post(route('staff.whatsapp.take-over'), ['confirm' => '1'])
             ->assertRedirect(route('staff.whatsapp'))
-            ->assertSessionHasErrors(['whatsapp' => WhatsAppSettingsController::TAKE_OVER_NOT_ALLOWED]);
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status', fn (string $status) => str_contains($status, 'قيد التحضير'));
 
-        $this->assertSame(0, WhatsAppSetting::count());
-        $this->assertSame(0, WhatsAppSettingsAudit::count());
+        $setting = WhatsAppSetting::sole();
+        $this->assertSame($mode, $setting->mode);
+        $this->assertNull($setting->database_source_activated_at);
+        $this->assertFalse($setting->isDatabaseSource());
+
+        $audit = WhatsAppSettingsAudit::sole();
+        $this->assertSame(WhatsAppAuditAction::TakeOver, $audit->action);
+        $this->assertSame(['state' => ['old' => null, 'new' => 'preparing'], 'mode' => ['old' => null, 'new' => $mode->value]], $audit->changes);
     }
 
-    #[DataProvider('blockedEnvironments')]
-    public function test_the_service_refuses_the_take_over_before_writing_anything(string $environment): void
-    {
-        $this->app->detectEnvironment(fn () => $environment);
-        $queries = [];
-        DB::listen(function ($query) use (&$queries) {
-            $queries[] = $query->sql;
-        });
-
-        try {
-            app(WhatsAppSettingsManager::class)->takeOver(User::factory()->admin()->create(), request());
-            $this->fail('The take-over was not refused.');
-        } catch (TakeOverNotAllowedException) {
-            // Expected.
-        }
-
-        $this->assertSame([], array_values(array_filter($queries, fn (string $sql) => str_contains($sql, 'whatsapp_settings'))));
-        $this->assertSame(0, WhatsAppSetting::count());
-        $this->assertSame(0, WhatsAppSettingsAudit::count());
-    }
-
-    #[DataProvider('blockedEnvironments')]
-    public function test_the_take_over_form_is_hidden_and_the_reason_shown_outside_local_and_testing(string $environment): void
+    #[DataProvider('environments')]
+    public function test_the_take_over_form_shows_the_initial_mode_of_the_environment(string $environment, WhatsAppMode $mode): void
     {
         $this->app->detectEnvironment(fn () => $environment);
 
         $this->actingAs(User::factory()->admin()->create())
             ->get(route('staff.whatsapp'))
             ->assertOk()
-            ->assertSee('نقل الإدارة غير متاح في هذه البيئة حاليًا.')
-            ->assertSee('data-take-over-unavailable', false)
-            ->assertDontSee(route('staff.whatsapp.take-over'), false)
-            ->assertDontSee('نقل الإدارة إلى اللوحة</button>', false);
+            ->assertSee(route('staff.whatsapp.take-over'), false)
+            ->assertSee('data-initial-mode="'.$mode->value.'"', false)
+            ->assertDontSee('نقل الإدارة غير متاح في هذه البيئة حاليًا.');
 
         $this->assertSame(0, WhatsAppSetting::count());
-    }
-
-    public function test_the_take_over_form_is_shown_in_testing(): void
-    {
-        $this->actingAs(User::factory()->admin()->create())
-            ->get(route('staff.whatsapp'))
-            ->assertSee(route('staff.whatsapp.take-over'), false)
-            ->assertDontSee('data-take-over-unavailable', false);
     }
 
     public function test_take_over_happens_only_once(): void

@@ -151,7 +151,8 @@ class DatabaseSourceStateTest extends TestCase
      */
     public static function allowedEnvironments(): array
     {
-        return ['testing' => ['testing'], 'local' => ['local']];
+        // REQ-WA-64 is lifted (PH-WA-6.9): every application environment (AC-WA-03, AC-WA-46).
+        return ['testing' => ['testing'], 'local' => ['local'], 'production' => ['production'], 'staging' => ['staging']];
     }
 
     #[DataProvider('allowedEnvironments')]
@@ -168,7 +169,7 @@ class DatabaseSourceStateTest extends TestCase
             ->assertSessionHas('status', fn (string $status) => str_contains($status, 'قيد التحضير'));
 
         $setting = WhatsAppSetting::sole();
-        $this->assertSame(WhatsAppMode::Log, $setting->mode);
+        $this->assertSame(in_array($environment, ['local', 'testing'], true) ? WhatsAppMode::Log : WhatsAppMode::Disabled, $setting->mode);
         $this->assertFalse($setting->isDatabaseSource());
         $this->assertSame(['old' => null, 'new' => 'preparing'], WhatsAppSettingsAudit::sole()->changes['state']);
 
@@ -177,8 +178,11 @@ class DatabaseSourceStateTest extends TestCase
         $this->assertSame(['https://'.self::ENV_MESSAGES, 'https://'.self::ENV_MESSAGES], $this->sent);
     }
 
-    public function test_preparing_the_settings_never_moves_otp_codes_off_env(): void
+    #[DataProvider('allowedEnvironments')]
+    public function test_preparing_the_settings_never_moves_otp_codes_off_env(string $environment): void
     {
+        $this->app->detectEnvironment(fn () => $environment);
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $admin = User::factory()->admin()->create();
         $this->asConfirmedAdmin($admin)->post(route('staff.whatsapp.take-over'), ['confirm' => '1']);
         $this->assertOtpStillOnEnv(1);
@@ -208,6 +212,26 @@ class DatabaseSourceStateTest extends TestCase
             ->assertSessionHasNoErrors();
         $this->actingAs($admin)->post(route('staff.whatsapp.send-test.verify'), ['code' => '135790'])->assertSessionHasNoErrors();
         $this->assertOtpStillOnEnv(6, adminTests: 1);
+
+        // The readiness checks change nothing.
+        $this->asConfirmedAdmin($admin)->post(route('staff.whatsapp.readiness'))->assertOk();
+        $this->assertOtpStillOnEnv(7, adminTests: 1);
+
+        // A failed activation changes nothing: no reference text.
+        $this->asConfirmedAdmin($admin)->put(route('staff.whatsapp.activation'), [
+            'mode' => 'production',
+            'expected_mode' => WhatsAppSetting::sole()->mode->value,
+            'expected_state' => 'preparing',
+            'acknowledge_impact' => '1',
+            'acknowledge_ownership' => '1',
+        ])->assertSessionHasErrors('reference', errorBag: 'activation');
+        $this->assertOtpStillOnEnv(8, adminTests: 1);
+
+        // A mode switch is refused while the row is being prepared.
+        $this->asConfirmedAdmin($admin)->put(route('staff.whatsapp.mode'), ['mode' => 'test', 'expected_mode' => WhatsAppSetting::sole()->mode->value, 'acknowledge_impact' => '1', 'acknowledge_test_recipients' => '1'])
+            ->assertSessionHasErrors(errorBag: 'mode');
+        $this->assertOtpStillOnEnv(9, adminTests: 1);
+        $this->assertSame(1, WhatsAppSettingsAudit::where('action', WhatsAppAuditAction::ModeChangeRefused)->count());
 
         $this->assertFalse(WhatsAppSetting::sole()->isDatabaseSource());
         $this->assertSame(0, WhatsAppSettingsAudit::where('action', 'like', '%activat%')->count());
@@ -268,6 +292,6 @@ class DatabaseSourceStateTest extends TestCase
     private function asConfirmedAdmin(?User $admin = null): static
     {
         return $this->actingAs($admin ?? User::factory()->admin()->create())
-            ->withSession(['auth.password_confirmed_at' => time()]);
+            ->withSession(['auth.password_confirmed_at' => now()->getTimestamp()]);
     }
 }

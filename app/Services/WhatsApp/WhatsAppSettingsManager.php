@@ -41,38 +41,32 @@ class WhatsAppSettingsManager
     public function __construct(private MetaGraphClient $meta, private WhatsAppSettings $settings) {}
 
     /**
-     * Whether management may move to the panel in this application environment.
-     *
-     * Temporary restriction until PH-WA-6 (REQ-WA-64): outside "local" and "testing"
-     * the row would start "disabled", and nothing can switch the mode yet.
+     * The mode stored in a new settings row (REQ-WA-05, AC-WA-03): "log" in local and
+     * testing, "disabled" everywhere else. It has no effect on sending while the row
+     * is being prepared. The take-over and the panel both read it from here.
      */
-    public static function takeOverAllowed(): bool
+    public static function initialMode(): WhatsAppMode
     {
-        return app()->environment('local', 'testing');
+        return app()->environment('local', 'testing') ? WhatsAppMode::Log : WhatsAppMode::Disabled;
     }
 
     /**
      * Create the settings row, being prepared (REQ-WA-05, REQ-WA-65): OTP codes keep
      * using .env until an explicit activation, so creating or editing the row never
-     * changes sending. The row starts empty, with "log" mode stored locally and in
-     * tests, "disabled" elsewhere; the stored mode has no effect while preparing.
-     * Outside local and testing this stays refused until PH-WA-6 lifts REQ-WA-64.
+     * changes sending. The row starts empty, with the initial mode of this application
+     * environment (initialMode()); the stored mode has no effect while preparing.
+     * Available in every application environment since REQ-WA-64 was lifted (PH-WA-6.9).
      *
-     * @throws TakeOverNotAllowedException outside "local" and "testing" (REQ-WA-64), before anything is written.
      * @throws DomainException when the settings row already exists.
      */
     public function takeOver(User $by, Request $request): WhatsAppSetting
     {
-        if (! self::takeOverAllowed()) {
-            throw TakeOverNotAllowedException::inThisEnvironment();
-        }
-
         return DB::transaction(function () use ($by, $request) {
             if (WhatsAppSetting::query()->lockForUpdate()->exists()) {
                 throw new DomainException('The WhatsApp settings are already managed from the panel.');
             }
 
-            $mode = app()->environment('local', 'testing') ? WhatsAppMode::Log : WhatsAppMode::Disabled;
+            $mode = self::initialMode();
             // database_source_activated_at stays NULL: the row is being prepared.
             $setting = WhatsAppSetting::create(['mode' => $mode]);
 

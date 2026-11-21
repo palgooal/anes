@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\WhatsAppSetting;
 use App\Models\WhatsAppSettingsAudit;
 use App\Services\WhatsApp\ProductionIdentifiersFrozenException;
-use App\Services\WhatsApp\TakeOverNotAllowedException;
 use App\Services\WhatsApp\WhatsAppSettingsManager;
 use App\WhatsAppAuditAction;
 use App\WhatsAppEnvironment;
@@ -355,19 +354,30 @@ class WhatsAppProductionFreezeTest extends TestCase
         $this->assertSame(0, WhatsAppSettingsAudit::count());
     }
 
+    /**
+     * REQ-WA-64 is lifted (PH-WA-6.9): a row taken over on a server is being prepared,
+     * so its production identifiers are not frozen yet (REQ-WA-15 needs an active source).
+     */
     #[DataProvider('serverEnvironments')]
-    public function test_req_wa_64_still_blocks_the_take_over(string $environment): void
+    public function test_a_row_taken_over_on_a_server_is_prepared_and_not_frozen(string $environment): void
     {
         $this->app->detectEnvironment(fn () => $environment);
         $this->withoutMiddleware(PreventRequestForgery::class);
+        $admin = User::factory()->admin()->create();
 
-        $this->expectException(TakeOverNotAllowedException::class);
+        $setting = app(WhatsAppSettingsManager::class)->takeOver($admin, request());
 
-        try {
-            app(WhatsAppSettingsManager::class)->takeOver(User::factory()->admin()->create(), request());
-        } finally {
-            $this->assertSame(0, WhatsAppSetting::count());
-        }
+        $this->assertSame(1, WhatsAppSetting::count());
+        $this->assertSame(WhatsAppMode::Disabled, $setting->mode);
+        $this->assertFalse($setting->isDatabaseSource());
+        $this->assertSame([], app(WhatsAppSettingsManager::class)->frozenFields($setting, WhatsAppEnvironment::Production));
+
+        $this->actingAs($admin)
+            ->put(route('staff.whatsapp.environment', 'production'), $this->stored())
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('100000000000002', $setting->fresh()->production_phone_number_id);
+        $this->assertFalse($setting->fresh()->isDatabaseSource());
     }
 
     /**
