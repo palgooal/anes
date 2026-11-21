@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Notifications\LoginCodeNotification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -78,6 +80,10 @@ class BeneficiaryLoginControllerTest extends TestCase
         Http::preventStrayRequests();
         Http::fake(['graph.facebook.com/v23.0/1122334455/messages' => Http::response(['error' => ['message' => 'Template not found']], 400)]);
         Exceptions::fake();
+        $logged = [];
+        Event::listen(MessageLogged::class, function (MessageLogged $event) use (&$logged) {
+            $logged[] = [$event->message, $event->context];
+        });
         $patient = User::factory()->patient()->create();
 
         $this->from(route('login'))
@@ -85,7 +91,10 @@ class BeneficiaryLoginControllerTest extends TestCase
             ->assertRedirect(route('login'))
             ->assertSessionHasErrors(['send' => 'تعذّر إرسال الرمز على واتساب الآن. حاول بعد قليل، وإن تكرر ذلك تواصل معنا.']);
 
-        Exceptions::assertReported(RequestException::class);
+        // Security review after PH-WA-7: the raw exception, whose message carries Meta's
+        // answer, is no longer reported; a fixed line with the HTTP status is logged instead.
+        Exceptions::assertNotReported(RequestException::class);
+        $this->assertContains(['WhatsApp: the code could not be sent.', ['http_status' => 400, 'meta_code' => null]], $logged);
         $this->get(route('login.verify'))->assertRedirect(route('login'));
     }
 

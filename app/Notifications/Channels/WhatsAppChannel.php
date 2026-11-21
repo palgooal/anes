@@ -16,6 +16,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use SensitiveParameter;
 use Throwable;
 
 /**
@@ -130,7 +131,7 @@ class WhatsAppChannel
      * Authentication template with a "copy code" button: Meta requires the
      * code both in the body and as the button parameter.
      */
-    private function post(WhatsAppConfig $config, string $to, string $code): Response
+    private function post(WhatsAppConfig $config, #[SensitiveParameter] string $to, #[SensitiveParameter] string $code): Response
     {
         return Http::baseUrl("https://graph.facebook.com/{$config->apiVersion}")
             ->withToken((string) $config->accessToken())

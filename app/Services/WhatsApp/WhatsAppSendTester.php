@@ -8,11 +8,14 @@ use App\Notifications\AdminTestCodeNotification;
 use App\WhatsAppAuditAction;
 use App\WhatsAppEnvironment;
 use App\WhatsAppSendStatus;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use LogicException;
+use SensitiveParameter;
 use Throwable;
 
 /**
@@ -76,7 +79,7 @@ class WhatsAppSendTester
      *
      * @return array{status: WhatsAppSendStatus, error_code: ?string}
      */
-    public function send(WhatsAppConfig $config, string $phone, string $key, string $origin, ?string $quota, ?User $by, ?Request $request, ?string $fingerprint = null): array
+    public function send(WhatsAppConfig $config, #[SensitiveParameter] string $phone, string $key, string $origin, ?string $quota, ?User $by, ?Request $request, ?string $fingerprint = null): array
     {
         if (! $config->sendsToMeta()) {
             throw new LogicException('A test code is only sent through Meta.');
@@ -106,7 +109,13 @@ class WhatsAppSendTester
         } catch (RequestException $exception) {
             $status = WhatsAppSendStatus::fromFailedResponse($exception->response);
             $errorCode = $this->metaErrorCode($exception);
+        } catch (ConnectionException $exception) {
+            // Its message carries the request URL, with the Phone Number ID: never logged.
+            Log::warning('WhatsApp: the test code could not be sent.', ['error' => 'connection_error']);
+            $status = WhatsAppSendStatus::fromException($exception);
         } catch (Throwable $exception) {
+            // Unexpected: still reported. The phone number and the codes are sensitive
+            // parameters, so no stack trace shows them.
             report($exception);
             $status = WhatsAppSendStatus::fromException($exception);
         }

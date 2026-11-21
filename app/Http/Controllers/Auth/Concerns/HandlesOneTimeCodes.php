@@ -14,6 +14,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 use Throwable;
@@ -71,12 +72,34 @@ trait HandlesOneTimeCodes
                 throw $exception;
             }
 
-            report($exception);
+            $this->reportSendFailure($exception);
 
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Log a failed send without anything Meta answered and without the request URL:
+     * a fixed message with the HTTP status and Meta's numeric error code only. The
+     * raw exception message carries up to 120 characters of the answer, and a
+     * connection error carries the URL with the Phone Number ID.
+     */
+    private function reportSendFailure(Throwable $exception): void
+    {
+        if ($exception instanceof WhatsAppUnavailableException) {
+            // Source, mode, environment, template and blocked reason only: no value is secret.
+            report($exception);
+
+            return;
+        }
+
+        $code = $exception instanceof RequestException ? $exception->response->json('error.code') : null;
+
+        Log::warning('WhatsApp: the code could not be sent.', $exception instanceof RequestException
+            ? ['http_status' => $exception->response->status(), 'meta_code' => is_numeric($code) ? (int) $code : null]
+            : ['error' => 'connection_error']);
     }
 
     /**
