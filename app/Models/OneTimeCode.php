@@ -133,8 +133,27 @@ class OneTimeCode extends Model
         return max(0, (int) ceil(now()->diffInSeconds($availableAt, false)));
     }
 
-    public function markAsConsumed(): void
+    /**
+     * Use the code, in one conditional UPDATE (PH-WA-8.5): only while it is still not
+     * used, not invalidated and not expired in the database itself. A code invalidated
+     * meanwhile, by a failed delivery from the webhook (REQ-WA-32), or used by a
+     * parallel request, is refused (REQ-WA-29). Returns whether this request used it.
+     */
+    public function consumeIfUsable(): bool
     {
-        $this->forceFill(['consumed_at' => now()])->save();
+        $now = now();
+
+        $used = static::query()
+            ->whereKey($this->getKey())
+            ->whereNull('consumed_at')
+            ->whereNull('invalidated_at')
+            ->where('expires_at', '>', $now)
+            ->update(['consumed_at' => $now, 'updated_at' => $now]) === 1;
+
+        if ($used) {
+            $this->forceFill(['consumed_at' => $now, 'updated_at' => $now])->syncOriginal();
+        }
+
+        return $used;
     }
 }

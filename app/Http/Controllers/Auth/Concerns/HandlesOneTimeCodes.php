@@ -176,10 +176,16 @@ trait HandlesOneTimeCodes
         $oneTimeCode = OneTimeCode::latestFor($user, $purpose);
 
         if ($oneTimeCode && $oneTimeCode->matches($code)) {
-            $oneTimeCode->markAsConsumed();
-            RateLimiter::clear($throttleKey);
+            // Using the code is one conditional write (PH-WA-8.5): it is refused when the
+            // code was invalidated, used or expired since it was read.
+            if ($oneTimeCode->consumeIfUsable()) {
+                RateLimiter::clear($throttleKey);
 
-            return null;
+                return null;
+            }
+
+            // No usable code was left: the failure path below answers as it does then.
+            $oneTimeCode = null;
         }
 
         RateLimiter::hit($throttleKey, (int) config('auth.one_time_codes.lockout_seconds'));

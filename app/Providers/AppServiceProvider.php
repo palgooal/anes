@@ -51,6 +51,13 @@ class AppServiceProvider extends ServiceProvider
             fn () => back()->withInput()->withErrors(['throttle' => 'محاولات كثيرة خلال وقت قصير. انتظر دقيقة ثم حاول مجدداً.']),
         ));
 
+        /*
+         * Meta's delivery webhook (REQ-WA-58), per network address and before the
+         * signature is checked, so forged requests are capped too. Meta sends again
+         * what was refused with 429.
+         */
+        RateLimiter::for('whatsapp-webhook', fn (Request $request) => Limit::perMinute(600)->by('whatsapp-webhook:'.$request->ip()));
+
         ResetPassword::toMailUsing(function (User $user, string $token): MailMessage {
             $url = route('password.reset', ['token' => $token, 'email' => $user->email]);
 

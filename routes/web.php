@@ -10,10 +10,22 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Staff\TeamController;
 use App\Http\Controllers\Staff\TeamMemberStatusController;
 use App\Http\Controllers\Staff\WhatsAppSettingsController;
+use App\Http\Controllers\WhatsAppWebhookController;
 use Illuminate\Auth\Middleware\RequirePassword;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
+
+/*
+| Meta's delivery webhook (PH-WA-8, REQ-WA-52 to REQ-WA-58): public, without a session
+| user, excluded from CSRF protection only, and rate limited. Meta's signature is the
+| only authentication.
+*/
+Route::middleware('throttle:whatsapp-webhook')->withoutMiddleware(PreventRequestForgery::class)->group(function () {
+    Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
+    Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])->name('whatsapp.webhook');
+});
 
 /*
 | Beneficiaries (patient or companion): phone number + WhatsApp code.
