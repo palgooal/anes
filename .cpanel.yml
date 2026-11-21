@@ -1,0 +1,8 @@
+---
+# ANIS - cPanel Git Version Control deployment (Deploy HEAD Commit).
+# One task only: the reviewed script. It publishes index.php, favicon.ico,
+# robots.txt and build/ to public_html; it never touches .htaccess, php.ini,
+# .user.ini, .well-known or cgi-bin, and it never runs Composer, npm or Artisan.
+deployment:
+  tasks:
+    - /bin/bash /home/latefcare/anis/deploy/cpanel-deploy.sh
