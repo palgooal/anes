@@ -1,0 +1,1 @@
+document.querySelectorAll(`form[data-confirm]`).forEach(e=>{e.addEventListener(`submit`,t=>{window.confirm(e.dataset.confirm)||t.preventDefault()})}),document.querySelectorAll(`form[method="POST"], form[method="post"]`).forEach(e=>{e.addEventListener(`submit`,t=>{t.defaultPrevented||e.querySelectorAll(`button[type="submit"]`).forEach(e=>{e.disabled=!0})})});
