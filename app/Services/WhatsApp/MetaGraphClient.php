@@ -47,7 +47,13 @@ class MetaGraphClient
         $data = $response->json('data');
 
         if ($response->failed() || ! is_array($data)) {
-            throw new MetaGraphException('Meta did not confirm the access token (HTTP '.$response->status().').');
+            $code = $response->json('error.code');
+
+            throw new MetaGraphException(
+                'Meta did not confirm the access token (HTTP '.$response->status().').',
+                $response->status(),
+                is_numeric($code) ? (int) $code : null,
+            );
         }
 
         return TokenInspection::fromDebugToken($data);

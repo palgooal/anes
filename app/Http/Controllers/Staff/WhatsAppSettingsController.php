@@ -30,6 +30,7 @@ use App\Services\WhatsApp\WhatsAppReadiness;
 use App\Services\WhatsApp\WhatsAppSendTester;
 use App\Services\WhatsApp\WhatsAppSettings;
 use App\Services\WhatsApp\WhatsAppSettingsManager;
+use App\Services\WhatsApp\WhatsAppTokenMonitor;
 use App\WhatsAppEnvironment;
 use App\WhatsAppMode;
 use App\WhatsAppSendStatus;
@@ -61,6 +62,7 @@ class WhatsAppSettingsController extends Controller
         private SettingsFingerprint $fingerprint,
         private WhatsAppReadiness $readiness,
         private WhatsAppActivation $activation,
+        private WhatsAppTokenMonitor $tokens,
     ) {}
 
     public function show(): View
@@ -89,6 +91,7 @@ class WhatsAppSettingsController extends Controller
             'editors' => User::query()->whereKey($editorIds)->pluck('name', 'id'),
             'envDriver' => config('services.whatsapp.driver') === 'meta' ? 'meta' : 'log',
             'initialMode' => WhatsAppSettingsManager::initialMode(),
+            'tokenAlerts' => $this->tokens->alerts($setting),
             'frozenProduction' => $this->manager->frozenFields($setting, WhatsAppEnvironment::Production),
             'activationTargets' => $this->activation->offeredTargets($setting),
             'pendingTest' => $this->sendTester->pending(WhatsAppSendTester::panelKey(auth()->user())),

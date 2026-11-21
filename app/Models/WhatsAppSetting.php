@@ -64,6 +64,9 @@ class WhatsAppSetting extends Model
             'production_token_expires_at' => 'datetime',
             'production_token_never_expires' => 'boolean',
             'production_token_checked_at' => 'datetime',
+            // The token monitor's state (PH-WA-7). Not mass assignable; the attempt times
+            // ({env}_token_status_started_at, {env}_token_check_failed_at) stay text to the
+            // microsecond and are only written by WhatsAppTokenMonitor.
             ...array_fill_keys(self::SECRETS, 'encrypted'),
         ];
     }

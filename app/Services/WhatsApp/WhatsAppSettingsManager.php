@@ -38,7 +38,7 @@ class WhatsAppSettingsManager
     /** Secret fields of each environment. */
     public const ENVIRONMENT_SECRETS = ['access_token', 'app_secret'];
 
-    public function __construct(private MetaGraphClient $meta, private WhatsAppSettings $settings) {}
+    public function __construct(private MetaGraphClient $meta, private WhatsAppSettings $settings, private WhatsAppTokenMonitor $tokens) {}
 
     /**
      * The mode stored in a new settings row (REQ-WA-05, AC-WA-03): "log" in local and
@@ -368,23 +368,23 @@ class WhatsAppSettingsManager
 
         $tokenColumn = $environment?->column('access_token');
         $inspection = null;
+        // PH-WA-7: the debug_token check of the token saved here is its newest result.
+        $started = WhatsAppTokenMonitor::startedAt();
 
         if ($tokenColumn !== null && isset($secrets[$tokenColumn])) {
             $inspection = $this->inspectOrReject($setting, $environment, $tokenColumn, $secrets[$tokenColumn], $by, $request);
         }
 
-        DB::transaction(function () use ($setting, $environment, $secrets, $tokenColumn, $inspection, $by, $request) {
+        DB::transaction(function () use ($setting, $environment, $secrets, $tokenColumn, $inspection, $started, $by, $request) {
+            $replaced = false;
+
             foreach ($secrets as $column => $value) {
                 $before = $setting->secretInfo($column);
                 $setting->setSecret($column, $value, $by);
 
                 if ($column === $tokenColumn && $inspection) {
-                    $setting->forceFill([
-                        $environment->column('token_expires_at') => $inspection->expiresAt,
-                        $environment->column('token_never_expires') => $inspection->neverExpires,
-                        $environment->column('token_expiry_source') => $inspection->expirySource,
-                        $environment->column('token_checked_at') => now(),
-                    ]);
+                    // The same token saved again keeps its stored ciphertext (not dirty).
+                    $replaced = $setting->isDirty($tokenColumn);
                 }
 
                 WhatsAppSettingsAudit::record(WhatsAppAuditAction::SecretReplaced, $by, $environment, [
@@ -396,6 +396,12 @@ class WhatsAppSettingsManager
             }
 
             $setting->save();
+
+            // The expiry, the check time and the token state, in result order (PH-WA-7):
+            // a new token starts a new history, the same token only overrides older results.
+            if ($inspection) {
+                $this->tokens->recordSaved($setting, $environment, $inspection, $started, $replaced);
+            }
         });
 
         return count($secrets);

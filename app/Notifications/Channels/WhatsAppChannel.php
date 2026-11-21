@@ -7,9 +7,11 @@ use App\Notifications\WhatsAppCodeNotification;
 use App\Services\WhatsApp\MessageLogger;
 use App\Services\WhatsApp\WhatsAppConfig;
 use App\Services\WhatsApp\WhatsAppSettings;
+use App\Services\WhatsApp\WhatsAppTokenMonitor;
 use App\Services\WhatsApp\WhatsAppUnavailableException;
 use App\WhatsAppMessagePurpose;
 use App\WhatsAppSendStatus;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -30,7 +32,7 @@ use Throwable;
  */
 class WhatsAppChannel
 {
-    public function __construct(private WhatsAppSettings $settings, private MessageLogger $logger) {}
+    public function __construct(private WhatsAppSettings $settings, private MessageLogger $logger, private WhatsAppTokenMonitor $tokens) {}
 
     /**
      * @throws RequestException when Meta rejects the message.
@@ -78,6 +80,7 @@ class WhatsAppChannel
         }
 
         $startedAt = hrtime(true);
+        $attemptedAt = WhatsAppTokenMonitor::startedAt();
 
         try {
             $response = $this->post($config, (string) $to, $notification->code);
@@ -95,7 +98,32 @@ class WhatsAppChannel
             durationMs: $this->elapsedMs($startedAt),
         );
 
+        if ($response->failed()) {
+            $this->recordRejection($config, $response, $attemptedAt);
+        }
+
         $response->throw();
+    }
+
+    /**
+     * A saved token refused with OAuth error 190 is marked invalid at once (REQ-WA-22,
+     * PH-WA-7). This never changes the result of the send, never sends again and never
+     * makes another request: a failure here is only logged by its class and code.
+     */
+    private function recordRejection(WhatsAppConfig $config, Response $response, CarbonImmutable $attemptedAt): void
+    {
+        try {
+            $this->tokens->recordRejection($config, $response, $attemptedAt);
+        } catch (Throwable $exception) {
+            try {
+                Log::warning('WhatsApp: the token state could not be updated after a rejection.', [
+                    'exception' => $exception::class,
+                    'code' => (string) $exception->getCode(),
+                ]);
+            } catch (Throwable) {
+                //
+            }
+        }
     }
 
     /**

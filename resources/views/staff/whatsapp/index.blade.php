@@ -58,6 +58,10 @@
         <b data-initial-mode="{{ $initialMode->value }}">{{ $modeLabels[$initialMode->value] }}</b>، ولا أثر له قبل التفعيل.
         لا يتغير الإرسال بالنقل: يستمر من <span class="num">.env</span> طوال التحضير.
       </div>
+      <p class="small muted" data-env-token-not-monitored>
+        المراقبة اليومية لصلاحية الرموز تشمل الرموز المحفوظة في هذه اللوحة فقط، ولا تشمل رمز <span class="num">.env</span>.
+        اختبر رمز <span class="num">.env</span> بأمر <span class="num" dir="ltr">whatsapp:test --legacy-env</span>.
+      </p>
       <form method="POST" action="{{ route('staff.whatsapp.take-over') }}" class="grid gap-3" data-confirm="نقل إدارة إعدادات واتساب إلى اللوحة؟">
         @csrf
         <label class="flex cursor-pointer items-center gap-2.5 font-normal">
@@ -193,6 +197,11 @@
               <span class="pill ok">الوضع الحالي</span>
             @endif
           </div>
+
+          {{-- REQ-WA-22, AC-WA-15, AC-WA-40 (PH-WA-7): worked out from the stored token state. --}}
+          @foreach ($tokenAlerts[$env] ?? [] as $alert)
+            <p class="{{ $alert['level'] === 'check_failed' ? 'small muted' : 'note' }}" data-token-alert="{{ $alert['level'] }}" @if ($alert['level'] !== 'check_failed') role="alert" @endif>{{ $alert['message'] }}</p>
+          @endforeach
 
           <form method="POST" action="{{ route('staff.whatsapp.environment', $env) }}" class="grid gap-3" novalidate>
             @csrf @method('PUT')
