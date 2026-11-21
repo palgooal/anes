@@ -83,6 +83,46 @@ class DashboardControllerTest extends TestCase
             ->assertViewHas('config', fn (array $config) => $config['teamUrl'] === null && $config['pendingCount'] === 0);
     }
 
+    public function test_only_whoever_holds_manage_whatsapp_gets_the_whatsapp_settings_link(): void
+    {
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('staff.dashboard'))
+            ->assertOk()
+            ->assertViewHas('config', fn (array $config) => $config['whatsappUrl'] === route('staff.whatsapp'))
+            ->assertSee('"whatsappUrl":', false);
+
+        foreach ([UserRole::Guide, UserRole::Fiqh, UserRole::Medical, UserRole::Legal] as $role) {
+            $this->actingAs(User::factory()->role($role)->create())
+                ->get(route('staff.dashboard'))
+                ->assertOk()
+                ->assertViewHas('config', fn (array $config) => $config['whatsappUrl'] === null)
+                ->assertDontSee('/staff/settings/whatsapp', false);
+        }
+
+        foreach ([User::factory()->patient()->create(), User::factory()->companion(User::factory()->patient()->create())->create()] as $beneficiary) {
+            $this->actingAs($beneficiary)
+                ->get(route('portal'))
+                ->assertOk()
+                ->assertViewHas('config', fn (array $config) => $config['whatsappUrl'] === null)
+                ->assertDontSee('/staff/settings/whatsapp', false);
+        }
+    }
+
+    public function test_the_whatsapp_settings_link_opens_the_existing_settings_page(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->get(route('staff.dashboard'))
+            ->assertViewHas('config', function (array $config) use ($admin): bool {
+                $this->actingAs($admin)->get($config['whatsappUrl'])->assertOk();
+
+                return true;
+            });
+
+        $this->actingAs(User::factory()->role(UserRole::Guide)->create())
+            ->get(route('staff.whatsapp'))->assertForbidden();
+    }
+
     public function test_page_includes_logout_form_and_service_whatsapp_number(): void
     {
         config(['services.whatsapp.number' => '966500000000']);

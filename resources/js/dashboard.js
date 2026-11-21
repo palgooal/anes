@@ -120,6 +120,9 @@ $('out').addEventListener('click',function(){$('dash').hidden=true;$('login').hi
 var TABS=[],CUR=null;
 function buildTabs(){
   TABS=MODULES[ROLE]();
+  /* WhatsApp settings (a Blade page): the server sends its URL only to whoever holds
+     manage-whatsapp, so the tab is added once, last, as in the staff layout. */
+  if(APP.whatsappUrl&&!TABS.some(function(t){return t.k==='whatsapp';}))TABS.push({k:'whatsapp',l:'إعدادات واتساب',href:APP.whatsappUrl,r:function(){return '';}});
   $('tabs').innerHTML=TABS.map(function(t){return '<button type="button" role="tab" data-tab="'+t.k+'">'+t.l+'<span class="nb" id="nb-'+t.k+'"></span></button>';}).join('');
   /* ?tab=key opens that tab (used when returning from a Blade page such as /staff/team) */
   var wanted=new URLSearchParams(location.search).get('tab');

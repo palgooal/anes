@@ -38,6 +38,8 @@ class DashboardController extends Controller
                 'companionName' => $role === UserRole::Companion ? $user->name : null,
                 'waNumber' => config('services.whatsapp.number'),
                 'teamUrl' => $user->can('manage-team') ? route('staff.team') : null,
+                // REQ-WA-43: the WhatsApp settings tab, only for whoever holds the permission.
+                'whatsappUrl' => $user->can('manage-whatsapp') ? route('staff.whatsapp') : null,
                 'pendingCount' => $user->can('manage-team')
                     ? User::staff()->where('status', AccountStatus::Pending)->count()
                     : 0,
