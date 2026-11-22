@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Controllers\Auth;
 
 use App\Models\User;
 use App\Notifications\LoginCodeNotification;
+use App\Notifications\TwoFactorCodeMail;
 use App\UserRole;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -66,7 +67,9 @@ class StaffLoginControllerTest extends TestCase
         $this->post(route('staff.login'), ['email' => $guide->email, 'password' => 'password'])
             ->assertRedirect(route('staff.verify'));
 
-        Notification::assertSentTo($guide, LoginCodeNotification::class);
+        // WHATSAPP_DRIVER=log in tests does not really send: the code goes by email (DEC-AUTH-009).
+        Notification::assertSentTo($guide, TwoFactorCodeMail::class);
+        Notification::assertNotSentTo($guide, LoginCodeNotification::class);
         $this->assertGuest();
     }
 
@@ -161,6 +164,6 @@ class StaffLoginControllerTest extends TestCase
 
     private function sentCode(User $user): string
     {
-        return Notification::sent($user, LoginCodeNotification::class)->last()->code;
+        return Notification::sent($user, TwoFactorCodeMail::class)->last()->code;
     }
 }

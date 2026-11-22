@@ -22,6 +22,9 @@ class OneTimeCode extends Model
     /** @use HasFactory<OneTimeCodeFactory> */
     use HasFactory;
 
+    /** invalidation_reason when the staff two-factor email could not be sent (DEC-AUTH-009). */
+    public const MAIL_FAILED = 'mail_failed';
+
     /**
      * Get the attributes that should be cast.
      *
@@ -120,7 +123,16 @@ class OneTimeCode extends Model
      */
     public function invalidate(WhatsAppSendStatus $reason): void
     {
-        $this->forceFill(['invalidated_at' => now(), 'invalidation_reason' => $reason->value])->save();
+        $this->invalidateBecause($reason->value);
+    }
+
+    /**
+     * Make the code unusable for a reason that is not a WhatsApp send status, such as
+     * MAIL_FAILED. The reason is a fixed label, never anything the code or a server said.
+     */
+    public function invalidateBecause(string $reason): void
+    {
+        $this->forceFill(['invalidated_at' => now(), 'invalidation_reason' => $reason])->save();
     }
 
     /**

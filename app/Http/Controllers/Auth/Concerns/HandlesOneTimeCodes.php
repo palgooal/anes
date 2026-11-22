@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Auth\Concerns;
 
+use App\CodeChannel;
 use App\CodePurpose;
 use App\Models\OneTimeCode;
 use App\Models\User;
 use App\Notifications\LoginCodeNotification;
+use App\Notifications\TwoFactorCodeMail;
+use App\Services\Auth\TwoFactorChannels;
 use App\Services\WhatsApp\WhatsAppUnavailableException;
 use App\WhatsAppMessagePurpose;
 use App\WhatsAppSendStatus;
@@ -20,9 +23,14 @@ use Illuminate\View\View;
 use Throwable;
 
 /**
- * Shared steps of the WhatsApp code flows: who is waiting for a code (kept in
- * the session between the two screens), sending it, checking it and locking
- * the account after too many wrong codes.
+ * Shared steps of the code flows: who is waiting for a code (kept in the session
+ * between the two screens), sending it, checking it and locking the account after
+ * too many wrong codes.
+ *
+ * Beneficiary login codes always go to WhatsApp. The staff two-factor code goes to
+ * WhatsApp when it really reaches Meta, otherwise by email (DEC-AUTH-009). That
+ * channel is chosen once, before the code is issued, kept in the session, and used
+ * again for every resend; it never changes during a pending code screen.
  */
 trait HandlesOneTimeCodes
 {
@@ -30,21 +38,46 @@ trait HandlesOneTimeCodes
 
     private const SEND_FAILED = 'تعذّر إرسال الرمز على واتساب الآن. حاول بعد قليل، وإن تكرر ذلك تواصل معنا.';
 
+    private const MAIL_SEND_FAILED = 'تعذّر إرسال الرمز إلى بريدك الإلكتروني الآن. حاول بعد قليل، وإن تكرر ذلك تواصل مع الإدارة.';
+
+    private const NO_CHANNEL = 'تعذّر إرسال رمز التحقق الآن: لا تتوفر قناة إرسال. تواصل مع الإدارة.';
+
+    private const CHANNEL_UNAVAILABLE = 'قناة إرسال الرمز غير متاحة الآن. حاول بعد قليل، أو سجّل الدخول من جديد.';
+
+    private const SESSION_RESTART = 'انتهت جلسة التحقق. سجّل الدخول من جديد.';
+
     /**
      * Remember who is signing in, send them a code and go to the code screen.
      */
     protected function sendCodeAndContinue(Request $request, User $user, CodePurpose $purpose, bool $remember, string $verifyRoute): RedirectResponse
     {
-        $request->session()->put(self::PENDING_KEY, [
+        $pending = [
             'user_id' => $user->id,
             'purpose' => $purpose->value,
             'remember' => $remember,
-        ]);
+        ];
+        $channel = CodeChannel::WhatsApp;
 
-        if (! $this->sendCode($user, $purpose)) {
+        // DEC-AUTH-009: the staff two-factor channel is chosen here, once, before any code exists.
+        if ($purpose === CodePurpose::TwoFactor) {
+            $channel = app(TwoFactorChannels::class)->choose();
+
+            if ($channel === null) {
+                $request->session()->forget(self::PENDING_KEY);
+                Log::warning('Two-factor code: no channel is available (WhatsApp does not send to Meta and no real mailer is configured).');
+
+                return back()->withInput($request->except('password'))->withErrors(['send' => self::NO_CHANNEL]);
+            }
+
+            $pending['channel'] = $channel->value;
+        }
+
+        $request->session()->put(self::PENDING_KEY, $pending);
+
+        if (! $this->sendCode($user, $purpose, $channel)) {
             $request->session()->forget(self::PENDING_KEY);
 
-            return back()->withInput($request->except('password'))->withErrors(['send' => self::SEND_FAILED]);
+            return back()->withInput($request->except('password'))->withErrors(['send' => $this->sendFailedMessage($channel)]);
         }
 
         return redirect()->route($verifyRoute);
@@ -57,8 +90,12 @@ trait HandlesOneTimeCodes
      * invalidated at once, even if the message might still arrive later. Unexpected
      * errors invalidate the code too, then keep propagating as before.
      */
-    protected function sendCode(User $user, CodePurpose $purpose): bool
+    protected function sendCode(User $user, CodePurpose $purpose, CodeChannel $channel = CodeChannel::WhatsApp): bool
     {
+        if ($channel === CodeChannel::Mail) {
+            return $this->sendCodeByMail($user, $purpose);
+        }
+
         [$oneTimeCode, $plain] = OneTimeCode::issue($user, $purpose);
 
         try {
@@ -78,6 +115,44 @@ trait HandlesOneTimeCodes
         }
 
         return true;
+    }
+
+    /**
+     * Issue the code and send it by email (DEC-AUTH-009). Any failure invalidates the
+     * code at once and is logged as a fixed message with the exception class only:
+     * never the code, the address, the message body or what the mail server answered.
+     */
+    private function sendCodeByMail(User $user, CodePurpose $purpose): bool
+    {
+        [$oneTimeCode, $plain] = OneTimeCode::issue($user, $purpose);
+
+        try {
+            $user->notify(new TwoFactorCodeMail($plain));
+        } catch (Throwable $exception) {
+            $oneTimeCode->invalidateBecause(OneTimeCode::MAIL_FAILED);
+            Log::warning('Two-factor code: the email could not be sent.', ['error' => $exception::class]);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function sendFailedMessage(CodeChannel $channel): string
+    {
+        return $channel === CodeChannel::Mail ? self::MAIL_SEND_FAILED : self::SEND_FAILED;
+    }
+
+    /**
+     * The channel kept for the pending staff two-factor code. Null when the session
+     * predates DEC-AUTH-009 and holds none: such a session is never sent a code again
+     * (the user signs in once more), so no channel is ever picked silently.
+     */
+    protected function pendingChannel(Request $request): ?CodeChannel
+    {
+        $pending = $request->session()->get(self::PENDING_KEY);
+
+        return is_array($pending) ? CodeChannel::tryFrom((string) ($pending['channel'] ?? '')) : null;
     }
 
     /**
@@ -117,8 +192,25 @@ trait HandlesOneTimeCodes
             return redirect()->route($verifyRoute);
         }
 
-        if (! $this->sendCode($user, $purpose)) {
-            return redirect()->route($verifyRoute)->withErrors(['send' => self::SEND_FAILED]);
+        $channel = CodeChannel::WhatsApp;
+
+        // DEC-AUTH-009: a staff resend uses the channel kept for this code screen, never another one.
+        if ($purpose === CodePurpose::TwoFactor) {
+            $channel = $this->pendingChannel($request);
+
+            if ($channel === null) {
+                $request->session()->forget(self::PENDING_KEY);
+
+                return redirect()->route($loginRoute)->withErrors(['send' => self::SESSION_RESTART]);
+            }
+
+            if (! app(TwoFactorChannels::class)->isAvailable($channel)) {
+                return redirect()->route($verifyRoute)->withErrors(['send' => self::CHANNEL_UNAVAILABLE]);
+            }
+        }
+
+        if (! $this->sendCode($user, $purpose, $channel)) {
+            return redirect()->route($verifyRoute)->withErrors(['send' => $this->sendFailedMessage($channel)]);
         }
 
         return redirect()->route($verifyRoute)->with('status', 'أرسلنا رمزاً جديداً.');
@@ -219,15 +311,34 @@ trait HandlesOneTimeCodes
 
     /**
      * Data for the code screen: where the code went and when a new one may be requested.
+     * By email, the address is shown masked; on WhatsApp, the last digits of the phone.
      *
-     * @return array{phone: string, resendIn: int}
+     * @return array{phone: string, resendIn: int, channel: string, destination: string}
      */
-    protected function codeScreenData(User $user, CodePurpose $purpose): array
+    protected function codeScreenData(User $user, CodePurpose $purpose, ?CodeChannel $channel = null): array
     {
+        $channel ??= CodeChannel::WhatsApp;
+
         return [
             'phone' => (string) $user->phone,
             'resendIn' => OneTimeCode::latestIssuedFor($user, $purpose)?->secondsUntilResend() ?? 0,
+            'channel' => $channel->value,
+            'destination' => $channel === CodeChannel::Mail ? self::maskEmail((string) $user->email) : '',
         ];
+    }
+
+    /**
+     * "h•••@example.com": the first character of the name and the domain only.
+     */
+    private static function maskEmail(string $email): string
+    {
+        $at = strrpos($email, '@');
+
+        if ($at === false || $at === 0) {
+            return '•••';
+        }
+
+        return mb_substr($email, 0, 1).'•••'.substr($email, $at);
     }
 
     /**

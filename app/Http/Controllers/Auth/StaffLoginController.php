@@ -16,8 +16,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 
 /**
- * Guides, consultants and administrators: email + password → two-factor
- * code on WhatsApp → the dashboard of their role.
+ * Guides, consultants and administrators: email + password → two-factor code
+ * (WhatsApp, or email while WhatsApp cannot really send: DEC-AUTH-009) → the
+ * dashboard of their role.
  */
 class StaffLoginController extends Controller
 {
@@ -75,7 +76,7 @@ class StaffLoginController extends Controller
             return redirect()->route('staff.login');
         }
 
-        return view('auth.staff.verify', $this->codeScreenData($user, CodePurpose::TwoFactor));
+        return view('auth.staff.verify', $this->codeScreenData($user, CodePurpose::TwoFactor, $this->pendingChannel($request)));
     }
 
     public function verify(VerifyCodeRequest $request): RedirectResponse|View
