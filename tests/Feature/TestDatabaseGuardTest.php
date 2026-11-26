@@ -230,16 +230,21 @@ class TestDatabaseGuardTest extends TestCase
         $config['app']['env'] = 'local';
         $config['database']['default'] = 'sqlite';
         $config['database']['connections']['sqlite']['database'] = $file;
-        $base = tempnam(sys_get_temp_dir(), 'anis-config-');
-        $cache = $base.'.php';
-        file_put_contents($cache, '<?php return '.var_export($config, true).';');
+        // A path relative to the project: Laravel treats an absolute Windows path
+        // (C:\...) as relative to the project, so it would never find the file there.
+        $relative = 'storage/framework/testing/anis-config-'.bin2hex(random_bytes(8)).'.php';
+        $cache = base_path($relative);
 
         try {
-            $this->assertRefusedBeforeTables(['APP_CONFIG_CACHE' => $cache], 'configuration is cached', $file);
+            $this->assertNotFalse(file_put_contents($cache, '<?php return '.var_export($config, true).';'));
+            $this->assertFileExists($cache);
+
+            $this->assertRefusedBeforeTables(['APP_CONFIG_CACHE' => $relative], 'configuration is cached', $file);
         } finally {
             @unlink($cache);
-            @unlink($base);
         }
+
+        $this->assertFileDoesNotExist($cache);
     }
 
     public function test_a_local_environment_is_refused(): void
